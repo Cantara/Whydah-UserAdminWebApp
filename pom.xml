@@ -38,9 +38,9 @@
     </parent>
 
     <scm>
-        <developerConnection>scm:git:ssh://git@github.com/altran/Whydah-UserAdminWebApp.git</developerConnection>
-        <connection>scm:git:https://github.com/altran/Whydah-UserAdminWebApp.git</connection>
-        <url>https://github.com/altran/Whydah-UserAdminWebApp</url>
+        <developerConnection>scm:git:ssh://git@github.com/cantara/Whydah-UserAdminWebApp.git</developerConnection>
+        <connection>scm:git:https://github.com/cantara/Whydah-UserAdminWebApp.git</connection>
+        <url>https://github.com/cantara/Whydah-UserAdminWebApp</url>
       <tag>HEAD</tag>
   </scm>
 
