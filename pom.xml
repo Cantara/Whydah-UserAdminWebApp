@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.whydah.identity</groupId>
     <artifactId>UserAdminWebApp</artifactId>
-    <version>2.1-SNAPSHOT</version>
+    <version>2.0.31-ALPHA</version>
     <packaging>jar</packaging>
     <name>UserAdminWebApp</name>
     <url>https://wiki.cantara.no/display/iam/UserAdminWebApp</url>
@@ -38,10 +38,10 @@
     </parent>
 
     <scm>
-        <developerConnection>scm:git:ssh://git@github.com/cantara/Whydah-UserAdminWebApp.git</developerConnection>
-        <connection>scm:git:https://github.com/cantara/Whydah-UserAdminWebApp.git</connection>
-        <url>https://github.com/cantara/Whydah-UserAdminWebApp</url>
-      <tag>HEAD</tag>
+        <developerConnection>scm:git:ssh://git@github.com/altran/Whydah-UserAdminWebApp.git</developerConnection>
+        <connection>scm:git:https://github.com/altran/Whydah-UserAdminWebApp.git</connection>
+        <url>https://github.com/altran/Whydah-UserAdminWebApp</url>
+      <tag>UserAdminWebApp-2.0.31-ALPHA</tag>
   </scm>
 
     <properties>
@@ -58,13 +58,6 @@
             <name>Cantara Release Repository</name>
             <url>http://mvnrepo.cantara.no/content/repositories/releases/</url>
         </repository>
-        <!-- Needed for SDK snapshots  -->
-        <repository>
-            <id>cantara-snapshots</id>
-            <name>Cantara Snapshot Repository</name>
-            <url>http://mvnrepo.cantara.no/content/repositories/snapshots/</url>
-        </repository>
-
     </repositories>
 
     <dependencies>
