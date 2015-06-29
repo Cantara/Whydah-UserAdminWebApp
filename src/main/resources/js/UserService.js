@@ -214,7 +214,7 @@ UseradminApp.service('Users', function($http, Messages){
 	};
 
     this.saveRoleForUser = function(role, user) {
-	    console.log('Saving role for user', user, role);
+	    console.log('saveRoleForUser ', user, role);
 	    var that = this;
 	    var roleName = role.applicationRoleName;
 		$http({

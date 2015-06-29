@@ -30,6 +30,8 @@ import java.util.Properties;
 public class UserAdminUasController {
     private static final Logger log = LoggerFactory.getLogger(UserAdminUasController.class);
     private static final String JSON_DATA_KEY = "jsondata";
+    public static final String JSON_KEY = "json";
+    public static final String CONTENTTYPE_JSON_UTF8 = "application/json; charset=utf-8";
     private final String userAdminServiceUrl;
     private final HttpClient httpClient;
     //private String utf8query;
@@ -66,7 +68,7 @@ public class UserAdminUasController {
             url = buildUasUrl(apptokenid, usertokenid, "users/find/" + query);
         }
         makeUasRequest(method, url, model, response);
-        return "json";
+        return JSON_KEY;
     }
 
 
@@ -80,8 +82,8 @@ public class UserAdminUasController {
         String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
         makeUasRequest(method, url, model, response);
         log.trace("getUserIdentity with uid={} returned the following jsondata=\n{}", uid, model.asMap().get(JSON_DATA_KEY));
-        response.setContentType("application/json; charset=utf-8");
-        return "json";
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
     }
 
     //Not currently used. Json fetch useridentity + roles currently.
@@ -99,43 +101,12 @@ public class UserAdminUasController {
     }
     */
 
-    @DELETE
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @RequestMapping(value = "/user/{uid}/", method = RequestMethod.DELETE)
-    public String deleteUser(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, @PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
-        log.trace("Deleting user with uid: " + uid);
-        DeleteMethod method = new DeleteMethod();
-        String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
-        makeUasRequest(method, url, model, response);
-        response.setContentType("application/json; charset=utf-8");
-        return "json";
-    }
-
-    @PUT
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @RequestMapping(value = "/user/{uid}/", method = RequestMethod.PUT)
-    public String putUser(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, @PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
-        log.trace("Putting user with uid: " + uid);
-        PutMethod method = new PutMethod();
-        InputStreamRequestEntity inputStreamRequestEntity = null;
-        try {
-            inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
-        } catch (IOException e) {
-            log.error("", e);
-        }
-        method.setRequestEntity(inputStreamRequestEntity);
-        String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
-        makeUasRequest(method, url, model, response);
-        response.setContentType("application/json; charset=utf-8");
-        return "json";
-    }
-
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @RequestMapping(value = "/user/", method = RequestMethod.POST)
-    public String postUser(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
-                           HttpServletRequest request, HttpServletResponse response, Model model) {
-        log.trace("Posting new user");
+    public String createUserIdentity(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+                                     HttpServletRequest request, HttpServletResponse response, Model model) {
+        log.trace("createUserIdentity was called");
         InputStreamRequestEntity inputStreamRequestEntity = null;
         try {
             inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
@@ -146,9 +117,43 @@ public class UserAdminUasController {
         method.setRequestEntity(inputStreamRequestEntity);
         String url = buildUasUrl(apptokenid, usertokenid, "user/");
         makeUasRequest(method, url, model, response);
-        log.trace("postUser with the following jsondata=\n{}", model.asMap().get(JSON_DATA_KEY));
-        response.setContentType("application/json; charset=utf-8");
-        return "json";
+        log.trace("createUserIdentity with the following jsondata=\n{}", model.asMap().get(JSON_DATA_KEY));
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @RequestMapping(value = "/user/{uid}/", method = RequestMethod.PUT)
+    public String updateUserIdentity(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+                                     @PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
+        log.trace("updateUserIdentity with uid={}", uid);
+        InputStreamRequestEntity inputStreamRequestEntity = null;
+        try {
+            inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
+        } catch (IOException e) {
+            log.error("", e);
+        }
+        PutMethod method = new PutMethod();
+        method.setRequestEntity(inputStreamRequestEntity);
+        String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
+        makeUasRequest(method, url, model, response);
+        log.trace("updateUserIdentity for uid={} with the following jsondata=\n{}", uid, model.asMap().get(JSON_DATA_KEY));
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @RequestMapping(value = "/user/{uid}/", method = RequestMethod.DELETE)
+    public String deleteUser(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+                             @PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
+        log.trace("Deleting user with uid: " + uid);
+        DeleteMethod method = new DeleteMethod();
+        String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
+        makeUasRequest(method, url, model, response);
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
     }
 
 
@@ -164,8 +169,8 @@ public class UserAdminUasController {
         String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid + "/roles");
         makeUasRequest(method, url, model, response);
         log.trace("getUserRoles with uid={} returned the following jsondata=\n{}", uid, model.asMap().get(JSON_DATA_KEY));
-        response.setContentType("application/json; charset=utf-8");
-        return "json";
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
     }
 
     @POST
@@ -185,8 +190,8 @@ public class UserAdminUasController {
         String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid + "/role/");
         makeUasRequest(method, url, model, response);
         log.trace("postUserRole for uid={} with the following jsondata=\n{}", uid, model.asMap().get(JSON_DATA_KEY));
-        response.setContentType("application/json; charset=utf-8");
-        return "json";
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
     }
 
     @DELETE
@@ -197,8 +202,8 @@ public class UserAdminUasController {
         DeleteMethod method = new DeleteMethod();
         String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid + "/role/" + roleId);
         makeUasRequest(method, url, model, response);
-        response.setContentType("application/json; charset=utf-8");
-        return "json";
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
     }
 
     @PUT
@@ -218,8 +223,8 @@ public class UserAdminUasController {
         String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid + "/role/" + roleId);
         makeUasRequest(method, url, model, response);
         log.trace("putUserRole for uid={}, roleId={} with the following jsondata=\n{}", uid, roleId, model.asMap().get(JSON_DATA_KEY));
-        response.setContentType("application/json; charset=utf-8");
-        return "json";
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
     }
 
 
@@ -233,8 +238,8 @@ public class UserAdminUasController {
         PostMethod method = new PostMethod();
         String url = userAdminServiceUrl + "password/" + apptokenid +"/reset/username/" + username;
         makeUasRequest(method, url, model, response);
-        response.setContentType("application/json; charset=utf-8");
-        return "json";
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
     }
 
 
@@ -259,7 +264,7 @@ public class UserAdminUasController {
             log.warn("getApplications - Could not fetch Applications from UIB.", e);
         }
 
-        response.setContentType("application/json; charset=utf-8");
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
         return applicationsJson;
     }
 
@@ -327,7 +332,7 @@ public class UserAdminUasController {
                     responseBody.append(line);
                 }
                 model.addAttribute(JSON_DATA_KEY, responseBody.toString());
-                response.setContentType("application/json; charset=utf-8");
+                response.setContentType(CONTENTTYPE_JSON_UTF8);
             }
             response.setStatus(rescode);
         } catch (IOException e) {
