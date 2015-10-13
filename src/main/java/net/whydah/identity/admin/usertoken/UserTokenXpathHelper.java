@@ -77,7 +77,7 @@ public class UserTokenXpathHelper {
     }
 
     public static boolean hasUserAdminRight(String userTokenXml) {
-        if (userTokenXml == null) {
+        if (userTokenXml == null || userTokenXml.length()<10) {
             log.trace("hasUserAdminRight - Empty  userToken");
             return false;
         }
@@ -92,7 +92,7 @@ public class UserTokenXpathHelper {
             log.trace("hasUserAdminRight - token" + userTokenXml + "\nvalue:" + xPathExpression.evaluate(doc));
             String roleValue = (xPathExpression.evaluate(doc));
             if (roleValue != null) {
-                if (roleValue.equals("false") || roleValue.equals("0") || roleValue.equals("disabled")) {
+                if (roleValue.equals("false") || roleValue.equals("") || roleValue.equals("0") || roleValue.equals("disabled")) {
                     return false;
                 }
             }
