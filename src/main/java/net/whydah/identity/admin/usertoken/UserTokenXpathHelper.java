@@ -1,5 +1,6 @@
 package net.whydah.identity.admin.usertoken;
 
+import net.whydah.sso.user.UserXpathHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -77,6 +78,10 @@ public class UserTokenXpathHelper {
     }
 
     public static boolean hasUserAdminRight(String userTokenXml) {
+        if (true){
+            return !(UserXpathHelper.getRoleValueFromUserToken(userTokenXml, "19", "WhydahUserAdmin")==null);
+
+        }
         if (userTokenXml == null || userTokenXml.length()<10) {
             log.trace("hasUserAdminRight - Empty  userToken");
             return false;
