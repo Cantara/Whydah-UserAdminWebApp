@@ -67,5 +67,49 @@ public class UserAdminRightsTest {
 
     }
 
+    @Test
+    public void testTottoHasNotAdmin(){
+        String tottoToken="<usertoken xmlns:ns2=\"http://www.w3.org/1999/xhtml\" id=\"a90a586d-a757-4a8e-a74c-46b09e625b04\">\n" +
+                "    <uid>c015c712-62af-48b4-91f1-1712893ad791</uid>\n" +
+                "    <username>91905054</username>\n" +
+                "    <timestamp>1444818564786</timestamp>\n" +
+                "    <lifespan>1209600000</lifespan>\n" +
+                "    <lastseen></lastseen>\n" +
+                "    <issuer>http://id.opplysningen.no/tokenservice/user/1f0e3dad99908345f7439f8ffabdffc4/validate_usertokenid/a90a586d-a757-4a8e-a74c-46b09e625b04</issuer>\n" +
+                "    <securitylevel>1</securitylevel>\n" +
+                "    <DEFCON></DEFCON>\n" +
+                "    <firstname>Thor Henning</firstname>\n" +
+                "    <lastname>Hetland</lastname>\n" +
+                "    <email>totto@totto.org</email>\n" +
+                "    <cellphone>91905054</cellphone>\n" +
+                "    <personref></personref>\n" +
+                "\n" +
+                "    <application ID=\"99\">\n" +
+                "        <applicationName>Opplysningen</applicationName>\n" +
+                "        <organizationName>magento.oid.capra.cc</organizationName>\n" +
+                "        <role name=\"oidaddress\" value=\"Karl Johans gate 6, 0154 Oslo\"/>\n" +
+                "    </application>\n" +
+                "    <application ID=\"99\">\n" +
+                "        <applicationName>Opplysningen</applicationName>\n" +
+                "        <organizationName>magento.oid.capra.cc</organizationName>\n" +
+                "        <role name=\"deliveryAddress\" value=\"Møllefaret 30E, 0750 Oslo\"/>\n" +
+                "    </application>\n" +
+                "    <application ID=\"200\">\n" +
+                "        <applicationName>Magento</applicationName>\n" +
+                "        <organizationName>magento.oid.capra.cc</organizationName>\n" +
+                "        <role name=\"username\" value=\"totto@totto.org\"/>\n" +
+                "    </application>\n" +
+                "    <application ID=\"201\">\n" +
+                "        <applicationName>Wordpress</applicationName>\n" +
+                "        <organizationName>wordpress.oid.capra.cc</organizationName>\n" +
+                "        <role name=\"username\" value=\"totto@totto.org\"/>\n" +
+                "    </application>\n" +
+                "\n" +
+                "    <ns2:link type=\"application/xml\" href=\"http://id.opplysningen.no/tokenservice/user/1f0e3dad99908345f7439f8ffabdffc4/validate_usertokenid/a90a586d-a757-4a8e-a74c-46b09e625b04\" rel=\"self\"/>\n" +
+                "    <hash type=\"MD5\">39e6940126a4ca55ec45451c1fccd2bc</hash>\n" +
+                "</usertoken>\n";
+        assertFalse(UserTokenXpathHelper.hasUserAdminRight(tottoToken));
+    }
+
 
 }
