@@ -1,6 +1,5 @@
 package net.whydah.identity.admin.usertoken;
 
-import net.whydah.sso.user.UserXpathHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -79,7 +78,7 @@ public class UserTokenXpathHelper {
 
     public static boolean hasUserAdminRight(String userTokenXml) {
         if (true){
-            return !(UserXpathHelper.getRoleValueFromUserToken(userTokenXml, "19", "WhydahUserAdmin")==null);
+            return !(getRoleValueFromUserToken(userTokenXml, "19", "WhydahUserAdmin")==null);
 
         }
         if (userTokenXml == null || userTokenXml.length()<10) {
@@ -149,4 +148,38 @@ public class UserTokenXpathHelper {
         }
         return null;
     }
+
+
+    public static String getRoleValueFromUserToken(String userTokenXml, String applicationId, String roleName) {
+        String userRole = "";
+        if (userTokenXml == null) {
+            log.debug("userTokenXml was empty, so returning null.");
+            return null;
+        } else {
+            String expression = "count(/usertoken/application[@ID='"+applicationId+"']/role[@name='"+roleName+"'])";
+            userRole = findValue(userTokenXml, expression);
+            if (userRole==null || "0".equalsIgnoreCase(userRole)){
+                return null;
+            }
+            return findValue(userTokenXml,"/usertoken/application[@ID='"+applicationId+"']/role[@name='"+roleName+"']");
+        }
+    }
+
+    public static String findValue(String xmlString,  String expression) {
+        String value = null;
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.parse(new InputSource(new StringReader(xmlString)));
+            XPath xPath = XPathFactory.newInstance().newXPath();
+
+
+            XPathExpression xPathExpression = xPath.compile(expression);
+            value = xPathExpression.evaluate(doc);
+        } catch (Exception e) {
+            log.warn("Failed to parse xml. Expression {}, xml {}, ", expression, xmlString, e);
+        }
+        return value;
+    }
+
 }

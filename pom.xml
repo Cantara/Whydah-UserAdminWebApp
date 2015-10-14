@@ -62,11 +62,6 @@
     </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>net.whydah.sso</groupId>
-            <artifactId>Whydah-Java-SDK</artifactId>
-            <version>${whydah-sdk-version}</version>
-        </dependency>
 
         <dependency>
             <groupId>commons-httpclient</groupId>

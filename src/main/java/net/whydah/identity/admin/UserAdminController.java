@@ -26,7 +26,6 @@ public class UserAdminController {
     private static final String REDIRECT_URI_KEY = "redirectURI";
     private static final int MIN_USERTICKET_LENGTH = 7;
     private static final int MIN_USER_TOKEN_LENGTH = 11;
-    private static final int MIN_USERTOKEN_ID_LENGTH = 4;
     private static final String HTML_CONTENT_TYPE = "text/html; charset=utf-8";
     private static String userTokenId = null;
 
@@ -37,7 +36,7 @@ public class UserAdminController {
     private final String LOGIN_SERVICE_REDIRECT;
     private final String LOGOUT_SERVICE;
     private final String LOGOUT_SERVICE_REDIRECT;
-    private final HttpClient httpClient;
+    private HttpClient httpClient;
     private final boolean STANDALONE;
     Properties properties = AppConfig.readProperties();
 

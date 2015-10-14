@@ -1,6 +1,6 @@
 package net.whydah.identity.admin.usertoken;
 
-import net.whydah.sso.user.UserHelper;
+import net.whydah.identity.admin.UserAdminController;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +30,6 @@ public class UserAdminRightsTest {
         String testUserTokenWithoutRightRole = "";
         assertFalse(UserTokenXpathHelper.hasUserAdminRight(testUserTokenWithoutRightRole));
 
-        testUserTokenWithoutRightRole = UserHelper.getDummyUserToken();
-        assertFalse(UserTokenXpathHelper.hasUserAdminRight(testUserTokenWithoutRightRole));
 
         String testUserTokenWithRightRole = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                 "<usertoken xmlns:ns2=\"http://www.w3.org/1999/xhtml\" id=\"a96a517f-cef3-4be7-92f5-f059b65e4071\">\n" +

@@ -1,6 +1,5 @@
 package net.whydah.identity.admin.usertoken;
 
-import net.whydah.sso.user.UserXpathHelper;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -27,7 +26,7 @@ public class UserTokenXpathHelperTest {
     public void testHasUserAdminRightDeniedWrongRoles() {
         String[] noAccessRoleValues = new String[]{"User", "Admin", "Manager"};
         for (String noAccessRoleValue : noAccessRoleValues) {
-            assertFalse(noAccessRoleValue + " was expected to result in access denied.", UserXpathHelper.getRoleValueFromUserToken(getUserToken(noAccessRoleValue),"19","WhydahUserAdmin")==null);
+            assertFalse(noAccessRoleValue + " was expected to result in access denied.", UserTokenXpathHelper.getRoleValueFromUserToken(getUserToken(noAccessRoleValue), "19", "WhydahUserAdmin") ==null);
         }
     }
 
