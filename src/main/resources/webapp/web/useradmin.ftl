@@ -6,7 +6,6 @@
         <link rel="icon" type="image/png" href="" />
         <title>Whydah Useradmin</title>
         <!--<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">-->
-        <#--<script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.14.3.js"></script>-->
         <link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/yeti/bootstrap.min.css" rel="stylesheet">
         <link href="css/main.css" rel="stylesheet">
         <link href="css/autocomplete.css" rel="stylesheet">
