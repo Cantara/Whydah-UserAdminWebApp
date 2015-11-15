@@ -1,8 +1,17 @@
 /**
  * Created by baardl on 15.11.15.
  */
-UseradminApp.controller('ApplicationdetailCtrl', function ($scope, $uibModalInstance, application, items) {
+UseradminApp.controller('ApplicationdetailCtrl', function ($scope, application, items) {
 
+    $scope.applicationProperties = [
+        {value: 'id',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+        {value: 'name',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+        {value: 'defaultOrganizationName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+        {value: 'defaultRoleName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+        {value: 'applicationUrl',     minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+        {value: 'description',    required: false, type: 'text'},
+        {value: 'logoUrl',    required: false, type: 'text'}
+    ];
     $scope.application = application;
     $scope.items = ['item1', 'item2', 'item3'];
     $scope.selected = {
@@ -10,10 +19,10 @@ UseradminApp.controller('ApplicationdetailCtrl', function ($scope, $uibModalInst
     };
 
     $scope.ok = function () {
-        $uibModalInstance.close($scope.selected.item);
+        //$uibModalInstance.close($scope.selected.item);
     };
 
     $scope.cancel = function () {
-        $uibModalInstance.dismiss('cancel');
+        //$uibModalInstance.dismiss('cancel');
     };
 });
