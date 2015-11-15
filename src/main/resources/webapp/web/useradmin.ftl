@@ -6,6 +6,7 @@
         <link rel="icon" type="image/png" href="" />
         <title>Whydah Useradmin</title>
         <!--<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">-->
+        <#--<script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.14.3.js"></script>-->
         <link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/yeti/bootstrap.min.css" rel="stylesheet">
         <link href="css/main.css" rel="stylesheet">
         <link href="css/autocomplete.css" rel="stylesheet">
@@ -78,15 +79,18 @@
         <!-- Framework and tools -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular-route.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular-animate.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-animate.min.js"></script>
+
 
         <!-- Libs -->
         <script src="js/lib/bindHtml.js"></script>
         <script src="js/lib/position.js"></script>
         <script src="js/lib/tooltip.js"></script>
         <script src="js/lib/autocomplete.js"></script>
+        <#--<script src="js/lib/ui-bootstrap-modal-tpls-0.14.3.js"></script>-->
+        <#--<script src="js/lib/ui-bootstrap-modal-0.14.3.js"></script>-->
         <script src="js/auth.js"></script>
 
         <!-- Main application -->
@@ -99,6 +103,7 @@
         <script src="js/UserCtrl.js"></script>
         <script src="js/UserdetailCtrl.js"></script>
         <script src="js/ApplicationCtrl.js"></script>
+        <script src="js/ApplicationdetailCtrl.js"></script>
         <script src="js/RoleCtrl.js"></script>
 
         <!-- Directives -->

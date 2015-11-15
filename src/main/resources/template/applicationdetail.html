@@ -1,0 +1,72 @@
+<div class="modal-header">
+  <h3 class="modal-title">I'm a modal!</h3>
+</div>
+<div class="modal-body">
+  <ul>
+    <li ng-repeat="item in items">
+      <a href="#" ng-click="$event.preventDefault(); selected.item = item">{{ item }}</a>
+    </li>
+  </ul>
+  Selected: <b>{{ selected.item }}</b>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+  <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+</div>
+
+<!--Welcome   <h1>{{application.name}}</h1>-->
+<!---->
+ <!--<div class="modal-header">-->
+   <!--<h3 class="modal-title">I'm a modal!{{application.name}}</h3>-->
+ <!--</div>-->
+ <!--<div class="modal-body">-->
+   <!--<ul>-->
+     <!--<li ng-repeat="property in editableUserProperties">-->
+       <!--<a href="#" ng-click="$event.preventDefault(); selected.item = item">{{ item }}</a>-->
+     <!--</li>-->
+   <!--</ul>-->
+   <!--Selected: <b>{{ selected.item }}</b>-->
+ <!--</div>-->
+ <!--<div class="modal-footer">-->
+   <!--<button class="btn btn-primary" type="button" ng-click="ok()">OK</button>-->
+   <!--<button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>-->
+ <!--</div>-->
+<!---->
+<!--<div class="form-horizontal">-->
+	<!--<div class="form-group" ng-repeat="property in editableUserProperties">-->
+		<!--<label for="{{property}}" class="col-sm-2 control-label">{{dict[lang][property]}}</label>-->
+		<!--<div class="col-sm-10"><input type="text" class="form-control" id="{{property}}" ng-model="application[property]"></div>-->
+	<!--</div>-->
+<!--</div>-->
+<!---->
+<!---->
+<!--<div class="panel panel-default margin-top">-->
+<!---->
+  <!--<table class="table">-->
+    <!--<thead>-->
+      <!--<tr>-->
+        <!--<th></th>-->
+        <!--<th ng-repeat="prop in editableRoleProperties">{{dict[lang][prop]}}</th>-->
+        <!--<th></th>-->
+      <!--</tr>-->
+    <!--</thead>-->
+    <!--<tbody>-->
+      <!--<tr ng-repeat="role in application.propsAndRoles" class="itemrow">-->
+        <!--<td><input type="checkbox" ng-model="role.checked"></td>-->
+        <!--<td ng-repeat="prop in editableRoleProperties"><input type="text" class="form-control" ng-model="role[prop]" ng-show="role.editing"><span ng-show="!role.editing">{{role[prop]}}</span></td>-->
+        <!--<td>-->
+        	<!--<button ng-click="role.editing=true" ng-show="!role.editing">-->
+        		<!--<span class="glyphicon glyphicon-pencil"></span>&nbsp;Edit-->
+        	<!--</button>-->
+        	<!--<button ng-click="role.editing=false" ng-show="role.editing">-->
+        		<!--<span class="glyphicon glyphicon-ok"></span>&nbsp;Done-->
+        	<!--</button>-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr ng-if="!users.length && searchQuery">-->
+        <!--<td colspan="4">No results for search "{{searchQuery}}".</td>-->
+      <!--</tr>-->
+    <!--</tbody>-->
+  <!--</table>-->
+<!---->
+<!--</div>-->

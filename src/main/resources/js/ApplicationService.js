@@ -52,4 +52,20 @@ UseradminApp.service('Applications', function($http){
 		return this;
 	};
 
+    this.get = function(id, callback) {
+        console.log('Getting Application with id=', id);
+        var that = this;
+        $http({
+            method: 'GET',
+            url: baseUrl+'application/'+id+'/'
+        }).success(function (data) {
+            console.log('Got applicaton', data);
+            that.application = data;
+            if(callback) {
+                callback(data);
+            }
+        });
+        return this;
+    };
+
 });

@@ -242,6 +242,36 @@ public class UserAdminUasController {
         return JSON_KEY;
     }
 
+    // APPLICATION
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @RequestMapping(value = "application/{applicationId}", method = RequestMethod.GET)
+    @ResponseBody
+    public String getApplication(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+                                 @PathVariable("applicationId") String applicationId, HttpServletRequest request,
+                                 HttpServletResponse response, Model model) {
+        log.trace("getApplication - entry.  applicationtokenid={},  usertokenid={}, applicationId={}", apptokenid, usertokenid, applicationId);
+        usertokenid = findValidUserTokenId(usertokenid, request);
+
+        String resourcePath = "application/"+applicationId;
+        String applicationJson = "{no-app-found}";
+        try {
+            applicationJson = makeUasRequest(apptokenid, usertokenid, model, resourcePath);
+        } catch (Exception e) {
+            log.warn("getApplication - Could not fetch Applications from UIB.", e);
+        }
+
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return applicationJson;
+    }
+
+    protected String findValidUserTokenId(@PathVariable("usertokenid") String usertokenid, HttpServletRequest request) {
+        if (usertokenid == null || usertokenid.length() < 7) {
+            usertokenid = CookieManager.getUserTokenIdFromCookie(request);
+            log.trace("getApplications - Override usertokenid={}", usertokenid);
+        }
+        return usertokenid;
+    }
 
     // APPLICATIONS
 
@@ -251,10 +281,7 @@ public class UserAdminUasController {
     @ResponseBody
     public String getApplications(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model) {
         log.trace("getApplications - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
-        if (usertokenid == null || usertokenid.length() < 7) {
-            usertokenid = CookieManager.getUserTokenIdFromCookie(request);
-            log.trace("getApplications - Override usertokenid={}", usertokenid);
-        }
+        usertokenid = findValidUserTokenId(usertokenid, request);
 
         String resourcePath = "applications";
         String applicationsJson = "{no-apps-found}";
