@@ -35,8 +35,11 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $routeParams,
         $('#applicationdetail').modal('show');
     });
   }
+
+
   $scope.newApplicationDetail = function() {
     Applications.application = {isNew: true};
+    $scope.application = {isNew: true};
     //Users.userRoles = {};
     //$scope.form.applicationDetail.$setPristine();
     $('#applicationdetail').modal('show');
@@ -54,6 +57,52 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $routeParams,
       }
     });
     */
+  }
+
+  // -- Should be in ApplicationdetailCtrl ---
+  $scope.applicationProperties = [
+    {value: 'id',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+    {value: 'name',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+    {value: 'defaultOrganizationName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+    {value: 'defaultRoleName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+    {value: 'applicationUrl',     minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+    {value: 'description',    required: false, type: 'text'},
+    {value: 'logoUrl',    required: false, type: 'url'},
+    {value: 'secret',     minLength: 12, maxLength: 254, required: true, type: 'text', validationMsg:'Must be between 12-254 characters long. No spaces allowed.'},
+
+
+  ];
+  $scope.dict = {
+    en: {
+      name: 'Application Name',
+      id: 'Application Id',
+      defaultOrganizationName: 'Default Organization Name',
+      defaultRoleName: 'Default Role Name',
+      applicationUrl: 'URL to Application',
+      description: 'Description of Application',
+      logoUrl: 'URL to Application Logo',
+      secret: 'Initial Application Secret',
+    }
+  }
+
+  $scope.save = function() {
+    // Make sure these $scope-values are properly connected to the view
+    if($scope.form.applicationDetail.$valid){
+      if(Applications.application.isNew) {
+        var newApplication = angular.copy(Applications.application);
+        delete newApplication.isNew;
+        Applications.add(newApplication, function(){
+          delete Applications.application.isNew;
+          $scope.form.applicationDetail.$setPristine();
+        });
+      } else {
+       Applications.save(Applications.application, function(){
+          $scope.form.applicationDetail.$setPristine();
+        });
+      }
+    } else {
+      console.log('Tried to save an invalid form.');
+    }
   }
 
 });

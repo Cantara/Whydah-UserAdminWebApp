@@ -258,7 +258,7 @@ public class UserAdminUasController {
         try {
             applicationJson = makeUasRequest(apptokenid, usertokenid, model, resourcePath);
         } catch (Exception e) {
-            log.warn("getApplication - Could not fetch Applications from UIB.", e);
+            log.warn("getApplication - Could not fetch Applications from UAS.", e);
         }
 
         response.setContentType(CONTENTTYPE_JSON_UTF8);
@@ -271,6 +271,27 @@ public class UserAdminUasController {
             log.trace("getApplications - Override usertokenid={}", usertokenid);
         }
         return usertokenid;
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @RequestMapping(value = "/application/", method = RequestMethod.POST)
+    public String createApplicationSpecification(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+                                     HttpServletRequest request, HttpServletResponse response, Model model) {
+        log.trace("createApplicationSpecification was called");
+        InputStreamRequestEntity inputStreamRequestEntity = null;
+        try {
+            inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
+        } catch (IOException e) {
+            log.error("", e);
+        }
+        PostMethod method = new PostMethod();
+        method.setRequestEntity(inputStreamRequestEntity);
+        String url = buildUasUrl(apptokenid, usertokenid, "application/");
+        makeUasRequest(method, url, model, response);
+        log.trace("createApplicationSpecification with the following jsondata=\n{}", model.asMap().get(JSON_DATA_KEY));
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
     }
 
     // APPLICATIONS
@@ -288,13 +309,12 @@ public class UserAdminUasController {
         try {
             applicationsJson = makeUasRequest(apptokenid, usertokenid, model, resourcePath);
         } catch (Exception e) {
-            log.warn("getApplications - Could not fetch Applications from UIB.", e);
+            log.warn("getApplications - Could not fetch Applications from UAS.", e);
         }
 
         response.setContentType(CONTENTTYPE_JSON_UTF8);
         return applicationsJson;
     }
-
 
     private String buildUasUrl(String apptokenid, String usertokenid, String s) {
         return userAdminServiceUrl + apptokenid + "/" + usertokenid + "/" + s;

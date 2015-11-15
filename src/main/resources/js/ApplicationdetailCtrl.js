@@ -1,7 +1,4 @@
-/**
- * Created by baardl on 15.11.15.
- */
-UseradminApp.controller('ApplicationdetailCtrl', function ($scope, application, items) {
+UseradminApp.controller('ApplicationdetailCtrl', function ($scope,Applications, application, items) {
 
     $scope.applicationProperties = [
         {value: 'id',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
@@ -12,7 +9,7 @@ UseradminApp.controller('ApplicationdetailCtrl', function ($scope, application, 
         {value: 'description',    required: false, type: 'text'},
         {value: 'logoUrl',    required: false, type: 'text'}
     ];
-    $scope.application = application;
+    $scope.application = applications.application;
     $scope.items = ['item1', 'item2', 'item3'];
     $scope.selected = {
         item: $scope.items[0]
