@@ -17,24 +17,69 @@ Installation
 * run start_service.sh
 * ..or create the files from info below:
 
+*update_service.sh*
 ```
-#!/bin/sh
-
-#export IAM_MODE=DEV
-export IAM_MODE=TEST
-#export IAM_MODE=PROD
+#!/bin/bash
 
 A=UserAdminWebApp
-V=LATEST
-JARFILE=$A-$V.jar
+V=SNAPSHOT
 
-pkill -f $A
 
-wget --user=altran --password=l1nkSys -O $JARFILE "http://mvnrepo.cantara.no/service/local/artifact/maven/content?r=snapshots&g=net.whydah.sso.service&a=$A&v=$V&p=jar"
-nohup java -jar -DIAM_CONFIG=useradminwebapp.TEST.properties $JARFILE &
+if [[ $V == *SNAPSHOT* ]]; then
+   echo Note: If the artifact version contains "SNAPSHOT" - the artifact latest greates snapshot is downloaded, Irrelevent of version number!!!
+   path="http://mvnrepo.cantara.no/content/repositories/snapshots/net/whydah/identity/$A"
+   version=`curl -s "$path/maven-metadata.xml" | grep "<version>" | sed "s/.*<version>\([^<]*\)<\/version>.*/\1/" | tail -n 1`
+   echo "Version $version"
+   build=`curl -s "$path/$version/maven-metadata.xml" | grep '<value>' | head -1 | sed "s/.*<value>\([^<]*\)<\/value>.*/\1/"`
+   JARFILE="$A-$build.jar"
+   url="$path/$version/$JARFILE"
+else #A specific Release version
+   path="http://mvnrepo.cantara.no/content/repositories/releases/net/whydah/identity/$A"
+   url=$path/$V/$A-$V.jar
+   JARFILE=$A-$V.jar
+fi
 
-tail -f nohup.out
+# Download
+echo Downloading $url
+wget -O $JARFILE -q -N $url
+
+
+#Create symlink or replace existing sym link
+if [ -h $A.jar ]; then
+   unlink $A.jar
+fi
+ln -s $JARFILE $A.jar
 ```
+
+
+*start_service.sh*
+```
+#!/bin/bash
+
+
+#  If IAM_MODE not set, use PROD
+if [ -z "$IAM_MODE" ]; then
+  IAM_MODE=PROD
+fi
+
+
+# If Version is from source, find the artifact
+if [ "$Version" = "FROM_SOURCE" ]; then
+    # Find the bult artifact
+    Version=$(find target/* -name '*.jar' | grep SNAPSHOT | grep -v original | grep -v lib)
+else
+    Version=UserAdminWebApp.jar
+fi
+
+# If IAM_CONFIG not set, use embedded
+if [ -z "$IAM_CONFIG" ]; then
+  nohup /usr/bin/java -DIAM_MODE=$IAM_MODE  -jar  $Version &
+else
+  nohup /usr/bin/java -DIAM_MODE=$IAM_MODE  -DIAM_CONFIG=$IAM_CONFIG -jar  $Version &
+fi
+
+```
+
 
 * create useradminwebapp.TEST.properties
 
