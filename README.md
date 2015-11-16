@@ -6,7 +6,7 @@ Requires UserAdminService, and if authorization is turned on; SSOLoginService an
 In order to use the Administration UI the User requires a UserAdmin-role defined in UserIdentityBackend.
 
 
-![Architectural Overview](https://raw2.github.com/altran/Whydah-SSOLoginWebApp/master/Whydah%20infrastructure.png)
+![Architectural Overview](https://wiki.cantara.no/download/attachments/37388694/Whydah+infrastructure.png)
 
 Installation
 ============
