@@ -47,6 +47,7 @@
     <properties>
         <service.name>Whydah-UserAdminWebapp</service.name>
         <whydah-sdk-version>2.1.5-SNAPSHOT</whydah-sdk-version>
+        <whydah-typelib-version>0.6-SNAPSHOT</whydah-typelib-version>
         <jersey.version>1.14</jersey.version>
         <spring.version>3.0.7.RELEASE</spring.version>
         <jetty.version>7.3.0.v20110203</jetty.version>
@@ -59,9 +60,20 @@
             <name>Cantara Release Repository</name>
             <url>http://mvnrepo.cantara.no/content/repositories/releases/</url>
         </repository>
+        <repository>
+            <id>cantara-snapshots</id>
+            <name>Cantara Snapshot Repository</name>
+            <url>http://mvnrepo.cantara.no/content/repositories/snapshots/</url>
+        </repository>
+
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>net.whydah.sso</groupId>
+            <artifactId>Whydah-TypeLib</artifactId>
+            <version>${whydah-typelib-version}</version>
+        </dependency>
 
         <dependency>
             <groupId>commons-httpclient</groupId>
