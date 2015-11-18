@@ -29,7 +29,6 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $routeParams,
 
   $scope.activateApplicationDetail = function(id) {
     console.log('Activating application detail...', id);
-    id = 100;
     Applications.get(id, function(){
         //$scope.form.userDetail.$setPristine();
         $('#applicationdetail').modal('show');

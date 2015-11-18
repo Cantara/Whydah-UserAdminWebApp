@@ -26,11 +26,10 @@
         <tbody>
           <tr ng-repeat="app in applications.list | orderBy:orderByColumn:orderReverse" class="itemrow">
             <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
-            <td ng-click="activateApplicationDetail(application.id)" id="rowid_{{app.id}}">{{app.id}}</td>
-            <td ng-click="activateApplicationDetail(application.id)">{{app.id}}</td>
-            <td ng-click="activateApplicationDetail(application.id)">{{app.name}}</td>
-            <td ng-click="activateApplicationDetail(application.id)"><span class="small" ng-repeat="org in app.availableOrgNames track by $index">{{org}}; </span></td>
-            <td ng-click="activateApplicationDetail(application.id)"><span class="small" ng-repeat="role in app.availableRoleNames track by $index">{{role}}; </span></td>
+            <td ng-click="activateApplicationDetail(app.id)" id="rowid_{{app.id}}">{{app.id}}</td>
+            <td ng-click="activateApplicationDetail(app.id)">{{app.name}}</td>
+            <td ng-click="activateApplicationDetail(app.id)"><span class="small" ng-repeat="org in app.availableOrgNames track by $index">{{org}}; </span></td>
+            <td ng-click="activateApplicationDetail(app.id)"><span class="small" ng-repeat="role in app.availableRoleNames track by $index">{{role}}; </span></td>
           </tr>
           <tr ng-if="!applications.list.length && searchQuery">
             <td colspan="4">No results for search "{{searchQuery}}".</td>
