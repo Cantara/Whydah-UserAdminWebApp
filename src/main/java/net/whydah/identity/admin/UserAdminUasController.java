@@ -35,7 +35,6 @@ public class UserAdminUasController {
     public static final String CONTENTTYPE_JSON_UTF8 = "application/json; charset=utf-8";
     private final String userAdminServiceUrl;
     private final HttpClient httpClient;
-    //private String utf8query;
 
 
     public UserAdminUasController() throws IOException {
@@ -254,16 +253,13 @@ public class UserAdminUasController {
         log.trace("getApplication - entry.  applicationtokenid={},  usertokenid={}, applicationId={}", apptokenid, usertokenid, applicationId);
         usertokenid = findValidUserTokenId(usertokenid, request);
 
-        String resourcePath = "application/"+applicationId;
-        String applicationJson = "{no-app-found}";
-        try {
-            applicationJson = makeUasRequest(apptokenid, usertokenid, model, resourcePath);
-        } catch (Exception e) {
-            log.warn("getApplication - Could not fetch Applications from UAS.", e);
-        }
+//        String resourcePath = "application/"+applicationId;
+        String url = buildUasUrl(apptokenid, usertokenid, "application/"+applicationId);
+        GetMethod method = new GetMethod();
+        makeUasRequest(method, url, model, response);
 
         response.setContentType(CONTENTTYPE_JSON_UTF8);
-        return applicationJson;
+        return JSON_KEY;
     }
 
     protected String findValidUserTokenId(@PathVariable("usertokenid") String usertokenid, HttpServletRequest request) {
@@ -305,14 +301,6 @@ public class UserAdminUasController {
         log.trace("getApplications - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
         usertokenid = findValidUserTokenId(usertokenid, request);
 
-        String resourcePath = "applications";
-        String applicationsJson = "{no-apps-found}";
-        try {
-            applicationsJson = makeUasRequest(apptokenid, usertokenid, model, resourcePath);
-// should be            applicationsJson = new CommandListApplications(UriBuilder.fromUri(userAdminServiceUrl).build(), apptokenid, usertokenid, "").execute();
-        } catch (Exception e) {
-            log.warn("getApplications - Could not fetch Applications from UAS.", e);
-        }
         String url = buildUasUrl(apptokenid, usertokenid, "applications");
         GetMethod method = new GetMethod();
         makeUasRequest(method, url, model, response);
@@ -320,52 +308,13 @@ public class UserAdminUasController {
 
 
         response.setContentType(CONTENTTYPE_JSON_UTF8);
-        return applicationsJson;
+        return JSON_KEY;
     }
 
     private String buildUasUrl(String apptokenid, String usertokenid, String s) {
         return userAdminServiceUrl + apptokenid + "/" + usertokenid + "/" + s;
     }
 
-    protected String makeUasRequest(String apptokenid, String usertokenid, Model model, String resourcePath) {
-        String url = buildUasUrl(apptokenid, usertokenid, resourcePath);
-        HttpMethodParams params = new HttpMethodParams();
-        params.setHttpElementCharset("UTF-8");
-        params.setContentCharset("UTF-8");
-        HttpMethod method = new GetMethod();
-        method.setParams(params);
-        StringBuilder responseBody = new StringBuilder();
-        try {
-            method.setURI(new URI(url, true));
-            int rescode = httpClient.executeMethod(method);
-            // TODO: check rescode?
-            if (rescode == 204) { // Delete
-                // Do something
-            } else {
-                InputStream responseBodyStream = method.getResponseBodyAsStream();
-                BufferedReader in = new BufferedReader(new InputStreamReader(responseBodyStream));
-
-                String line;
-                while ((line = in.readLine()) != null) {
-                    responseBody.append(line);
-                }
-                model.addAttribute(JSON_DATA_KEY, responseBody.toString());
-
-
-            }
-        } catch (Exception e) {
-            log.info("Could not find applcations data. Url: " + url + " Response: " + responseBody, e);
-            throw new RuntimeException(e);
-        } finally {
-            method.releaseConnection();
-        }
-
-        return responseBody.toString();
-    }
-
-    /*
-    @Deprecated Use makeUasRequest(String apptokenid, String usertokenid, String resourcePath)
-     */
     private void makeUasRequest(HttpMethod method, String url, Model model, HttpServletResponse response) {
         HttpMethodParams params = new HttpMethodParams();
         params.setHttpElementCharset("UTF-8");
