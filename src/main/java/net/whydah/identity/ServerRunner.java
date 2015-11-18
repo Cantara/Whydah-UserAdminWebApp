@@ -7,6 +7,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import javax.ws.rs.ext.RuntimeDelegate;
 import java.util.Properties;
 
 public class ServerRunner {
@@ -20,6 +21,9 @@ public class ServerRunner {
 			SSLTool.disableCertificateValidation();
 
 		}
+
+		RuntimeDelegate.setInstance(new
+				com.sun.jersey.server.impl.provider.RuntimeDelegateImpl());
 
 		Server server = new Server(PORT_NO);
 		ServletContextHandler context = new ServletContextHandler(server, "/useradmin");
