@@ -1,28 +1,338 @@
-{
-    "applications": [
-        {
-            "appId": "1",
-            "applicationName": "UserAdmin",
-            "userCount": 32,
-            "roleCount": 3
+[
+    {
+        "id":"00b539d6-6251-4719-b46d-fe477f436345",
+        "name":"ACS",
+        "description":null,
+        "applicationUrl":null,
+        "logoUrl":null,
+        "roles":[
+
+        ],
+        "defaultRoleName":"Employee",
+        "defaultOrganizationName":"ACSOrganization",
+        "security":{
+            "minSecurityLevel":"0",
+            "minDEFCON":"DEFCON5",
+            "maxSessionTimoutSeconds":"86400",
+            "allowedIpAddresses":[
+                "0.0.0.0/0"
+            ],
+            "userTokenFilter":"true",
+            "secret":"45fhRM6nbKZ2wfC6RMmMuzXpk"
         },
-        {
-            "appId": "2",
-            "applicationName": "Mobilefirst",
-            "userCount": 5,
-            "roleCount": 4
+        "acl":[
+
+        ],
+        "organizationNames":[
+
+        ]
+    },
+    {
+        "id":"0cb13938-764b-476d-a431-30f2e3bf4f92",
+        "name":"ACS",
+        "description":null,
+        "applicationUrl":null,
+        "logoUrl":null,
+        "roles":[
+
+        ],
+        "defaultRoleName":"Employee",
+        "defaultOrganizationName":"ACSOrganization",
+        "security":{
+            "minSecurityLevel":"0",
+            "minDEFCON":"DEFCON5",
+            "maxSessionTimoutSeconds":"86400",
+            "allowedIpAddresses":[
+                "0.0.0.0/0"
+            ],
+            "userTokenFilter":"true",
+            "secret":"45fhRM6nbKZ2wfC6RMmMuzXpk"
         },
-        {
-            "appId": "3",
-            "applicationName": "Whydah",
-            "userCount": 13,
-            "roleCount": 1
+        "acl":[
+
+        ],
+        "organizationNames":[
+
+        ]
+    },
+    {
+        "id":"100",
+        "name":"ACS",
+        "description":null,
+        "applicationUrl":null,
+        "logoUrl":null,
+        "roles":[
+
+        ],
+        "defaultRoleName":"Employee",
+        "defaultOrganizationName":"acsorg",
+        "security":{
+            "minSecurityLevel":"0",
+            "minDEFCON":"DEFCON5",
+            "maxSessionTimoutSeconds":"86400",
+            "allowedIpAddresses":[
+                "0.0.0.0/0"
+            ],
+            "userTokenFilter":"true",
+            "secret":"gys4d2XWpCzU7e687erSAJWv6mRfhyUpNCxLvAB2eM5nrq395tmLVTbmHedpgk4"
         },
-        {
-            "appId": "4",
-            "applicationName": "ACS",
-            "userCount": 332,
-            "roleCount": 3
-        }
-    ]
-}
+        "acl":[
+
+        ],
+        "organizationNames":[
+
+        ]
+    },
+    {
+        "id":"11",
+        "name":"SecurityTokenService",
+        "description":null,
+        "applicationUrl":null,
+        "logoUrl":null,
+        "roles":[
+
+        ],
+        "defaultRoleName":"SSOApplication",
+        "defaultOrganizationName":"Whydah",
+        "security":{
+            "minSecurityLevel":"0",
+            "minDEFCON":"DEFCON5",
+            "maxSessionTimoutSeconds":"86400",
+            "allowedIpAddresses":[
+                "0.0.0.0/0"
+            ],
+            "userTokenFilter":"true",
+            "secret":"NmHsQDCerVWx5d6aCjug9fyPE"
+        },
+        "acl":[
+
+        ],
+        "organizationNames":[
+
+        ]
+    },
+    {
+        "id":"12",
+        "name":"UserAdminService",
+        "description":null,
+        "applicationUrl":null,
+        "logoUrl":null,
+        "roles":[
+
+        ],
+        "defaultRoleName":"WhydahUserAdmin",
+        "defaultOrganizationName":"Whydah",
+        "security":{
+            "minSecurityLevel":"0",
+            "minDEFCON":"DEFCON5",
+            "maxSessionTimoutSeconds":"86400",
+            "allowedIpAddresses":[
+                "0.0.0.0/0"
+            ],
+            "userTokenFilter":"true",
+            "secret":"YHn6qRdXynPRzZ722gSnpfLw2"
+        },
+        "acl":[
+
+        ],
+        "organizationNames":[
+
+        ]
+    },
+    {
+        "id":"15",
+        "name":"SSOLoginWebApplication",
+        "description":null,
+        "applicationUrl":null,
+        "logoUrl":null,
+        "roles":[
+
+        ],
+        "defaultRoleName":"SSOApplication",
+        "defaultOrganizationName":"Whydah",
+        "security":{
+            "minSecurityLevel":"0",
+            "minDEFCON":"DEFCON5",
+            "maxSessionTimoutSeconds":"86400",
+            "allowedIpAddresses":[
+                "0.0.0.0/0"
+            ],
+            "userTokenFilter":"true",
+            "secret":"HK8fGpWmK66ckWaEVn3tF9fRK"
+        },
+        "acl":[
+
+        ],
+        "organizationNames":[
+
+        ]
+    },
+    {
+        "id":"19",
+        "name":"UserAdminWebApp",
+        "description":null,
+        "applicationUrl":null,
+        "logoUrl":null,
+        "roles":[
+
+        ],
+        "defaultRoleName":"WhydahUserAdmin",
+        "defaultOrganizationName":"Whydah",
+        "security":{
+            "minSecurityLevel":"0",
+            "minDEFCON":"DEFCON5",
+            "maxSessionTimoutSeconds":"86400",
+            "allowedIpAddresses":[
+                "0.0.0.0/0"
+            ],
+            "userTokenFilter":"true",
+            "secret":"83JXeWzennTe4vurVzUhpHwkt"
+        },
+        "acl":[
+
+        ],
+        "organizationNames":[
+
+        ]
+    },
+    {
+        "id":"38bd4998-405f-4501-9258-0a663e90c2fe",
+        "name":"ACS",
+        "description":null,
+        "applicationUrl":null,
+        "logoUrl":null,
+        "roles":[
+
+        ],
+        "defaultRoleName":"Employee",
+        "defaultOrganizationName":"ACSOrganization",
+        "security":{
+            "minSecurityLevel":"0",
+            "minDEFCON":"DEFCON5",
+            "maxSessionTimoutSeconds":"86400",
+            "allowedIpAddresses":[
+                "0.0.0.0/0"
+            ],
+            "userTokenFilter":"true",
+            "secret":"45fhRM6nbKZ2wfC6RMmMuzXpk"
+        },
+        "acl":[
+
+        ],
+        "organizationNames":[
+
+        ]
+    },
+    {
+        "id":"99",
+        "name":"WhydahTestWebApplication",
+        "description":null,
+        "applicationUrl":null,
+        "logoUrl":null,
+        "roles":[
+
+        ],
+        "defaultRoleName":"SSOApplication",
+        "defaultOrganizationName":"Whydah",
+        "security":{
+            "minSecurityLevel":"0",
+            "minDEFCON":"DEFCON5",
+            "maxSessionTimoutSeconds":"86400",
+            "allowedIpAddresses":[
+                "0.0.0.0/0"
+            ],
+            "userTokenFilter":"true",
+            "secret":"vQRbrLuYWmjwUx77PR96ht3wQ"
+        },
+        "acl":[
+
+        ],
+        "organizationNames":[
+
+        ]
+    },
+    {
+        "id":"c7fdbdee-593e-4fe2-bc09-0f513fca8e5b",
+        "name":"ACS",
+        "description":null,
+        "applicationUrl":null,
+        "logoUrl":null,
+        "roles":[
+
+        ],
+        "defaultRoleName":"Employee",
+        "defaultOrganizationName":"ACSOrganization",
+        "security":{
+            "minSecurityLevel":"0",
+            "minDEFCON":"DEFCON5",
+            "maxSessionTimoutSeconds":"86400",
+            "allowedIpAddresses":[
+                "0.0.0.0/0"
+            ],
+            "userTokenFilter":"true",
+            "secret":"45fhRM6nbKZ2wfC6RMmMuzXpk"
+        },
+        "acl":[
+
+        ],
+        "organizationNames":[
+
+        ]
+    },
+    {
+        "id":"f73664aa-f430-4c02-937b-c07f45b3206b",
+        "name":"ACS",
+        "description":null,
+        "applicationUrl":null,
+        "logoUrl":null,
+        "roles":[
+
+        ],
+        "defaultRoleName":"Employee",
+        "defaultOrganizationName":"ACSOrganization",
+        "security":{
+            "minSecurityLevel":"0",
+            "minDEFCON":"DEFCON5",
+            "maxSessionTimoutSeconds":"86400",
+            "allowedIpAddresses":[
+                "0.0.0.0/0"
+            ],
+            "userTokenFilter":"true",
+            "secret":"45fhRM6nbKZ2wfC6RMmMuzXpk"
+        },
+        "acl":[
+
+        ],
+        "organizationNames":[
+
+        ]
+    },
+    {
+        "id":"fee7fec8-1e64-4532-b97c-fe4cd9a3bb5d",
+        "name":"ACS",
+        "description":null,
+        "applicationUrl":null,
+        "logoUrl":null,
+        "roles":[
+
+        ],
+        "defaultRoleName":"Employee",
+        "defaultOrganizationName":"ACSOrganization",
+        "security":{
+            "minSecurityLevel":"0",
+            "minDEFCON":"DEFCON5",
+            "maxSessionTimoutSeconds":"86400",
+            "allowedIpAddresses":[
+                "0.0.0.0/0"
+            ],
+            "userTokenFilter":"true",
+            "secret":"45fhRM6nbKZ2wfC6RMmMuzXpk"
+        },
+        "acl":[
+
+        ],
+        "organizationNames":[
+
+        ]
+    }
+]
