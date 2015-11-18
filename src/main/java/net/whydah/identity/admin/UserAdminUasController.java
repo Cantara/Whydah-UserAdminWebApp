@@ -1,7 +1,6 @@
 package net.whydah.identity.admin;
 
 import net.whydah.identity.admin.config.AppConfig;
-import net.whydah.sso.commands.adminapi.application.CommandListApplications;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.*;
@@ -309,12 +308,15 @@ public class UserAdminUasController {
         String resourcePath = "applications";
         String applicationsJson = "{no-apps-found}";
         try {
-// old            applicationsJson = makeUasRequest(apptokenid, usertokenid, model, resourcePath);
-            applicationsJson = new CommandListApplications(UriBuilder.fromUri(userAdminServiceUrl).build(), apptokenid, usertokenid, "").execute();
+            applicationsJson = makeUasRequest(apptokenid, usertokenid, model, resourcePath);
+// should be            applicationsJson = new CommandListApplications(UriBuilder.fromUri(userAdminServiceUrl).build(), apptokenid, usertokenid, "").execute();
         } catch (Exception e) {
             log.warn("getApplications - Could not fetch Applications from UAS.", e);
         }
-        log.trace("applicationsJson=" + applicationsJson);
+        String url = buildUasUrl(apptokenid, usertokenid, "applications");
+        GetMethod method = new GetMethod();
+        makeUasRequest(method, url, model, response);
+        log.trace("applicationsJson=" + response);
 
 
         response.setContentType(CONTENTTYPE_JSON_UTF8);
