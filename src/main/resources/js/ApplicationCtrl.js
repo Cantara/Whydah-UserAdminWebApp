@@ -7,7 +7,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $routeParams,
   $scope.form = {};
   $scope.items = ['item1', 'item2', 'item3'];
 
-  $scope.orderByColumn = 'id';
+  $scope.orderByColumn = 'name';
   $scope.orderReverse = false;
 
   $scope.changeOrder = function(orderByColumn) {
@@ -27,10 +27,10 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $routeParams,
     init();
   }
 
-  $scope.activateApplicationDetail = function(applicationId) {
-    console.log('Activating application detail...', applicationId);
+  $scope.activateApplicationDetail = function(id) {
+    console.log('Activating application detail...', id);
     applicationId = 100;
-    Applications.get(applicationId, function(){
+    Applications.get(id, function(){
         //$scope.form.userDetail.$setPristine();
         $('#applicationdetail').modal('show');
     });
