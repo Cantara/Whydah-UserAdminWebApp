@@ -256,10 +256,10 @@ public class UserAdminUasController {
 //        String resourcePath = "application/"+applicationId;
         String url = buildUasUrl(apptokenid, usertokenid, "application/"+applicationId);
         GetMethod method = new GetMethod();
-        makeUasRequest(method, url, model, response);
+        String jsonResult = makeUasRequest(method, url, model, response);
 
         response.setContentType(CONTENTTYPE_JSON_UTF8);
-        return JSON_KEY;
+        return jsonResult;
     }
 
     protected String findValidUserTokenId(@PathVariable("usertokenid") String usertokenid, HttpServletRequest request) {
@@ -303,20 +303,21 @@ public class UserAdminUasController {
 
         String url = buildUasUrl(apptokenid, usertokenid, "applications");
         GetMethod method = new GetMethod();
-        makeUasRequest(method, url, model, response);
+        String jsonResult =makeUasRequest(method, url, model, response);
         log.trace("applicationsJson=" + response);
 
 
         response.setContentType(CONTENTTYPE_JSON_UTF8);
-        return JSON_KEY;
+        return jsonResult;
     }
 
     private String buildUasUrl(String apptokenid, String usertokenid, String s) {
         return userAdminServiceUrl + apptokenid + "/" + usertokenid + "/" + s;
     }
 
-    private void makeUasRequest(HttpMethod method, String url, Model model, HttpServletResponse response) {
+    private String makeUasRequest(HttpMethod method, String url, Model model, HttpServletResponse response) {
         HttpMethodParams params = new HttpMethodParams();
+        StringBuilder responseBody=new StringBuilder();
         params.setHttpElementCharset("UTF-8");
         params.setContentCharset("UTF-8");
         method.setParams(params);
@@ -329,7 +330,7 @@ public class UserAdminUasController {
             } else {
                 InputStream responseBodyStream = method.getResponseBodyAsStream();
                 BufferedReader in = new BufferedReader(new InputStreamReader(responseBodyStream));
-                StringBuilder responseBody = new StringBuilder();
+                responseBody = new StringBuilder();
                 String line;
                 while ((line = in.readLine()) !=null) {
                     responseBody.append(line);
@@ -350,5 +351,6 @@ public class UserAdminUasController {
         if (!model.containsAttribute(JSON_DATA_KEY)) {
             log.error("jsondata attribute not set when fetching data from URL: {}", url);
         }
+        return responseBody.toString();
     }
 }
