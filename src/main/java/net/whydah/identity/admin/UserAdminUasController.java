@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriBuilder;
 import java.io.*;
 import java.util.Properties;
 
@@ -287,6 +286,27 @@ public class UserAdminUasController {
         String url = buildUasUrl(apptokenid, usertokenid, "application/");
         makeUasRequest(method, url, model, response);
         log.trace("createApplicationSpecification with the following jsondata=\n{}", model.asMap().get(JSON_DATA_KEY));
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @RequestMapping(value = "/application/{applicationId}/", method = RequestMethod.PUT)
+    public String updateApplicationSpecification(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+                                                 @PathVariable("applicationId") String applicationId, HttpServletRequest request, HttpServletResponse response,  Model model) {
+        log.trace("createApplicationSpecification was called");
+        InputStreamRequestEntity inputStreamRequestEntity = null;
+        try {
+            inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
+        } catch (IOException e) {
+            log.error("", e);
+        }
+        PutMethod method = new PutMethod();
+        method.setRequestEntity(inputStreamRequestEntity);
+        String url = buildUasUrl(apptokenid, usertokenid, "application/" + applicationId);
+        makeUasRequest(method, url, model, response);
+        log.trace("updateApplicationSpecification with the following jsondata=\n{}", model.asMap().get(JSON_DATA_KEY));
         response.setContentType(CONTENTTYPE_JSON_UTF8);
         return JSON_KEY;
     }
