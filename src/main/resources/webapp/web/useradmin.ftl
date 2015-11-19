@@ -25,7 +25,7 @@
                 </div>
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
-                        <li ng-class="{active: session.activeTab == 'user'}"><a href="#">Users</a></li>
+                        <li ng-class="{active: session.activeTab == 'user'}"><a href="#/user">Users</a></li>
                         <li ng-class="{active: session.activeTab == 'application'}"><a href="#/application">Applications</a></li>
                         <li ng-class="{active: session.activeTab == 'about'}"><a href="#/about">About Whydah</a></li>
                     </ul>
