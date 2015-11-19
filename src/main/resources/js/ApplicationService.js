@@ -144,4 +144,43 @@ UseradminApp.service('Applications', function($http,Messages){
         return this;
     };
 
+    this.delete = function(application, successCallback) {
+        console.log('Deleting application', JSON.stringify(application));
+        var that = this;
+        if (application.hasOwnProperty(secret)) {
+            application.security = {};
+            application.security.secret = application.secret;
+            delete application.secret;
+        }
+        $http({
+            method: 'DELETE',
+            url: baseUrl+'application/'+application.id +'/'
+            //data: application
+        }).success(function (data) {
+            Messages.add('success', 'application "'+application.name+'" was deleted.');
+            application.id = data.id;
+            that.search(that.searchQuery);
+            if(successCallback){
+                successCallback();
+            }
+        }).error(function(data,status){
+            console.log('application was not deleted.', data, status);
+            switch (status) {
+                case 403:
+                    Messages.add('danger', 'application was not deleted! No access...');
+                    break;
+                case 404:  /* 404 No access */
+                    Messages.add('danger', 'application was not deleted! No access...');
+                    break;
+                case 409:  /* 409 Conflict - user exists or was double posted */
+                    Messages.add('danger', 'application was not deleted! Already exists...');
+                    break;
+                default:
+                    Messages.add('danger', 'application was not deleted and! Try again later...');
+            }
+            $scope.activateTimeoutModal();
+        });
+        return this;
+    };
+
 });

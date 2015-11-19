@@ -1,4 +1,4 @@
-UseradminApp.controller('ApplicationCtrl', function($scope, $http, $routeParams, Users, Applications) {
+UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $routeParams, Users, Applications) {
 
   $scope.session.activeTab = 'application';
 
@@ -62,9 +62,9 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $routeParams,
   $scope.applicationProperties = [
     {value: 'id', readOnly: 'true'},
     //{value: 'id',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
-    {value: 'name (*)',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
-    {value: 'defaultOrganizationName (*)',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
-    {value: 'defaultRoleName (*)',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+    {value: 'name',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+    {value: 'defaultOrganizationName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+    {value: 'defaultRoleName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
     {value: 'description',    required: false, type: 'text'},
     {value: 'applicationUrl',     required: false, type: 'url', validationMsg: 'Must be valid URL.'},
     {value: 'logoUrl',    required: false, type: 'url', validationMsg: 'Must be valid URL.'},
@@ -74,10 +74,10 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $routeParams,
   ];
   $scope.dict = {
     en: {
-      name: 'Application Name',
+      name: 'Application Name (*)',
       id: 'Application Id',
-      defaultOrganizationName: 'Default Organization Name',
-      defaultRoleName: 'Default Role Name',
+      defaultOrganizationName: 'Default Organization Name (*)',
+      defaultRoleName: 'Default Role Name (*)',
       applicationUrl: 'URL to Application',
       description: 'Description of Application',
       logoUrl: 'URL to Application Logo',
@@ -102,6 +102,16 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $routeParams,
       }
     } else {
       console.log('Tried to save an invalid form.');
+    }
+  }
+
+  $scope.delete = function() {
+    var deleteUser = $window.confirm('Are you absolutely sure you want to delete '+ Applications.application.name +'?');
+
+    if (deleteUser) {
+      Applications.delete(Applications.application, function(){
+        $scope.form.applicationDetail.$setPristine();
+      });
     }
   }
 

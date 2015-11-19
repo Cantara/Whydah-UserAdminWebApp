@@ -311,6 +311,19 @@ public class UserAdminUasController {
         return JSON_KEY;
     }
 
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @RequestMapping(value = "/application/{applicationId}/", method = RequestMethod.DELETE)
+    public String deleteApplicationSpecification(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+                                                 @PathVariable("applicationId") String applicationId, HttpServletRequest request, HttpServletResponse response,  Model model) {
+        log.trace("Deleting application with applicationId {} ",applicationId);
+        DeleteMethod method = new DeleteMethod();
+        String url = buildUasUrl(apptokenid, usertokenid, "application/" + applicationId);
+        makeUasRequest(method, url, model, response);
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
+    }
+
     // APPLICATIONS
 
     @GET
