@@ -52,6 +52,40 @@ UseradminApp.service('Applications', function($http,Messages){
 		return this;
 	};
 
+    /*
+    this.search = function(searchQuery) {
+        console.log('Searching for applications...');
+        this.searchQuery = searchQuery || '*';
+        var that = this;
+        $http({
+            method: 'GET',
+            url: baseUrl+'applications/find/'+this.searchQuery
+            //url: 'json/users.json',
+        }).success(function (data) {
+            that.list = data.result;
+            that.rows = data.rows;
+        }).error(function(data,status){
+            // This is most likely due to usertoken timeout - TODO: Redirect to login webapp
+            console.log('Unable to search', data);
+            switch (status) {
+                case 403: // Forbidden
+                    Messages.add('danger', 'Unable to seach! Forbidden...');
+                    break;
+                case 404:  // 404 No access
+                    Messages.add('danger', 'Unable to search! No access...');
+                    break;
+                case 409:  // 409 Conflict - will prbably not occur here
+                    Messages.add('danger', 'Search already exists...');
+                    break;
+                default:
+                    Messages.add('danger', 'Search failed with error code: ' + status);
+            }
+
+        });
+        return this;
+    };
+*/
+
     this.get = function(id, callback) {
         console.log('Getting Application with id=', id);
         var that = this;

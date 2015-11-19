@@ -344,6 +344,37 @@ public class UserAdminUasController {
         return jsonResult;
     }
 
+    /*
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @RequestMapping(value = "/applications/find/{query}", method = RequestMethod.GET)
+    public String findApplications(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+                                   @PathVariable("query") String query, HttpServletRequest request, HttpServletResponse response, Model model) {
+        log.trace("findApplications - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
+        if (usertokenid == null || usertokenid.length() < 7) {
+            usertokenid = CookieManager.getUserTokenIdFromCookie(request);
+            log.trace("findApplications - Override usertokenid={}", usertokenid);
+        }
+        String utf8query = query;
+        try {
+            utf8query = new String(query.getBytes("ISO-8859-1"), "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+
+        }
+        log.trace("findApplications - Finding users with query: " + utf8query);
+        HttpMethod method = new GetMethod();
+        String url;
+        try {
+            url = buildUasUrl(apptokenid, usertokenid, "applications/find/" + URIUtil.encodeAll(utf8query));
+        } catch (URIException urie) {
+            log.warn("Error in handling URIencoding", urie);
+            url = buildUasUrl(apptokenid, usertokenid, "applications/find/" + query);
+        }
+        makeUasRequest(method, url, model, response);
+        return JSON_KEY;
+    }
+    */
+
     private String buildUasUrl(String apptokenid, String usertokenid, String s) {
         return userAdminServiceUrl + apptokenid + "/" + usertokenid + "/" + s;
     }
