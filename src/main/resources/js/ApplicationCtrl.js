@@ -60,13 +60,14 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $routeParams,
 
   // -- Should be in ApplicationdetailCtrl ---
   $scope.applicationProperties = [
-    {value: 'id',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+    {value: 'id', readOnly: 'true'},
+    //{value: 'id',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
     {value: 'name',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
     {value: 'defaultOrganizationName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
     {value: 'defaultRoleName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
-    {value: 'applicationUrl',     minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
     {value: 'description',    required: false, type: 'text'},
-    {value: 'logoUrl',    required: false, type: 'url'},
+    {value: 'applicationUrl',     required: false, type: 'url', validationMsg: 'Must be valid URL.'},
+    {value: 'logoUrl',    required: false, type: 'url', validationMsg: 'Must be valid URL.'},
     {value: 'secret',     minLength: 12, maxLength: 254, required: true, type: 'text', validationMsg:'Must be between 12-254 characters long. No spaces allowed.'},
 
 
