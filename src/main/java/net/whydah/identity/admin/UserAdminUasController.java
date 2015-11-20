@@ -243,7 +243,7 @@ public class UserAdminUasController {
 
     // APPLICATION
     @GET
-    @Produces(MediaType.APPLICATION_JSON )
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @RequestMapping(value = "application/{applicationId}", method = RequestMethod.GET)
     @ResponseBody
     public String getApplication(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
@@ -327,7 +327,7 @@ public class UserAdminUasController {
     // APPLICATIONS
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON )
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @RequestMapping(value = "/applications", method = RequestMethod.GET)
     @ResponseBody
     public String getApplications(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model) {
