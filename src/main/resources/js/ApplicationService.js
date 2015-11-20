@@ -95,6 +95,8 @@ UseradminApp.service('Applications', function($http,Messages){
         }).success(function (data) {
             console.log('Got applicaton', data);
             that.application = data;
+            that.application.secret = data.security.secret;
+            //that.application.secret = data.applicationC
             if(callback) {
                 callback(data);
             }
@@ -142,9 +144,13 @@ UseradminApp.service('Applications', function($http,Messages){
     this.save = function(application, successCallback) {
         console.log('Updating application', JSON.stringify(application));
         var that = this;
-        if (application.hasOwnProperty(secret)) {
-            application.security = {};
-            application.security.secret = application.secret;
+        if (application.hasOwnProperty('secret')) {
+            if (application.hasOwnProperty('security')) {
+                application.security.secret = application.secret;
+            } else {
+                application.security = {};
+                application.security.secret = application.secret;
+            }
             delete application.secret;
         }
         $http({
