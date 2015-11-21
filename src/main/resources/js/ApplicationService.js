@@ -86,6 +86,18 @@ UseradminApp.service('Applications', function($http,Messages){
     };
 */
 
+    function buildRoleNames(application) {
+        var roleNames = [];
+        if (application.hasOwnProperty("roles")) {
+
+            for (var i=0; i < application.roles.length; i++ ){
+                var role = application.roles[i];
+                roleNames.push(role.name);
+            }
+        }
+        return roleNames;
+    }
+
     this.get = function(id, callback) {
         console.log('Getting Application with id=', id);
         var that = this;
@@ -97,8 +109,9 @@ UseradminApp.service('Applications', function($http,Messages){
             that.application = data;
             that.application.secret = data.security.secret;
             that.application.applicationJson = JSON.stringify(data);
+            that.application.roleNames = buildRoleNames(that.application);
             if(callback) {
-                callback(data);
+                callback(that.application);
             }
         });
         return this;

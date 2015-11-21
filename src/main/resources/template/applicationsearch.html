@@ -85,8 +85,21 @@
                                 <span class="help-block" ng-show="formPart.$dirty && formPart.$invalid">{{property.validationMsg}}</span>
                             </div>
                         </div>
+                        <!--
+                        <label class="col-sm-2 control-label">{{dict[conf.lang][roleNames]||'Available Role Names'}}</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" ng-model="applications.application.roleNames" ng-list="&#10;" ng-trim="false">{{ appliactions.application.roleNames | json }}</textarea>
+                        </div>
+                        <label class="col-sm-2 control-label">{{dict[conf.lang][roleNames]||'Available Organization Names'}}</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" ng-model="applications.application.orgNames" ng-list="&#10;" ng-trim="false">{{ appliactions.application.orgNames | json }}</textarea>
+                        </div>
+                        -->
                     </div>
                 </div>
+
+
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">
                         Close
@@ -101,3 +114,4 @@
         </div>
     </div>
 </div>
+
