@@ -121,6 +121,26 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $rout
     }
   }
 
+  $scope.saveFromJson = function() {
+    // Make sure these $scope-values are properly connected to the view
+    if($scope.form.applicationJson.$valid){
+      if(Applications.application.isNew) {
+        var newApplication = angular.copy(Applications.application);
+        delete newApplication.isNew;
+        Applications.addFromJson(newApplication, function(){
+          delete Applications.application.isNew;
+          $scope.form.applicationJson.$setPristine();
+        });
+      } else {
+        Applications.saveFromJson(Applications.application, function(){
+          $scope.form.applicationJson.$setPristine();
+        });
+      }
+    } else {
+      console.log('Tried to save an invalid form.');
+    }
+  }
+
   $scope.delete = function() {
     var deleteUser = $window.confirm('Are you absolutely sure you want to delete '+ Applications.application.name +'?');
 

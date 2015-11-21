@@ -1,28 +1,28 @@
 UseradminApp.service('Applications', function($http,Messages){
 
-	var defaultlist = [
-                          {
-                              "id": "1",
-                              "name": "UserAdmin",
-                              "defaultRole": "UserAdmin",
-                              "defaultOrgid": "Whydah",
-                              "availableOrgIds": null
-                          },
-                          {
-                              "id": "2",
-                              "name": "Mobilefirst",
-                              "defaultRole": "client",
-                              "defaultOrgid": "Altran",
-                              "availableOrgIds": null
-                          },
-                          {
-                              "id": "3",
-                              "name": "Whydah",
-                              "defaultRole": "developer",
-                              "defaultOrgid": "Whydah",
-                              "availableOrgIds": null
-                          }
-                      ];
+    var defaultlist = [
+        {
+            "id": "1",
+            "name": "UserAdmin",
+            "defaultRole": "UserAdmin",
+            "defaultOrgid": "Whydah",
+            "availableOrgIds": null
+        },
+        {
+            "id": "2",
+            "name": "Mobilefirst",
+            "defaultRole": "client",
+            "defaultOrgid": "Altran",
+            "availableOrgIds": null
+        },
+        {
+            "id": "3",
+            "name": "Whydah",
+            "defaultRole": "developer",
+            "defaultOrgid": "Whydah",
+            "availableOrgIds": null
+        }
+    ];
 
     var wishlist = {
         applicationId: 1,
@@ -37,54 +37,54 @@ UseradminApp.service('Applications', function($http,Messages){
         ]
     }
 
-	this.list = [];
-	this.selected = false;
+    this.list = [];
+    this.selected = false;
 
-	this.search = function() {
-		console.log('Searching for applications...');
-		var that = this;
-		$http({
-			method: 'GET',
-			url: baseUrl + 'applications'
-		}).success(function (data) {
-			that.list = data;
-		});
-		return this;
-	};
-
-    /*
-    this.search = function(searchQuery) {
+    this.search = function() {
         console.log('Searching for applications...');
-        this.searchQuery = searchQuery || '*';
         var that = this;
         $http({
             method: 'GET',
-            url: baseUrl+'applications/find/'+this.searchQuery
-            //url: 'json/users.json',
+            url: baseUrl + 'applications'
         }).success(function (data) {
-            that.list = data.result;
-            that.rows = data.rows;
-        }).error(function(data,status){
-            // This is most likely due to usertoken timeout - TODO: Redirect to login webapp
-            console.log('Unable to search', data);
-            switch (status) {
-                case 403: // Forbidden
-                    Messages.add('danger', 'Unable to seach! Forbidden...');
-                    break;
-                case 404:  // 404 No access
-                    Messages.add('danger', 'Unable to search! No access...');
-                    break;
-                case 409:  // 409 Conflict - will prbably not occur here
-                    Messages.add('danger', 'Search already exists...');
-                    break;
-                default:
-                    Messages.add('danger', 'Search failed with error code: ' + status);
-            }
-
+            that.list = data;
         });
         return this;
     };
-*/
+
+    /*
+     this.search = function(searchQuery) {
+     console.log('Searching for applications...');
+     this.searchQuery = searchQuery || '*';
+     var that = this;
+     $http({
+     method: 'GET',
+     url: baseUrl+'applications/find/'+this.searchQuery
+     //url: 'json/users.json',
+     }).success(function (data) {
+     that.list = data.result;
+     that.rows = data.rows;
+     }).error(function(data,status){
+     // This is most likely due to usertoken timeout - TODO: Redirect to login webapp
+     console.log('Unable to search', data);
+     switch (status) {
+     case 403: // Forbidden
+     Messages.add('danger', 'Unable to seach! Forbidden...');
+     break;
+     case 404:  // 404 No access
+     Messages.add('danger', 'Unable to search! No access...');
+     break;
+     case 409:  // 409 Conflict - will prbably not occur here
+     Messages.add('danger', 'Search already exists...');
+     break;
+     default:
+     Messages.add('danger', 'Search failed with error code: ' + status);
+     }
+
+     });
+     return this;
+     };
+     */
 
     function buildRoleNames(application) {
         var roleNames = [];
@@ -263,39 +263,50 @@ UseradminApp.service('Applications', function($http,Messages){
     this.saveFromJson = function(application, successCallback) {
         console.log('Updating application from json', JSON.stringify(application.applicationJson));
         var that = this;
-        var postData = applicationJson;
-            console.log("Save this json: " + JSON.stringify(postData));
-            $http({
-                method: 'PUT',
-                url: baseUrl + 'application/' + application.id + '/',
-                data: postData
-            }).success(function (data) {
-                Messages.add('success', 'application "' + application.name + '" was updated successfully.');
-                application.id = data.id;
-                that.search(that.searchQuery);
-                if (successCallback) {
-                    successCallback();
-                }
-            }).error(function (data, status) {
-                console.log('application was not updated', data);
-                switch (status) {
-                    case 400:
-                        Messages.add('danger','application was not updated! Please validate your form and applicationjson input.');
-                        break;
-                    case 403:
-                        Messages.add('danger', 'application was not updated! No access...');
-                        break;
-                    case 404:  /* 404 No access */
-                        Messages.add('danger', 'application was not updated! No access...');
-                        break;
-                    case 409:  /* 409 Conflict - user exists or was double posted */
-                        Messages.add('danger', 'application was not updated! Already exists...');
-                        break;
-                    default:
-                        Messages.add('danger', 'application was not updated and! Try again later...');
-                }
-                $scope.activateTimeoutModal();
-            });
+        var postData = {};
+        if (application.applicationJson) {
+            try {
+                postData = JSON.parse(application.applicationJson);
+
+                console.log("Save this json: " + JSON.stringify(postData));
+                $http({
+                    method: 'PUT',
+                    url: baseUrl + 'application/' + application.id + '/',
+                    data: postData
+                }).success(function (data) {
+                    Messages.add('success', 'application "' + application.name + '" was updated successfully.');
+                    application.id = data.id;
+                    that.search(that.searchQuery);
+                    if (successCallback) {
+                        successCallback();
+                    }
+                }).error(function (data, status) {
+                    console.log('application was not updated', data);
+                    switch (status) {
+                        case 400:
+                            Messages.add('danger','application was not updated! Please validate your form and applicationjson input.');
+                            break;
+                        case 403:
+                            Messages.add('danger', 'application was not updated! No access...');
+                            break;
+                        case 404:  /* 404 No access */
+                            Messages.add('danger', 'application was not updated! No access...');
+                            break;
+                        case 409:  /* 409 Conflict - user exists or was double posted */
+                            Messages.add('danger', 'application was not updated! Already exists...');
+                            break;
+                        default:
+                            Messages.add('danger', 'application was not updated and! Try again later...');
+                    }
+                    $scope.activateTimeoutModal();
+                });
+            } catch (e) {
+                Messages.add('danger', 'Could not parse applicationJson to JSON object.');
+            }
+        } else {
+            Messages.add('danger', 'Could not update application. ApplcationJson is missing.');
+        }
+
         return this;
     };
 
