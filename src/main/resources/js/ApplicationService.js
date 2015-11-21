@@ -230,8 +230,8 @@ UseradminApp.service('Applications', function($http,Messages){
                 delete application.secret;
             }
             if (application.hasOwnProperty('roleNames')) {
-                application.roles = []; //var rolesss = [];
                 if (typeof application.roleNames === 'string') {
+                    application.roles = [];
                     var roleSplit = application.roleNames.split(",");
                     for (i = 0; i < roleSplit.length; i++) {
                         var role = {};
@@ -243,8 +243,8 @@ UseradminApp.service('Applications', function($http,Messages){
                 }
             }
             if (application.hasOwnProperty('orgNames')) {
-                application.organizationNames = []; //var rolesss = [];
                 if (typeof application.orgNames === 'string') {
+                    application.organizationNames = [];
                     var nameSplit = application.orgNames.split(",");
                     for (i = 0; i < nameSplit.length; i++) {
                         var name = {};
