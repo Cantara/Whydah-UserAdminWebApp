@@ -32,10 +32,10 @@
                     <!--<td ng-click="activateApplicationDetail(app.id)" id="rowid_{{app.id}}">{{app.id}}</td>-->
                     <td ng-click="activateApplicationDetail(app.id)">{{app.name}}</td>
                     <td ng-click="activateApplicationDetail(app.id)">{{app.company}}</td>
-                    <td ng-click="activateApplicationDetail(app.id)">{{app.description}}</td>
-                    <td ng-click="activateApplicationDetail(app.id)">{{app.tags}}</td>
-                    <td ng-click="activateApplicationDetail(app.id)">{{app.applicationUrl}}</td>
-                    <td ng-click="activateApplicationDetail(app.id)">{{app.logoUrl}}</td>
+                    <td ng-click="activateApplicationDetail(app.id)">{{app.description| limitTo:20}}</td>
+                    <td ng-click="activateApplicationDetail(app.id)">{{app.tags| limitTo:20}}</td>
+                    <td ng-click="activateApplicationDetail(app.id)">{{app.applicationUrl| limitTo:20}}</td>
+                    <td ng-click="activateApplicationDetail(app.id)">{{app.logoUrl| limitTo:20}}</td>
                     <!--<td ng-click="activateApplicationDetail(app.id)">{{app.name}}</td>-->
                     <!--<td ng-click="activateApplicationDetail(app.id)"><span class="small" ng-repeat="org in app.availableOrgNames track by $index">{{org}}; </span></td>-->
                     <!--<td ng-click="activateApplicationDetail(app.id)"><span class="small" ng-repeat="role in app.availableRoleNames track by $index">{{role}}; </span></td>-->
