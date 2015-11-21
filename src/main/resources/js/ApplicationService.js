@@ -233,7 +233,7 @@ UseradminApp.service('Applications', function($http,Messages){
                 application.roles = []; //var rolesss = [];
                 var roleSplit = application.roleNames.split(",");
                 for (i = 0; i < roleSplit.length; i++) {
-                    var role = [];
+                    var role = {};
                     var item = roleSplit[i];
                     role.id = item.trim();
                     role.name = item.trim();
