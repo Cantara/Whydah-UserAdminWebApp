@@ -1,5 +1,6 @@
 package net.whydah.identity.admin;
 
+import com.sun.jersey.api.client.Client;
 import net.whydah.identity.admin.config.AppConfig;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
@@ -13,7 +14,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +34,7 @@ public class UserAdminUasController {
     public static final String CONTENTTYPE_JSON_UTF8 = "application/json; charset=utf-8";
     private final String userAdminServiceUrl;
     private final HttpClient httpClient;
+    private final Client tokenServiceClient = Client.create();
 
 
     public UserAdminUasController() throws IOException {
@@ -237,15 +238,15 @@ public class UserAdminUasController {
         PostMethod method = new PostMethod();
         String url = userAdminServiceUrl + "password/" + apptokenid +"/reset/username/" + username;
         makeUasRequest(method, url, model, response);
-        response.setContentType(CONTENTTYPE_JSON_UTF8);
+//        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        response.setContentType(MediaType.APPLICATION_JSON);
         return JSON_KEY;
     }
 
     // APPLICATION
     @GET
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
     @RequestMapping(value = "application/{applicationId}", method = RequestMethod.GET)
-    @ResponseBody
     public String getApplication(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
                                  @PathVariable("applicationId") String applicationId, HttpServletRequest request,
                                  HttpServletResponse response, Model model) {
@@ -258,7 +259,7 @@ public class UserAdminUasController {
         String jsonResult = makeUasRequest(method, url, model, response);
 
         response.setContentType(CONTENTTYPE_JSON_UTF8);
-        return jsonResult;
+        return JSON_KEY;
     }
 
     protected String findValidUserTokenId(@PathVariable("usertokenid") String usertokenid, HttpServletRequest request) {
@@ -329,7 +330,6 @@ public class UserAdminUasController {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @RequestMapping(value = "/applications", method = RequestMethod.GET)
-    @ResponseBody
     public String getApplications(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model) {
         log.trace("getApplications - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
         usertokenid = findValidUserTokenId(usertokenid, request);
@@ -337,11 +337,11 @@ public class UserAdminUasController {
         String url = buildUasUrl(apptokenid, usertokenid, "applications");
         GetMethod method = new GetMethod();
         String jsonResult =makeUasRequest(method, url, model, response);
-        log.trace("applicationsJson=" + response);
+        log.trace("applicationsJson=" + jsonResult);
 
 
         response.setContentType(CONTENTTYPE_JSON_UTF8);
-        return jsonResult;
+        return JSON_KEY;
     }
 
     /*
