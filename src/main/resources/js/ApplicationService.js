@@ -231,15 +231,29 @@ UseradminApp.service('Applications', function($http,Messages){
             }
             if (application.hasOwnProperty('roleNames')) {
                 application.roles = []; //var rolesss = [];
-                var roleSplit = application.roleNames.split(",");
-                for (i = 0; i < roleSplit.length; i++) {
-                    var role = {};
-                    var item = roleSplit[i];
-                    role.id = item.trim();
-                    role.name = item.trim();
-                    application.roles.push(role);
+                if (typeof application.roleNames === 'string') {
+                    var roleSplit = application.roleNames.split(",");
+                    for (i = 0; i < roleSplit.length; i++) {
+                        var role = {};
+                        var item = roleSplit[i];
+                        role.id = item.trim();
+                        role.name = item.trim();
+                        application.roles.push(role);
+                    }
                 }
-                //application.roles = rolesss;//JSON.stringify(rolesss);
+            }
+            if (application.hasOwnProperty('orgNames')) {
+                application.organizationNames = []; //var rolesss = [];
+                if (typeof application.orgNames === 'string') {
+                    var nameSplit = application.orgNames.split(",");
+                    for (i = 0; i < nameSplit.length; i++) {
+                        var name = {};
+                        var item = nameSplit[i];
+                        name.id = item.trim();
+                        name.name = item.trim();
+                        application.organizationNames.push(name);
+                    }
+                }
             }
             postData = application;
         }
