@@ -35,6 +35,14 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $rout
     });
   }
 
+  $scope.activateApplicationJson = function(id) {
+    console.log('Activating application json...', id);
+    Applications.get(id, function(){
+      //$scope.form.userDetail.$setPristine();
+      $('#applicationJson').modal('show');
+    });
+  }
+
 
   $scope.newApplicationDetail = function() {
     Applications.application = {isNew: true};
