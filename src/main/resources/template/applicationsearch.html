@@ -1,45 +1,54 @@
 <div class="row margin-top">
-  <div class="col-xs-9 col-sm-5 col-md-4">
-    <input type="search" class="form-control" ng-model="searchQuery" placeholder="Search applications" ng-change="searchApps()" autofocus> 
-  </div>
+    <div class="col-xs-9 col-sm-5 col-md-4">
+        <input type="search" class="form-control" ng-model="searchQuery" placeholder="Search applications" ng-change="searchApps()" autofocus>
+    </div>
 </div>
 
 
+<!--Applications List-->
 <div class="row margin-top">
 
-  <div class="col-sm-12">
+    <div class="col-sm-12">
 
-    <button class="btn btn-default btn-sm" ng-click="newApplicationDetail()"><span class="glyphicon glyphicon-plus"></span> Add application</button>
+        <button class="btn btn-default btn-sm" ng-click="newApplicationDetail()"><span class="glyphicon glyphicon-plus"></span> Add application</button>
 
-    <div class="table-responsive margin-top">
+        <div class="table-responsive margin-top">
 
-      <table class="table">
-        <thead>
-          <tr>
-            <th><label><input tri-state-checkbox elements="applications.list" elements-selected="applications.selected"></label></th>
-            <th ng-click="changeOrder('id')">AppID <span class="glyphicon glyphicon-sort"></span></th>
-            <th ng-click="changeOrder('name')">Application name <span class="glyphicon glyphicon-sort"></span></th>
-            <th>Organizations</th>
-            <th>Roles</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="app in applications.list | orderBy:orderByColumn:orderReverse" class="itemrow">
-            <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
-            <td ng-click="activateApplicationDetail(app.id)" id="rowid_{{app.id}}">{{app.id}}</td>
-            <td ng-click="activateApplicationDetail(app.id)">{{app.name}}</td>
-            <td ng-click="activateApplicationDetail(app.id)"><span class="small" ng-repeat="org in app.availableOrgNames track by $index">{{org}}; </span></td>
-            <td ng-click="activateApplicationDetail(app.id)"><span class="small" ng-repeat="role in app.availableRoleNames track by $index">{{role}}; </span></td>
-          </tr>
-          <tr ng-if="!applications.list.length && searchQuery">
-            <td colspan="4">No results for search "{{searchQuery}}".</td>
-          </tr>
-        </tbody>
-      </table>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th><label><input tri-state-checkbox elements="applications.list" elements-selected="applications.selected"></label></th>
+                    <th ng-click="changeOrder('name')">Application name <span class="glyphicon glyphicon-sort"></span></th>
+                    <th ng-click="changeOrder('company')">Company <span class="glyphicon glyphicon-sort"></span></th>
+                    <th ng-click="changeOrder('description')">Description <span class="glyphicon glyphicon-sort"></span></th>
+                    <th ng-click="changeOrder('tags')">Tags <span class="glyphicon glyphicon-sort"></span></th>
+                    <th ng-click="changeOrder('applicationUrl')">Application URL <span class="glyphicon glyphicon-sort"></span></th>
+                    <th ng-click="changeOrder('logoUrl')">Logo <span class="glyphicon glyphicon-sort"></span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="app in applications.list | orderBy:orderByColumn:orderReverse" class="itemrow">
+                    <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
+                    <!--<td ng-click="activateApplicationDetail(app.id)" id="rowid_{{app.id}}">{{app.id}}</td>-->
+                    <td ng-click="activateApplicationDetail(app.id)">{{app.name}}</td>
+                    <td ng-click="activateApplicationDetail(app.id)">{{app.company}}</td>
+                    <td ng-click="activateApplicationDetail(app.id)">{{app.description}}</td>
+                    <td ng-click="activateApplicationDetail(app.id)">{{app.tags}}</td>
+                    <td ng-click="activateApplicationDetail(app.id)">{{app.applicationUrl}}</td>
+                    <td ng-click="activateApplicationDetail(app.id)">{{app.logoUrl}}</td>
+                    <!--<td ng-click="activateApplicationDetail(app.id)">{{app.name}}</td>-->
+                    <!--<td ng-click="activateApplicationDetail(app.id)"><span class="small" ng-repeat="org in app.availableOrgNames track by $index">{{org}}; </span></td>-->
+                    <!--<td ng-click="activateApplicationDetail(app.id)"><span class="small" ng-repeat="role in app.availableRoleNames track by $index">{{role}}; </span></td>-->
+                </tr>
+                <tr ng-if="!applications.list.length && searchQuery">
+                    <td colspan="4">No results for search "{{searchQuery}}".</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
 
     </div>
-
-  </div>
 
 </div>
 
@@ -62,8 +71,8 @@
                         <!--Application: <pre>{{applications.application|json}}</pre>-->
                         <!--Application properties:<pre>{{applicationProperties|json}}</pre>-->
                         <!--<div class="form-group" ng-if="applications.application.isNew" ng-class="">-->
-                            <!--<label for="name" class="col-sm-2 control-label">Application name</label>-->
-                            <!--<div class="col-sm-10"><input type="text" class="form-control" id="name" name="name" ng-model="application.application.name"></div>-->
+                        <!--<label for="name" class="col-sm-2 control-label">Application name</label>-->
+                        <!--<div class="col-sm-10"><input type="text" class="form-control" id="name" name="name" ng-model="application.application.name"></div>-->
                         <!--</div>-->
                         <div class="form-group"
                              ng-form="formPart"
