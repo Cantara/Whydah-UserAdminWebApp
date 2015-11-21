@@ -69,12 +69,14 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $rout
     {value: 'applicationUrl',     required: false, type: 'url', validationMsg: 'Must be valid URL.'},
     {value: 'logoUrl', required: false, type: 'url', validationMsg: 'Must be valid URL.'},
     {value: 'secret', minLength: 12, maxLength: 254, required: false, type: 'text', validationMsg:'Must be between 12-254 characters long. No spaces allowed.'},
-    {value: 'applicationJson', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
     {value: 'roleNames', required: false, type: 'text', validationMsg:'Comma separated list of available role names'},
     {value: 'orgNames', required: false, type: 'text', validationMsg:'Comma separated list of available organization names'}
-
-
   ];
+
+  $scope.applicationJsonProperties = [
+    {value: 'applicationJson', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
+  ];
+
   $scope.dict = {
     en: {
       name: 'Application Name (*)',

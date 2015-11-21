@@ -260,6 +260,45 @@ UseradminApp.service('Applications', function($http,Messages){
         return postData;
     }
 
+    this.saveFromJson = function(application, successCallback) {
+        console.log('Updating application from json', JSON.stringify(application.applicationJson));
+        var that = this;
+        var postData = applicationJson;
+            console.log("Save this json: " + JSON.stringify(postData));
+            $http({
+                method: 'PUT',
+                url: baseUrl + 'application/' + application.id + '/',
+                data: postData
+            }).success(function (data) {
+                Messages.add('success', 'application "' + application.name + '" was updated successfully.');
+                application.id = data.id;
+                that.search(that.searchQuery);
+                if (successCallback) {
+                    successCallback();
+                }
+            }).error(function (data, status) {
+                console.log('application was not updated', data);
+                switch (status) {
+                    case 400:
+                        Messages.add('danger','application was not updated! Please validate your form and applicationjson input.');
+                        break;
+                    case 403:
+                        Messages.add('danger', 'application was not updated! No access...');
+                        break;
+                    case 404:  /* 404 No access */
+                        Messages.add('danger', 'application was not updated! No access...');
+                        break;
+                    case 409:  /* 409 Conflict - user exists or was double posted */
+                        Messages.add('danger', 'application was not updated! Already exists...');
+                        break;
+                    default:
+                        Messages.add('danger', 'application was not updated and! Try again later...');
+                }
+                $scope.activateTimeoutModal();
+            });
+        return this;
+    };
+
     this.delete = function(application, successCallback) {
         console.log('Deleting application', JSON.stringify(application));
         var that = this;
