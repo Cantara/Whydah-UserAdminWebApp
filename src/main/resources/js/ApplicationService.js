@@ -97,6 +97,17 @@ UseradminApp.service('Applications', function($http,Messages){
         }
         return roleNames;
     }
+    function buildOrgNames(application) {
+        var orgNames = [];
+        if (application.hasOwnProperty("organizationNames")) {
+
+            for (var i=0; i < application.organizationNames.length; i++ ){
+                var org = application.organizationNames[i];
+                orgNames.push(org.name);
+            }
+        }
+        return orgNames;
+    }
 
     this.get = function(id, callback) {
         console.log('Getting Application with id=', id);
@@ -110,6 +121,7 @@ UseradminApp.service('Applications', function($http,Messages){
             that.application.secret = data.security.secret;
             that.application.applicationJson = JSON.stringify(data);
             that.application.roleNames = buildRoleNames(that.application);
+            that.application.orgNames = buildOrgNames(that.application);
             if(callback) {
                 callback(that.application);
             }
