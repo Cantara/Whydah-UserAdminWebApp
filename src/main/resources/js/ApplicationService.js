@@ -175,6 +175,7 @@ UseradminApp.service('Applications', function($http,Messages){
         var that = this;
         var postData = buildApplicationUpdate(application);
         if (postData.hasOwnProperty('name')) {
+            console.log("Save this json: " + JSON.stringify(postData));
             $http({
                 method: 'PUT',
                 url: baseUrl + 'application/' + application.id + '/',
@@ -212,7 +213,7 @@ UseradminApp.service('Applications', function($http,Messages){
 
     function buildApplicationUpdate(application) {
         var postData = {};
-        if (application.hasOwnProperty('applicationJson')) {
+        if (application.applicationJson) {
             try {
                 postData = JSON.parse(application.applicationJson);
             } catch (e) {
@@ -227,6 +228,18 @@ UseradminApp.service('Applications', function($http,Messages){
                     application.security.secret = application.secret;
                 }
                 delete application.secret;
+            }
+            if (application.hasOwnProperty('roleNames')) {
+                application.roles = []; //var rolesss = [];
+                var roleSplit = application.roleNames.split(",");
+                for (i = 0; i < roleSplit.length; i++) {
+                    var role = [];
+                    var item = roleSplit[i];
+                    role.id = item.trim();
+                    role.name = item.trim();
+                    application.roles.push(role);
+                }
+                //application.roles = rolesss;//JSON.stringify(rolesss);
             }
             postData = application;
         }
