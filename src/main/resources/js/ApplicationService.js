@@ -96,6 +96,7 @@ UseradminApp.service('Applications', function($http,Messages){
             console.log('Got applicaton', data);
             that.application = data;
             that.application.secret = data.security.secret;
+            that.application.applicationJson = JSON.stringify(data);
             //that.application.secret = data.applicationC
             if(callback) {
                 callback(data);

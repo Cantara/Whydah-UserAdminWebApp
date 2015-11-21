@@ -67,8 +67,9 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $rout
     {value: 'defaultRoleName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
     {value: 'description',    required: false, type: 'text'},
     {value: 'applicationUrl',     required: false, type: 'url', validationMsg: 'Must be valid URL.'},
-    {value: 'logoUrl',    required: false, type: 'url', validationMsg: 'Must be valid URL.'},
-    {value: 'secret',     minLength: 12, maxLength: 254, required: false, type: 'text', validationMsg:'Must be between 12-254 characters long. No spaces allowed.'},
+    {value: 'logoUrl', required: false, type: 'url', validationMsg: 'Must be valid URL.'},
+    {value: 'secret', minLength: 12, maxLength: 254, required: false, type: 'text', validationMsg:'Must be between 12-254 characters long. No spaces allowed.'},
+    {value: 'applicationJson', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
 
 
   ];
@@ -82,6 +83,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $rout
       description: 'Description of Application',
       logoUrl: 'URL to Application Logo',
       secret: 'Initial Application Secret',
+      applicationJson: 'Json override'
     }
   }
 
