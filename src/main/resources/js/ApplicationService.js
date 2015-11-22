@@ -213,51 +213,42 @@ UseradminApp.service('Applications', function($http,Messages){
 
     function buildApplicationUpdate(application) {
         var postData = {};
-        if (application.applicationJson) {
-            try {
-                postData = JSON.parse(application.applicationJson);
-            } catch (e) {
-                Messages.add('danger', 'Could not parse applicationJson to JSON object.');
+        if (application.hasOwnProperty('secret')) {
+            if (application.hasOwnProperty('security')) {
+                application.security.secret = application.secret;
+            } else {
+                application.security = {};
+                application.security.secret = application.secret;
             }
-        } else {
-            if (application.hasOwnProperty('secret')) {
-                if (application.hasOwnProperty('security')) {
-                    application.security.secret = application.secret;
-                } else {
-                    application.security = {};
-                    application.security.secret = application.secret;
-                }
-                delete application.secret;
-            }
-            if (application.hasOwnProperty('roleNames')) {
-                if (typeof application.roleNames === 'string') {
-                    application.roles = [];
-                    var roleSplit = application.roleNames.split(",");
-                    for (i = 0; i < roleSplit.length; i++) {
-                        var role = {};
-                        var item = roleSplit[i];
-                        role.id = item.trim();
-                        role.name = item.trim();
-                        application.roles.push(role);
-                    }
-                }
-            }
-            if (application.hasOwnProperty('orgNames')) {
-                if (typeof application.orgNames === 'string') {
-                    application.organizationNames = [];
-                    var nameSplit = application.orgNames.split(",");
-                    for (i = 0; i < nameSplit.length; i++) {
-                        var name = {};
-                        var item = nameSplit[i];
-                        name.id = item.trim();
-                        name.name = item.trim();
-                        application.organizationNames.push(name);
-                    }
-                }
-            }
-            postData = application;
+            delete application.secret;
         }
-        return postData;
+        if (application.hasOwnProperty('roleNames')) {
+            if (typeof application.roleNames === 'string') {
+                application.roles = [];
+                var roleSplit = application.roleNames.split(",");
+                for (i = 0; i < roleSplit.length; i++) {
+                     var role = {};
+                     var item = roleSplit[i];
+                     role.id = item.trim();
+                     role.name = item.trim();
+                     application.roles.push(role);
+                }
+            }
+        }
+        if (application.hasOwnProperty('orgNames')) {
+            if (typeof application.orgNames === 'string') {
+                application.organizationNames = [];
+                var nameSplit = application.orgNames.split(",");
+                for (i = 0; i < nameSplit.length; i++) {
+                    var name = {};
+                    var item = nameSplit[i];
+                    name.id = item.trim();
+                    name.name = item.trim();
+                    application.organizationNames.push(name);
+                }
+            }
+        }
+        return application;
     }
 
     this.saveFromJson = function(application, successCallback) {
