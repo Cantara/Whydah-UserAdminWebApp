@@ -40,6 +40,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $rout
     Applications.get(id, function(){
       //$scope.form.userDetail.$setPristine();
       $('#applicationJson').modal('show');
+      $scope.prettifyJson();
     });
   }
 
@@ -138,6 +139,16 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $rout
       }
     } else {
       console.log('Tried to save an invalid form.');
+    }
+  }
+
+  $scope.prettifyJson = function() {
+    try {
+      var jsonObject = JSON.parse($scope.applications.application.applicationJson);
+      var prettifiedJson = JSON.stringify(jsonObject, undefined, 2);
+      $scope.applications.application.applicationJson = prettifiedJson;
+    }catch (e) {
+      Messages.add('danger', 'Could not prettify applicationJson. Error while parsing');
     }
   }
 
