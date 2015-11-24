@@ -26,7 +26,7 @@ public class UserTokenXpathHelperTest {
     public void testHasUserAdminRightDeniedWrongRoles() {
         String[] noAccessRoleValues = new String[]{"User", "Admin", "Manager"};
         for (String noAccessRoleValue : noAccessRoleValues) {
-            assertFalse(noAccessRoleValue + " was expected to result in access denied.", UserTokenXpathHelper.getRoleValueFromUserToken(getUserToken(noAccessRoleValue), "19", "WhydahUserAdmin") ==null);
+            assertFalse(noAccessRoleValue + " was expected to result in access denied.", UserTokenXpathHelper.getRoleValueFromUserToken(getUserToken(noAccessRoleValue), "2219", "WhydahUserAdmin") ==null);
         }
     }
 
@@ -44,8 +44,8 @@ public class UserTokenXpathHelperTest {
                 "    <lastname>Hetland</lastname>\n" +
                 "    <email>totto@totto.org</email>\n" +
                 "    <personRef>22</personRef>\n" +
-                "    <application ID=\"19\">\n" +
-                "        <applicationName>UserAdminWebApplication</applicationName>\n" +
+                "    <application ID=\"2219\">\n" +
+                "        <applicationName>Whydah-UserAdminWebApp</applicationName>\n" +
                 "        <organizationName>Altran</organizationName>\n" +
                 "        <role name=\"WhydahUserAdmin\" value=\"" + roleValue + "\"/>\n" +
                 "    </application>\n" +
@@ -74,8 +74,8 @@ public class UserTokenXpathHelperTest {
                 "    <lastname>Hetland</lastname>\n" +
                 "    <email>totto@totto.org</email>\n" +
                 "    <personRef>22</personRef>\n" +
-                "    <application ID=\"19\">\n" +
-                "        <applicationName>UserAdminWebApplication</applicationName>\n" +
+                "    <application ID=\"2219\">\n" +
+                "        <applicationName>Whydah-UserAdminWebApp</applicationName>\n" +
                 "        <organizationName>Altran</organizationName>\n" +
                 "        <role name=\""+roleName+"\" value=\"" + "true" + "\"/>\n" +
                 "    </application>\n" +

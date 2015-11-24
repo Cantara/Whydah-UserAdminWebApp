@@ -52,7 +52,7 @@ public class UserAdminRightsTest {
                 "           <organizationName>Kunde 4</organizationName>\n" +
                 "              <role name=\"styremedlem\" value=\"\"/>\n" +
                 "    </application>\n" +
-                "    <application ID=\"19\">\n" +
+                "    <application ID=\"2219\">\n" +
                 "        <applicationName>whydag.org</applicationName>\n" +
                 "        <organizationName>Kunde 1</organizationName>\n" +
                 "        <role name=\"WhydahUserAdmin\" value=\"Valla\"/>\n" +

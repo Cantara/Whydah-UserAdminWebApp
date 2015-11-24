@@ -78,7 +78,7 @@ public class UserTokenXpathHelper {
 
     public static boolean hasUserAdminRight(String userTokenXml) {
         if (true){
-            return !(getRoleValueFromUserToken(userTokenXml, "19", "WhydahUserAdmin")==null);
+            return !(getRoleValueFromUserToken(userTokenXml, "2219", "WhydahUserAdmin")==null);
 
         }
         if (userTokenXml == null || userTokenXml.length()<10) {
