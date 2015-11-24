@@ -1,34 +1,17 @@
 package net.whydah.identity.admin.usertoken;
 
-import net.whydah.identity.admin.UserAdminController;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
-import java.io.StringReader;
-import org.junit.Test;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 
 public class UserAdminRightsTest {
-
-
-    private static final Logger log = LoggerFactory.getLogger(UserAdminRightsTest.class);
-
 
     @Test
     public void testAccessVerifyer() throws Exception {
 
         String testUserTokenWithoutRightRole = "";
-        assertFalse(UserTokenXpathHelper.hasUserAdminRight(testUserTokenWithoutRightRole));
+        assertFalse(UserTokenXpathHelper.hasUserAdminRight(testUserTokenWithoutRightRole, "2219"));
 
 
         String testUserTokenWithRightRole = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
@@ -61,7 +44,7 @@ public class UserAdminRightsTest {
                 "    <ns2:link type=\"application/xml\" href=\"/\" rel=\"self\"/>\n" +
                 "    <hash type=\"MD5\">8a37ef9624ed93db4873035b0de3d1ca</hash>\n" +
                 "</usertoken>";
-        assertTrue(UserTokenXpathHelper.hasUserAdminRight(testUserTokenWithRightRole));
+        assertTrue(UserTokenXpathHelper.hasUserAdminRight(testUserTokenWithRightRole, "2219"));
 
     }
 
@@ -106,7 +89,7 @@ public class UserAdminRightsTest {
                 "    <ns2:link type=\"application/xml\" href=\"http://id.opplysningen.no/tokenservice/user/1f0e3dad99908345f7439f8ffabdffc4/validate_usertokenid/a90a586d-a757-4a8e-a74c-46b09e625b04\" rel=\"self\"/>\n" +
                 "    <hash type=\"MD5\">39e6940126a4ca55ec45451c1fccd2bc</hash>\n" +
                 "</usertoken>\n";
-        assertFalse(UserTokenXpathHelper.hasUserAdminRight(tottoToken));
+        assertFalse(UserTokenXpathHelper.hasUserAdminRight(tottoToken, "2219"));
     }
 
 

@@ -2,15 +2,14 @@ package net.whydah.identity.admin.usertoken;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class UserTokenXpathHelperTest {
     @Test
     public void testHasUserAdminRightAllowed() {
         String[] noAccessRoleValues = new String[]{"1", "true", "enabled", ""};
         for (String allowedRoleValue : noAccessRoleValues) {
-            assertTrue(UserTokenXpathHelper.hasUserAdminRight(getUserToken(allowedRoleValue)));
+            assertTrue(UserTokenXpathHelper.hasUserAdminRight(getUserToken(allowedRoleValue), "2219"));
         }
     }
 

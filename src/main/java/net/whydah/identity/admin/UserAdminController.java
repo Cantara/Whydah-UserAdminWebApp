@@ -36,6 +36,7 @@ public class UserAdminController {
     private final String LOGIN_SERVICE_REDIRECT;
     private final String LOGOUT_SERVICE;
     private final String LOGOUT_SERVICE_REDIRECT;
+    private final String UAWA_APPLICATION_ID;
     private HttpClient httpClient;
     private final boolean STANDALONE;
     Properties properties = AppConfig.readProperties();
@@ -51,6 +52,10 @@ public class UserAdminController {
         LOGIN_SERVICE_REDIRECT = "redirect:" + properties.getProperty("logonservice") + "login?" + REDIRECT_URI_KEY + "=" + MY_APP_URI;
         LOGOUT_SERVICE = properties.getProperty("logonservice") + "logout?" + REDIRECT_URI_KEY + "=" + MY_APP_URI;
         LOGOUT_SERVICE_REDIRECT = "redirect:" + LOGOUT_SERVICE;
+        UAWA_APPLICATION_ID = properties.getProperty("applicationid");
+        if (UAWA_APPLICATION_ID == null || UAWA_APPLICATION_ID.trim().isEmpty()) {
+            throw new RuntimeException("Missing configuration property: applicationid");
+        }
 
         httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
 
@@ -87,7 +92,7 @@ public class UserAdminController {
 
                 userTokenId = UserTokenXpathHelper.getUserTokenIdFromUserTokenXML(userTokenXml);
 
-                if (!UserTokenXpathHelper.hasUserAdminRight(userTokenXml)) {
+                if (!UserTokenXpathHelper.hasUserAdminRight(userTokenXml, UAWA_APPLICATION_ID)) {
                     log.trace("Got user from userTokenXml, but wrong access rights. Redirecting to logout.");
                     userTokenId = null;
                     return LOGOUT_SERVICE_REDIRECT;
@@ -128,7 +133,7 @@ public class UserAdminController {
             return LOGIN_SERVICE_REDIRECT;
         }
 
-        if (!UserTokenXpathHelper.hasUserAdminRight(userTokenXml)) {
+        if (!UserTokenXpathHelper.hasUserAdminRight(userTokenXml, UAWA_APPLICATION_ID)) {
             log.trace("Got user from userTokenXml, but wrong access rights. Redirecting to logout.");
             CookieManager.clearUserTokenCookie(request, response);
             userTokenId = null;
