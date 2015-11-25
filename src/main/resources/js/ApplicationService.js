@@ -89,10 +89,11 @@ UseradminApp.service('Applications', function($http,Messages){
     function buildRoleNames(application) {
         var roleNames = [];
         if (application.hasOwnProperty("roles")) {
-
-            for (var i=0; i < application.roles.length; i++ ){
-                var role = application.roles[i];
-                roleNames.push(role.name);
+            if (application.roles && application.roles.length) {
+                for (var i = 0; i < application.roles.length; i++) {
+                    var role = application.roles[i];
+                    roleNames.push(role.name);
+                }
             }
         }
         return roleNames;
@@ -100,10 +101,11 @@ UseradminApp.service('Applications', function($http,Messages){
     function buildOrgNames(application) {
         var orgNames = [];
         if (application.hasOwnProperty("organizationNames")) {
-
-            for (var i=0; i < application.organizationNames.length; i++ ){
-                var org = application.organizationNames[i];
-                orgNames.push(org.name);
+            if (application.organizationNames && application.organizationNames.length) {
+                for (var i = 0; i < application.organizationNames.length; i++) {
+                    var org = application.organizationNames[i];
+                    orgNames.push(org.name);
+                }
             }
         }
         return orgNames;
