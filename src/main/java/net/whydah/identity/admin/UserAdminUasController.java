@@ -399,8 +399,14 @@ public class UserAdminUasController {
                 while ((line = in.readLine()) !=null) {
                     responseBody.append(line);
                 }
-                model.addAttribute(JSON_DATA_KEY, responseBody.toString());
-                response.setContentType(CONTENTTYPE_JSON_UTF8);
+                if (rescode == 500) {
+                    log.warn("Failed connection to UAS. Reason {}", responseBody.toString() );
+                    String msg = "{\"error\":\"Failed connection to backend. Please investigate the logs for reason.\"}";
+                    model.addAttribute(JSON_DATA_KEY,msg);
+                } else {
+                    model.addAttribute(JSON_DATA_KEY, responseBody.toString());
+                    response.setContentType(CONTENTTYPE_JSON_UTF8);
+                }
             }
             response.setStatus(rescode);
         } catch (IOException e) {
