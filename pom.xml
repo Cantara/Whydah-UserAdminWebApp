@@ -47,7 +47,6 @@
     <properties>
         <service.name>Whydah-UserAdminWebapp</service.name>
         <whydah-sdk-version>2.1-ALPHA-10</whydah-sdk-version>
-        <whydah-typelib-version>1.0.3</whydah-typelib-version>
         <jersey.version>1.19</jersey.version>
         <spring.version>3.0.7.RELEASE</spring.version>
         <jetty.version>7.3.0.v20110203</jetty.version>
@@ -72,7 +71,7 @@
         <dependency>
             <groupId>net.whydah.sso</groupId>
             <artifactId>Whydah-TypeLib</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0.3</version>
         </dependency>
         <!--
         <dependency>
