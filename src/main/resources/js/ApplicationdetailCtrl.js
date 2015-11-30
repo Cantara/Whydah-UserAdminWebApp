@@ -7,7 +7,7 @@ UseradminApp.controller('ApplicationdetailCtrl', function ($scope,Applications, 
         {value: 'defaultRoleName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
         {value: 'applicationUrl',     minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
         {value: 'description',    required: false, type: 'text'},
-        {value: 'fullTokenApplication',    required: false, type: 'boolean'},
+        {value: 'fullTokenApplication',    required: false, type: 'text'},
         {value: 'logoUrl',    required: false, type: 'text'},
         {value: 'applicationJson', required: false, type: 'json'}
     ];

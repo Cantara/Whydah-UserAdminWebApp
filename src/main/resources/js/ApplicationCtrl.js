@@ -77,7 +77,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $rout
     {value: 'description',    required: false, type: 'text'},
     {value: 'applicationUrl',     required: false, type: 'url', validationMsg: 'Must be valid URL.'},
     {value: 'logoUrl', required: false, type: 'url', validationMsg: 'Must be valid URL.'},
-    {value: 'fullTokenApplication',    required: false, type: 'boolean'},
+    {value: 'fullTokenApplication',    required: false, type: 'text'},
     {value: 'secret', minLength: 12, maxLength: 254, required: false, type: 'text', validationMsg:'Must be between 12-254 characters long. No spaces allowed.'},
     {value: 'roleNames', required: false, type: 'text', validationMsg:'Comma separated list of available role names'},
     {value: 'orgNames', required: false, type: 'text', validationMsg:'Comma separated list of available organization names'}
