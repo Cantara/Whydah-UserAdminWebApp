@@ -40,7 +40,7 @@ UseradminApp.service('Applications', function($http,Messages){
     this.list = [];
     this.selected = false;
 
-    this.search = function() {
+    this.search2 = function() {
         console.log('Searching for applications...');
         var that = this;
         $http({
@@ -52,7 +52,7 @@ UseradminApp.service('Applications', function($http,Messages){
         return this;
     };
 
-     this.search2 = function(searchQuery) {
+     this.search = function(searchQuery) {
         console.log('Searching for applications...');
         this.searchQuery = searchQuery || '*';
          var that = this;
