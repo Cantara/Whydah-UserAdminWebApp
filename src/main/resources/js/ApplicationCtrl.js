@@ -23,7 +23,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $rout
     Applications.search();
   }
 
-  if(typeof(Applications) != 'undefined' && Applications.list.length<1) {
+  if(typeof(Applications.list) != 'undefined' && Applications.list.length<1) {
     init();
   }
 
