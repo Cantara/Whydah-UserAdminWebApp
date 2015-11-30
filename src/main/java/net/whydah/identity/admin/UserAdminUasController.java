@@ -344,7 +344,6 @@ public class UserAdminUasController {
         return JSON_KEY;
     }
 
-    /*
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @RequestMapping(value = "/applications/find/{query}", method = RequestMethod.GET)
@@ -373,7 +372,6 @@ public class UserAdminUasController {
         makeUasRequest(method, url, model, response);
         return JSON_KEY;
     }
-    */
 
     private String buildUasUrl(String apptokenid, String usertokenid, String s) {
         return userAdminServiceUrl + apptokenid + "/" + usertokenid + "/" + s;
