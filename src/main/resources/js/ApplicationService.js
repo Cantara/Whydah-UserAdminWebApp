@@ -52,7 +52,6 @@ UseradminApp.service('Applications', function($http,Messages){
         return this;
     };
 
-    /*
      this.search = function(searchQuery) {
      console.log('Searching for applications...');
      this.searchQuery = searchQuery || '*';
@@ -84,7 +83,6 @@ UseradminApp.service('Applications', function($http,Messages){
      });
      return this;
      };
-     */
 
     function buildRoleNames(application) {
         var roleNames = [];
