@@ -40,19 +40,19 @@ UseradminApp.service('Applications', function($http,Messages){
     this.list = [];
     this.selected = false;
 
-//    this.search = function() {
-//        console.log('Searching for applications...');
-//        var that = this;
-//        $http({
-//            method: 'GET',
-//            url: baseUrl + 'applications'
-//        }).success(function (data) {
-//            that.list = data;
-//        });
-//        return this;
-//    };
+    this.search = function() {
+        console.log('Searching for applications...');
+        var that = this;
+        $http({
+            method: 'GET',
+            url: baseUrl + 'applications'
+        }).success(function (data) {
+            that.list = data;
+        });
+        return this;
+    };
 
-     this.search = function(searchQuery) {
+     this.search2 = function(searchQuery) {
         console.log('Searching for applications...');
         this.searchQuery = searchQuery || '*';
          var that = this;
@@ -61,8 +61,7 @@ UseradminApp.service('Applications', function($http,Messages){
             url: baseUrl+'applications/find/'+this.searchQuery
             //url: 'json/users.json',
          }).success(function (data) {
-            that.list = data.result;
-            that.rows = data.rows;
+            that.list = data;
          }).error(function(data,status){
          // This is most likely due to usertoken timeout - TODO: Redirect to login webapp
          console.log('Unable to search', data);
