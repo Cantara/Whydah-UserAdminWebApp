@@ -7,6 +7,7 @@ UseradminApp.controller('ApplicationdetailCtrl', function ($scope,Applications, 
         {value: 'defaultRoleName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
         {value: 'applicationUrl',     minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
         {value: 'description',    required: false, type: 'text'},
+        {value: 'fullTokenApplication',    required: false, type: 'boolean'},
         {value: 'logoUrl',    required: false, type: 'text'},
         {value: 'applicationJson', required: false, type: 'json'}
     ];
@@ -18,6 +19,7 @@ UseradminApp.controller('ApplicationdetailCtrl', function ($scope,Applications, 
             defaultRoleName: 'Default Role Name (*)',
             applicationUrl: 'URL to Application',
             description: 'Description of Application',
+            fullTokenApplication: 'Whydah Admin application',
             logoUrl: 'URL to Application Logo',
             secret: 'Application Secret',
             applicationJson: 'Json override'
