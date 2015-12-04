@@ -5,11 +5,12 @@ UseradminApp.controller('UserdetailCtrl', function($scope, Users) {
   }
 
   $scope.userProperties = [
-    {value: 'firstName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
-    {value: 'lastName',     minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
-    {value: 'email',        minLength: 4, maxLength: 64, required: true, type: 'email', validationMsg:'Please enter a valid e-mail address.'},
-    {value: 'cellPhone',    required: false, type: 'text'},
-    {value: 'personRef',    required: false, type: 'text'}
+    {value: 'uid',          readonly:true},
+    {value: 'firstName',    readonly:false, minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+    {value: 'lastName',     readonly:false, minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+    {value: 'email',        readonly:false, minLength: 4, maxLength: 64, required: true, type: 'email', validationMsg:'Please enter a valid e-mail address.'},
+    {value: 'cellPhone',    readonly:false, required: false, type: 'text'},
+    {value: 'personRef',    readonly:false, required: false, type: 'text'}
   ];
 
   $scope.getValidationClass = function(formPart) {
@@ -29,6 +30,7 @@ UseradminApp.controller('UserdetailCtrl', function($scope, Users) {
 
   $scope.dict = {
     en: {
+      uid: 'UID',
       firstName: 'First name',
       lastName: 'Last name',
       email: 'E-mail',

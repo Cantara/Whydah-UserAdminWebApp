@@ -59,6 +59,7 @@
         <thead>
           <tr>
             <th class="td-checkbox"><label><input tri-state-checkbox elements="users.list" elements-selected="users.selected"></label></th>
+            <th ng-click="changeOrder('uid')">UID. <span class="glyphicon glyphicon-sort"></span></th>
             <th ng-click="changeOrder('username')">Username <span class="glyphicon glyphicon-sort"></span></th>
             <th ng-click="changeOrder('firstName')">Firstname <span class="glyphicon glyphicon-sort"></span></th>
             <th ng-click="changeOrder('lastName')">Lastname <span class="glyphicon glyphicon-sort"></span></th>
@@ -70,11 +71,12 @@
         <tbody>
           <tr ng-repeat="user in users.list | orderBy:orderByColumn:orderReverse" class="itemrow">
             <td><label><input type="checkbox" ng-model="user.isSelected"></label></td>
+            <td ng-click="activateUserDetail(user.uid)">{{textWrap(user.uid,12)}}</td>
             <td ng-click="activateUserDetail(user.uid)" id="rowid_{{user.username}}">{{user.username}}</td>
             <td ng-click="activateUserDetail(user.uid)">{{user.firstName}}</td>
             <td ng-click="activateUserDetail(user.uid)">{{user.lastName}}</td>
             <td ng-click="activateUserDetail(user.uid)">{{user.cellPhone}}</td>
-            <td ng-click="activateUserDetail(user.uid)">{{user.email}}</td>
+            <td ng-click="activateUserDetail(user.uid)">{{textWrap(user.email)}}</td>
             <td ng-click="activateUserDetail(user.uid)">{{user.personRef}}</td>
           </tr>
           <tr ng-if="!users.list.length && searchQuery">
@@ -115,7 +117,7 @@
                    ng-repeat="property in userProperties">
                 <label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
                 <div class="col-sm-10">
-                    <input type="{{property.type}}" class="form-control" id="{{property.value}}" name="{{property.value}}" ng-model="users.user[property.value]" ng-minlength="{{property.minLength}}" ng-maxlength="{{property.maxLength}}" ng-required="{{property.required}}">
+                    <input type="{{property.type}}" class="form-control" id="{{property.value}}" name="{{property.value}}" ng-readonly="{{property.readonly}}"  ng-model="users.user[property.value]" ng-minlength="{{property.minLength}}" ng-maxlength="{{property.maxLength}}" ng-required="{{property.required}}">
                     <span class="help-block" ng-show="formPart.$dirty && formPart.$invalid">{{property.validationMsg}}</span>
                 </div>
               </div>

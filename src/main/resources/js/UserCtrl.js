@@ -83,6 +83,12 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
     $scope.orderReverse = !$scope.orderReverse;
   }
 
+  $scope.textWrap = function(text, wrapOn){
+    if(text.length < wrapOn){
+      return text;
+    }
+    return text.substr(0, wrapOn) +"...";
+  }
   function init() {
     Users.search();
     Applications.search();
