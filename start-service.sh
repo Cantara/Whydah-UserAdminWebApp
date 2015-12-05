@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 #  If IAM_MODE not set, use PROD
