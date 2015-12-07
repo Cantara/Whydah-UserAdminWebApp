@@ -13,7 +13,9 @@
         <FileNamePattern>logs/UserAdminWebApp-%d{yyyy-MM-dd}.log</FileNamePattern>
         <maxHistory>5</maxHistory>
     </rollingPolicy>
-
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+        <maxFileSize>5MB</maxFileSize>
+    </triggeringPolicy>
     <encoder>
         <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
@@ -22,7 +24,7 @@
 
 <logger name="org.eclipse.jetty" level="WARN" />
 
-<logger name="net.whydah.identity.admin" level="TRACE" />
+<logger name="net.whydah.identity.admin" level="INFO" />
 
 <root level="INFO">
     <appender-ref ref="STDOUT" />
