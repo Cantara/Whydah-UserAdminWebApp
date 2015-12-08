@@ -232,11 +232,12 @@ public class UserAdminUasController {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @RequestMapping(value = "/user/{username}/resetpassword", method = RequestMethod.POST)
-    public String resetPassword(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, @PathVariable("username") String username, HttpServletRequest request, HttpServletResponse response, Model model) {
-        log.trace("Resetting password for user: " + username);
+    @RequestMapping(value = "/user/{uid}/resetpassword", method = RequestMethod.POST)
+    public String resetPassword(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, @PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
+        log.trace("Resetting password for user: " + uid);
         PostMethod method = new PostMethod();
-        String url = userAdminServiceUrl + "password/" + apptokenid +"/reset/username/" + username;
+ //       String url = userAdminServiceUrl + "password/" + apptokenid +"/reset/username/" + username;
+        String url = userAdminServiceUrl  + apptokenid +"/user/" + uid+"/reset_password";
         makeUasRequest(method, url, model, response);
 //        response.setContentType(CONTENTTYPE_JSON_UTF8);
         response.setContentType(MediaType.APPLICATION_JSON);
