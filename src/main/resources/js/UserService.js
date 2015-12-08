@@ -242,7 +242,7 @@ UseradminApp.service('Users', function($http, Messages){
     this.resetPassword = function(user) {
 		$http({
 			method: 'POST',
-			url: baseUrl+'user/'+user.username+'/resetpassword'
+			url: baseUrl+'user/'+user.uid+'/reset_password'
 		}).success(function (data) {
 			Messages.add('success', 'Reset password mail sent to user "'+user.username+'".');
 		}).error(function (data) {
