@@ -71,12 +71,12 @@
         <tbody>
           <tr ng-repeat="user in users.list | orderBy:orderByColumn:orderReverse" class="itemrow">
             <td><label><input type="checkbox" ng-model="user.isSelected"></label></td>
-            <td ng-click="activateUserDetail(user.uid)">{{textWrap(user.uid,12)}}</td>
+            <td ng-click="activateUserDetail(user.uid)">{{user.uid | wrap:true:12:'...'}}</td>
             <td ng-click="activateUserDetail(user.uid)" id="rowid_{{user.username}}">{{user.username}}</td>
             <td ng-click="activateUserDetail(user.uid)">{{user.firstName}}</td>
             <td ng-click="activateUserDetail(user.uid)">{{user.lastName}}</td>
             <td ng-click="activateUserDetail(user.uid)">{{user.cellPhone}}</td>
-            <td ng-click="activateUserDetail(user.uid)">{{textWrap(user.email)}}</td>
+            <td ng-click="activateUserDetail(user.uid)">{{user.email | wrap:true:10:'...'}}</td>
             <td ng-click="activateUserDetail(user.uid)">{{user.personRef}}</td>
           </tr>
           <tr ng-if="!users.list.length && searchQuery">

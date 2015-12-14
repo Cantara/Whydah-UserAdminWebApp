@@ -9,7 +9,8 @@
   <tbody>
     <tr ng-repeat="el in elements">
       <td><input type="checkbox" ng-model="el.isSelected"></td>
-      <td ng-repeat="field in visibleFields"><input type="text" class="form-control" ng-model="el[field.name]" ng-show="el.isEditing" ng-if="field.editable"><span ng-show="!el.isEditing || !field.editable">{{el[field.name]}}</span></td>
+      <td ng-repeat="field in visibleFields"><input type="text" class="form-control" ng-model="el[field.name]" ng-show="el.isEditing" ng-if="field.editable">
+        <span ng-show="!el.isEditing || !field.editable" data-toggle="tooltip" title="{{el[field.name]}}">{{el[field.name]| wrap:true:30:'...'}}</span></td>
       <td>
         <button class="btn btn-default btn-sm" ng-click="el.isEditing=true" ng-show="!el.isEditing">
           <span class="glyphicon glyphicon-pencil"></span>&nbsp;Edit
