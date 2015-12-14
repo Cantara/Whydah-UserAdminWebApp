@@ -107,9 +107,13 @@
 
             <div class="modal-body">
             <div class="form-horizontal">
-              <div class="form-group" ng-if="users.user.isNew" ng-class="">
-                <label for="username" class="col-sm-2 control-label">Username</label>
-                <div class="col-sm-10"><input type="text" class="form-control" id="username" name="username" ng-model="users.user.username"></div>
+              <div class="form-group" ng-if="users.user.isNew">
+                <label for="username" class="col-sm-2 control-label" ng-class="has-error">Username</label>
+                <div class="col-sm-10"
+                     ng-class="userNameTakenError()">
+                    <input type="text" class="form-control" id="username" name="username" ng-model="users.user.username">
+                    <span class="help-block" ng-show="userNameTaken">Username is already in use</span>
+                </div>
               </div>
               <div class="form-group"
                    ng-form="formPart"

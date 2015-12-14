@@ -1,5 +1,6 @@
 UseradminApp.controller('UserdetailCtrl', function($scope, Users) {
 
+  $scope.userNameTaken = false;
   $scope.roles = {
     selected: false
   }
@@ -49,25 +50,39 @@ UseradminApp.controller('UserdetailCtrl', function($scope, Users) {
   $scope.$watch('roles.selected', function(){
     $scope.rolesRequiredMessage = ($scope.roles.selected) ? '' : noRolesSelectedMessage;
   });
+  $scope.userNameTakenError = function(){
+    if($scope.userNameTaken){
+      return 'has-error';
+    }
+  }
 
   $scope.save = function() {
-    // Make sure these $scope-values are properly connected to the view
-    if($scope.form.userDetail.$valid){
+    //Check if username is taken
+    $scope.userNameTaken = false;
+    Users.getUserByUserName(Users.user.username, function(data){
+      //if username is taken, return
+      if(data.rows > 0 && Users.user.isNew){
+        $scope.userNameTaken = true;
+        $scope.form.userDetail.username.$invalid = true;
+        return;
+      }
+      if($scope.form.userDetail.$valid){
         if(Users.user.isNew) {
-            var newUser = angular.copy(Users.user);
-            delete newUser.isNew;
-            Users.add(newUser, function(){
-                delete Users.user.isNew;
-                $scope.form.userDetail.$setPristine();
-            });
+          var newUser = angular.copy(Users.user);
+          delete newUser.isNew;
+          Users.add(newUser, function(){
+            delete Users.user.isNew;
+            $scope.form.userDetail.$setPristine();
+          });
         } else {
-            Users.save(Users.user, function(){
-                $scope.form.userDetail.$setPristine();
-            });
+          Users.save(Users.user, function(){
+            $scope.form.userDetail.$setPristine();
+          });
         }
-    } else {
+      } else {
         console.log('Tried to save an invalid form.');
-    }
+      }
+    });
   }
 
   $scope.saveRoleForCurrentUser = function(role) {
