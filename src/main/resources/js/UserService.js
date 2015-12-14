@@ -236,6 +236,17 @@ UseradminApp.service('Users', function($http, Messages){
         this.saveRoleForUser(role, this.user);
     };
 
+		this.getUserByUserName = function(username, callback) {
+			var query = "username=" + username;
+			$http({
+				method: 'GET',
+				url: baseUrl+'users/find/' + query,
+			}).success(function (data) {
+				callback(data);
+			});
+			return this;
+		};
+
 
     // PASSWORD
 
