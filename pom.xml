@@ -71,7 +71,7 @@
         <dependency>
             <groupId>net.whydah.sso</groupId>
             <artifactId>Whydah-TypeLib</artifactId>
-            <version>1.0.10</version>
+            <version>1.0.30</version>
         </dependency>
         <!--
         <dependency>
