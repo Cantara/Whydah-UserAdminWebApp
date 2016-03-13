@@ -249,12 +249,13 @@ UseradminApp.service('Users', function($http, Messages){
 
 
     // PASSWORD
-
+   //  UAS  /auth/password/reset/username/
     this.resetPassword = function(user) {
 		$http({
 			method: 'POST',
-			url: baseUrl+'user/'+user.uid+'/resetpassword'
-		}).success(function (data) {
+//			url: baseUrl+'user/'+user.uid+'/resetpassword'
+			url: baseUrl+'auth/password/rest/'+user.username
+	}).success(function (data) {
 			Messages.add('success', 'Reset password mail sent to user "'+user.username+'".');
 		}).error(function (data) {
 			Messages.add('warning', 'Unable to reset password for user "'+user.username+'".');
