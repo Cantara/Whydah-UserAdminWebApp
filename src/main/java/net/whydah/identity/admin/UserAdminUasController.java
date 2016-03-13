@@ -1,6 +1,8 @@
 package net.whydah.identity.admin;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 import net.whydah.identity.admin.config.AppConfig;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
@@ -243,6 +245,21 @@ public class UserAdminUasController {
         response.setContentType(MediaType.APPLICATION_JSON);
         return JSON_KEY;
     }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @RequestMapping(value ="/auth/password/reset/username/{username}", method = RequestMethod.POST)
+    public String resetUserPassword(@PathVariable("apptokenid") String apptokenid,  @PathVariable("username") String username, HttpServletRequest request, HttpServletResponse response, Model model) {
+        log.trace("Resetting password for username: " + username);
+        PostMethod method = new PostMethod();
+        //       String url = userAdminServiceUrl + "password/" + apptokenid +"/reset/username/" + username;
+        String url = userAdminServiceUrl  + apptokenid +"/auth/password/reset/username/" + username;
+        makeUasRequest(method, url, model, response);
+//        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        response.setContentType(MediaType.APPLICATION_JSON);
+        return JSON_KEY;
+    }
+
 
     // APPLICATION
     @GET
