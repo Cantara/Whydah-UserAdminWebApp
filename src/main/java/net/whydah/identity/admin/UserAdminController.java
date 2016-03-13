@@ -46,7 +46,7 @@ public class UserAdminController {
         MY_APP_URI = properties.getProperty("myuri");
         MY_APP_TYPE = properties.getProperty("myapp");
         if (MY_APP_TYPE == null || MY_APP_TYPE.isEmpty()) {
-            MY_APP_TYPE = "useradmin"; //TODO To be fixed in https://github.com/altran/Whydah-UserAdminWebApp/issues/44
+            MY_APP_TYPE = "useradmin";
         }
 
         LOGIN_SERVICE_REDIRECT = "redirect:" + properties.getProperty("logonservice") + "login?" + REDIRECT_URI_KEY + "=" + MY_APP_URI;
