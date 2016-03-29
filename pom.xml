@@ -41,8 +41,8 @@
         <developerConnection>scm:git:ssh://git@github.com/cantara/Whydah-UserAdminWebApp.git</developerConnection>
         <connection>scm:git:https://github.com/cantara/Whydah-UserAdminWebApp.git</connection>
         <url>https://github.com/cantara/Whydah-UserAdminWebApp</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <service.name>Whydah-UserAdminWebapp</service.name>
@@ -50,7 +50,7 @@
         <jersey.version>1.19</jersey.version>
         <spring.version>3.0.7.RELEASE</spring.version>
         <jetty.version>7.3.0.v20110203</jetty.version>
-    </properties>e
+    </properties>
 
     <repositories>
         <!-- Needed for parent  -->
