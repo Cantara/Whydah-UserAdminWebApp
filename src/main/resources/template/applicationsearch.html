@@ -30,7 +30,7 @@
                 <tr ng-repeat="app in applications.list | orderBy:orderByColumn:orderReverse" class="itemrow">
                     <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
                     <!--<td ng-click="activateApplicationDetail(app.id)" id="rowid_{{app.id}}">{{app.id}}</td>-->
-                    <td ng-click="activateApplicationDetail(app.id)">{{app.name}}</td>
+                    <td ng-click="activateApplicationDetail(app.id)">{{app.id}} {{app.name}}</td>
                     <td ng-click="activateApplicationDetail(app.id)">{{app.company}}</td>
                     <td ng-click="activateApplicationDetail(app.id)">{{app.description| limitTo:20}}</td>
                     <td ng-click="activateApplicationDetail(app.id)">{{app.tags| limitTo:20}}</td>
