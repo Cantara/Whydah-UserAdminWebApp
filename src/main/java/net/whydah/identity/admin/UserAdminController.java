@@ -3,6 +3,7 @@ package net.whydah.identity.admin;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.usertoken.TokenServiceClient;
 import net.whydah.identity.admin.usertoken.UserTokenXpathHelper;
+import net.whydah.sso.session.WhydahApplicationSession;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.slf4j.Logger;
@@ -166,7 +167,7 @@ public class UserAdminController {
         //model.addAttribute("logOutUrl", LOGOUT_SERVICE);
         model.addAttribute("logOutUrl", MY_APP_URI + "logout");
 
-        String baseUrl = "/useradmin/" + tokenServiceClient.getMyAppTokenId() + "/" + tokenServiceClient.getMyUserTokenId() + "/";
+        String baseUrl = "/useradmin/" + tokenServiceClient.getWAS().getActiveApplicationTokenId() + "/" + tokenServiceClient.getMyUserTokenId() + "/";
         model.addAttribute("baseUrl", baseUrl);
     }
 
