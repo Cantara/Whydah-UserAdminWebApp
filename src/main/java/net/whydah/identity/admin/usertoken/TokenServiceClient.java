@@ -1,126 +1,51 @@
 package net.whydah.identity.admin.usertoken;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 import net.whydah.identity.admin.config.AppConfig;
+import net.whydah.sso.commands.userauth.CommandGetUsertokenByUserticket;
+import net.whydah.sso.commands.userauth.CommandGetUsertokenByUsertokenId;
+import net.whydah.sso.session.WhydahApplicationSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
-import java.util.MissingResourceException;
 
 public class TokenServiceClient {
     private static final Logger log = LoggerFactory.getLogger(TokenServiceClient.class);
 
-    private final Client tokenServiceClient = Client.create();
-    private final URI tokenServiceUri;
-    private String myAppTokenXml;
-    private String myAppTokenId;
-    private static String myUserTokenId;
+    private static WhydahApplicationSession was;
 
 
     public TokenServiceClient() throws IOException {
-        try {
-            tokenServiceUri = UriBuilder.fromUri(AppConfig.readProperties().getProperty("tokenservice")).build();
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e.getLocalizedMessage(), e);
-        }
+        String sts = AppConfig.readProperties().getProperty("tokenservice");
+        String applicationid = AppConfig.readProperties().getProperty("applicationid");
+        String applicationname = AppConfig.readProperties().getProperty("applicationname");
+        String applicationsecret = AppConfig.readProperties().getProperty("applicationsecret");
+        ApplicationCredential appCredential=new ApplicationCredential();
+
+        appCredential.setApplicationID(applicationid);
+        appCredential.setApplicationPassord(applicationsecret);
+        was = WhydahApplicationSession.getInstance(sts,applicationid,applicationname,applicationsecret);
     }
 
 
     public String getUserTokenFromUserTokenId(String userTokenId) {
-        logonApplication();
-        WebResource userTokenResource = tokenServiceClient.resource(tokenServiceUri).path("user/" + myAppTokenId + "/get_usertoken_by_usertokenid");
-        MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
-        formData.add("apptoken", myAppTokenXml);
-        formData.add("usertokenid", userTokenId);
-        log.trace("getUserTokenFromUserTokenId - calling {} with usertokenid={}", userTokenResource.getURI().toString(), userTokenId);
-        ClientResponse response = userTokenResource.type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
-        if (response.getStatus() == ClientResponse.Status.FORBIDDEN.getStatusCode()) {
-            throw new RuntimeException("getUserTokenFromUserTokenId failed with status code=" + response.getStatus() + ", userTokenId=" + userTokenId + ", tokenServiceUrl=" + userTokenResource.toString());
+        String userTokenXML = new CommandGetUsertokenByUsertokenId(URI.create(was.getSTS()),was.getActiveApplicationTokenId(),was.getActiveApplicationTokenXML(),userTokenId).execute();
+        if (userTokenXML==null || userTokenXML.length()<10){
+            throw new RuntimeException("getUserTokenFromUserTokenId failed " );
         }
-        if (response.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-            String responseXML = response.getEntity(String.class);
-            log.trace("getUserTokenFromUserTokenId - Response OK with XML: {}", responseXML);
-            return responseXML;
-        }
-        //retry
-        response = userTokenResource.type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
-        if (response.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-            String responseXML = response.getEntity(String.class);
-            log.trace("getUserTokenFromUserTokenId - Response OK with XML: {}", responseXML);
-            return responseXML;
-        }
-
-        throw new RuntimeException("getUserTokenFromUserTokenId failed with status code=" + response.getStatus() + ", userTokenId=" + userTokenId + ", tokenServiceUrl=" + userTokenResource.toString());
+        return userTokenXML;
     }
 
-    private void logonApplication() {
-        //todo sjekke om myAppTokenXml er gyldig før reauth
-        WebResource logonResource = tokenServiceClient.resource(tokenServiceUri).path("logon");
-        MultivaluedMap<String,String> formData = new MultivaluedMapImpl();
-        ApplicationCredential appCredential = new ApplicationCredential();
-        try {
-            String applicationid = AppConfig.readProperties().getProperty("applicationid");
-            String applicationsecret = AppConfig.readProperties().getProperty("applicationsecret");
-
-            appCredential.setApplicationID(applicationid);
-            appCredential.setApplicationPassord(applicationsecret);
-
-            formData.add("applicationcredential", appCredential.toXML());
-            ClientResponse response = logonResource.type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
-            //todo håndtere feil i statuskode + feil ved app-pålogging (retry etc)
-            if (response.getStatus() != 200) {
-                log.error("logonApplication - Application authentication failed with statuscode {}", response.getStatus());
-                throw new RuntimeException("Application authentication failed");
-            }
-            myAppTokenXml = response.getEntity(String.class);
-            myAppTokenId = UserTokenXpathHelper.getApplicationTokenIdFromAppTokenXML(myAppTokenXml);
-            log.trace("logonApplication - Applogon ok: apptokenxml: {}", myAppTokenXml);
-            log.trace("logonApplication - myAppTokenId: {}", myAppTokenId);
-        } catch (IOException ioe){
-            log.warn("logonApplication - Did not find configuration for my application credential.", ioe);
-        }
-    }
 
     public String getUserTokenByUserTicket(String userticket) {
-
-        logonApplication();
-
-        WebResource userTokenResource = tokenServiceClient.resource(tokenServiceUri).path("user/" + myAppTokenId + "/get_usertoken_by_userticket");
-        MultivaluedMap<String,String> formData = new MultivaluedMapImpl();
-        formData.add("apptoken", myAppTokenXml);
-        formData.add("userticket", userticket);
-        ClientResponse response = userTokenResource.type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
-        if (response.getStatus() == ClientResponse.Status.FORBIDDEN.getStatusCode()) {
-            throw new IllegalArgumentException("Login failed.");
+        String userTokenXML = new CommandGetUsertokenByUserticket(URI.create(was.getSTS()),was.getActiveApplicationTokenId(),was.getActiveApplicationTokenXML(),userticket).execute();
+        if (userTokenXML==null || userTokenXML.length()<10){
+            throw new RuntimeException("getUserTokenByUserTicket failed " );
         }
-        if (response.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-            String responseXML = response.getEntity(String.class);
-            log.trace("Response OK with XML: {}", responseXML);
-            myUserTokenId = UserTokenXpathHelper.getUserTokenIdFromUserTokenXML(responseXML);
-            return responseXML;
-        }
-        //retry
-        response = userTokenResource.type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
-        if (response.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-            String responseXML = response.getEntity(String.class);
-            log.trace("Response OK with XML: {}", responseXML);
-            return responseXML;
-        }
-        log.warn("User authentication failed: {}", response);
-        if (response.getStatus() == Response.Status.GONE.getStatusCode()) {
-            throw new MissingResourceException("No token found for ticket.", getClass().getSimpleName(), userticket);
-        }
-        throw new RuntimeException("User authentication failed with status code " + response.getStatus());
+        return userTokenXML;
     }
+
 
 
     public static Integer calculateTokenRemainingLifetimeInSeconds(String userTokenXml) {
@@ -137,47 +62,5 @@ public class TokenServiceClient {
     }
 
 
-    public String getMyAppTokenId(){
-        return myAppTokenId;
-    }
-    public String getMyUserTokenId(){
-        return myUserTokenId;
-    }
-
-
-    /*
-    private PostMethod setUpGetUserToken(PostMethod p,String userTokenId) throws IOException {
-        String appTokenXML = p.getResponseBodyAsString();
-        String applicationtokenid = XPATHHelper.getApplicationTokenIdFromAppTokenXML(appTokenXML);
-        WebResource resource = tokenServiceClient.resource(tokenServiceUri).path("user/" + applicationtokenid + "/get_usertoken_by_usertokenid");
-
-        PostMethod p2 = new PostMethod(resource.toString());
-        p2.addParameter("apptoken",appTokenXML);
-        p2.addParameter("usertokenid",userTokenId);
-
-        log.trace("apptoken:" + appTokenXML);
-        log.trace("usertokenid:" + userTokenId);
-        return p2;
-    }
-
-    private PostMethod setupRealApplicationLogon() {
-        ApplicationCredential acred = new ApplicationCredential();
-        try {
-            acred = new ApplicationCredential();
-            Properties properties = AppConfig.readProperties();
-
-            acred.setApplicationID(properties.getProperty("applicationname"));
-            acred.setApplicationPassord(properties.getProperty("applicationname"));
-
-        } catch (IOException ioe) {
-            log.error("Unable to get my application credentials from propertyfile.", ioe);
-        }
-        WebResource resource = tokenServiceClient.resource(tokenServiceUri).path("/logon");
-
-        PostMethod p = new PostMethod(resource.toString());
-        p.addParameter("applicationcredential",acred.toXML());
-        return p;
-    }
-    */
 }
 
