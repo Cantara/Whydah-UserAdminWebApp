@@ -1,9 +1,7 @@
 package net.whydah.identity.admin;
 
 import net.whydah.identity.admin.config.AppConfig;
-import net.whydah.identity.admin.usertoken.TokenServiceClient;
 import net.whydah.identity.admin.usertoken.UserTokenXpathHelper;
-import net.whydah.sso.session.WhydahApplicationSession;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.slf4j.Logger;
@@ -30,7 +28,7 @@ public class UserAdminController {
     private static final String HTML_CONTENT_TYPE = "text/html; charset=utf-8";
     private static String userTokenId = null;
 
-    private TokenServiceClient tokenServiceClient = new TokenServiceClient();
+    private WhydahServiceClient tokenServiceClient = new WhydahServiceClient();
 
     private String MY_APP_TYPE = "myapp";
     private final String MY_APP_URI;
@@ -101,7 +99,7 @@ public class UserAdminController {
 
                 log.info("Logon OK. UserTokenXML obtained with user ticket contained a valid admin user. userTokenId={}", userTokenId);
                 addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml));
-                Integer tokenRemainingLifetimeSeconds = TokenServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
+                Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
                 CookieManager.createAndSetUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, response);
                 return MY_APP_TYPE;
             } catch (MissingResourceException mre) {
@@ -143,7 +141,7 @@ public class UserAdminController {
 
         userTokenId = UserTokenXpathHelper.getUserTokenIdFromUserTokenXML(userTokenXml);
         addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml));
-        Integer tokenRemainingLifetimeSeconds = TokenServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
+        Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
         CookieManager.updateUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, request, response);
 
         log.info("Logon OK. userTokenIdFromUserTokenXml={}", userTokenId);
@@ -167,7 +165,7 @@ public class UserAdminController {
         //model.addAttribute("logOutUrl", LOGOUT_SERVICE);
         model.addAttribute("logOutUrl", MY_APP_URI + "logout");
 
-        String baseUrl = "/useradmin/" + tokenServiceClient.getWAS().getActiveApplicationTokenId() + "/" + tokenServiceClient.getMyUserTokenId() + "/";
+        String baseUrl = "/useradmin/" + tokenServiceClient.getWAS().getActiveApplicationTokenId() + "/" + tokenServiceClient.getMyAppTokenID() + "/";
         model.addAttribute("baseUrl", baseUrl);
     }
 
