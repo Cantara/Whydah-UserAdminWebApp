@@ -2,6 +2,8 @@ package net.whydah.identity.admin;
 
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.usertoken.UserTokenXpathHelper;
+import net.whydah.sso.user.mappers.UserTokenMapper;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.slf4j.Logger;
@@ -14,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
 import java.io.IOException;
 import java.util.MissingResourceException;
 import java.util.Properties;
@@ -160,12 +163,13 @@ public class UserAdminController {
 
 
     private void addModelParams(Model model, String userTokenXml, String realName) {
+    	
         model.addAttribute("token", userTokenXml);
         model.addAttribute("realName", realName);
         //model.addAttribute("logOutUrl", LOGOUT_SERVICE);
         model.addAttribute("logOutUrl", MY_APP_URI + "logout");
 
-        String baseUrl = "/useradmin/" + tokenServiceClient.getWAS().getActiveApplicationTokenId() + "/" + tokenServiceClient.getMyAppTokenID() + "/";
+        String baseUrl = "/useradmin/" + tokenServiceClient.getWAS().getActiveApplicationTokenId() + "/" + UserTokenMapper.fromUserTokenXml(userTokenXml).getTokenid()+ "/";
         model.addAttribute("baseUrl", baseUrl);
     }
 
