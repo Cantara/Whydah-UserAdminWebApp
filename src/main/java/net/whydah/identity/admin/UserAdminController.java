@@ -51,6 +51,7 @@ public class UserAdminController {
             MY_APP_TYPE = "useradmin";
         }
 
+        tokenServiceClient = new WhydahServiceClient();
         LOGIN_SERVICE_REDIRECT = "redirect:" + properties.getProperty("logonservice") + "login?" + REDIRECT_URI_KEY + "=" + MY_APP_URI;
         LOGOUT_SERVICE = properties.getProperty("logonservice") + "welcome?" + REDIRECT_URI_KEY + "=" + MY_APP_URI;
         LOGOUT_SERVICE_REDIRECT = "redirect:" + LOGOUT_SERVICE;
@@ -87,10 +88,14 @@ public class UserAdminController {
                 log.debug("Logon with userticket: userTokenXml={}", userTokenXml);
 
                 if (userTokenXml == null || userTokenXml.length() < MIN_USER_TOKEN_LENGTH) {
-                    log.trace("UserTokenXML null or too short to be useful. Redirecting to login.");
-                    CookieManager.clearUserTokenCookie(request, response);
-                    return LOGIN_SERVICE_REDIRECT;
+                    log.trace("UserTokenXML null or too short to be useful. Checking Cookie.");
+                    String userTokenIdFromCookie = CookieManager.getUserTokenIdFromCookie(request);
+                    if (userTokenIdFromCookie != null && tokenServiceClient.verifyUserTokenId(userTokenIdFromCookie)){
+                        log.trace("Valid userTokenID found in Cookie.");
+                        userTokenXml=tokenServiceClient.getUserTokenByUserTokenID(userTokenIdFromCookie);
+                    }
                 }
+
 
                 userTokenId = UserTokenXpathHelper.getUserTokenIdFromUserTokenXML(userTokenXml);
 
