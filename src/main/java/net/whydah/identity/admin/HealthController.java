@@ -4,14 +4,16 @@ import net.whydah.sso.util.WhydahUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 
-@RequestMapping("/health")
+@RequestMapping("/")
 @Controller
 public class HealthController {
     private static final Logger log = LoggerFactory.getLogger(HealthController.class);
@@ -21,6 +23,21 @@ public class HealthController {
         tokenServiceClient = new WhydahServiceClient();
 
     }
+
+    @RequestMapping("/health")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String isHealthy(HttpServletRequest request, HttpServletResponse response, Model model) {
+        boolean ok = true;
+        String statusText = WhydahUtil.getPrintableStatus(tokenServiceClient.getWAS());
+        log.trace("isHealthy={}, status: {}", ok, statusText);
+        if (ok) {
+            model.addAttribute("health", "Status OK! \n" + statusText);
+        } else {
+        }
+        return "health";
+    }
+
+    /**
 
     @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
     @RequestMapping("/")
@@ -35,4 +52,5 @@ public class HealthController {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+     */
 }
