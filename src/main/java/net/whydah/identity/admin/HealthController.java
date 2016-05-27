@@ -37,20 +37,4 @@ public class HealthController {
         return "health";
     }
 
-    /**
-
-    @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
-    @RequestMapping("/")
-    public Response isHealthy() {
-        boolean ok = true;
-        String statusText = WhydahUtil.getPrintableStatus(tokenServiceClient.getWAS());
-        log.trace("isHealthy={}, status: {}", ok, statusText);
-        if (ok) {
-            return Response.ok("Status OK!\n" + statusText).build();
-        } else {
-            //Intentionally not returning anything the client can use to determine what's the error for security reasons.
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-     */
 }
