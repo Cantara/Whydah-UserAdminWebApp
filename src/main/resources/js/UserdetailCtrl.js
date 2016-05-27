@@ -36,7 +36,7 @@ UseradminApp.controller('UserdetailCtrl', function($scope, Users) {
       lastName: 'Last name',
       email: 'E-mail',
       cellPhone: 'Cellphone',
-      personRef: 'Reference',
+      personRef: 'CRM Customer',
       applicationName: 'Application',
       organizationName: 'Organization',
       roleName: 'Role',
