@@ -47,7 +47,6 @@ public class UserAdminController {
 //    Properties properties = AppConfig.readProperties();
 
     public UserAdminController() throws IOException {
-<<<<<<< HEAD
 //        STANDALONE = Boolean.valueOf(properties.getProperty("standalone"));
 //        MY_APP_URI = properties.getProperty("myuri");
 //        MY_APP_TYPE = properties.getProperty("myapp");
@@ -71,32 +70,6 @@ public class UserAdminController {
 //        strb.append("\n- LOGIN_SERVICE_REDIRECT=").append(LOGIN_SERVICE_REDIRECT);
 //        strb.append("\n- LOGOUT_SERVICE_REDIRECT=").append(LOGOUT_SERVICE_REDIRECT);
 //        log.debug(strb.toString());
-=======
-        STANDALONE = Boolean.valueOf(properties.getProperty("standalone"));
-        MY_APP_URI = properties.getProperty("myuri");
-        MY_APP_TYPE = properties.getProperty("myapp");
-        if (MY_APP_TYPE == null || MY_APP_TYPE.isEmpty()) {
-            MY_APP_TYPE = "useradmin";
-        }
-
-        tokenServiceClient = new WhydahServiceClient();
-        LOGIN_SERVICE_REDIRECT = "redirect:" + properties.getProperty("logonservice") + "login?" + REDIRECT_URI_KEY + "=" + MY_APP_URI;
-        LOGOUT_SERVICE = properties.getProperty("logonservice") + "welcome?" + REDIRECT_URI_KEY + "=" + MY_APP_URI;
-        LOGOUT_SERVICE_REDIRECT = "redirect:" + LOGOUT_SERVICE;
-        UAWA_APPLICATION_ID = properties.getProperty("applicationid");
-        if (UAWA_APPLICATION_ID == null || UAWA_APPLICATION_ID.trim().isEmpty()) {
-            throw new RuntimeException("Missing configuration property: applicationid");
-        }
-
-        httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
-
-        StringBuilder strb = new StringBuilder("Initialized UserAdminController \n");
-        strb.append("\n- Standalone=").append(STANDALONE);
-        strb.append("\n- MY_APP_URI=").append(MY_APP_URI);
-        strb.append("\n- LOGIN_SERVICE_REDIRECT=").append(LOGIN_SERVICE_REDIRECT);
-        strb.append("\n- LOGOUT_SERVICE_REDIRECT=").append(LOGOUT_SERVICE_REDIRECT);
-        log.debug(strb.toString());
->>>>>>> branch 'master' of https://github.com/Cantara/Whydah-UserAdminWebApp.git
     }
 
     @Produces(MediaType.TEXT_HTML + ";charset=utf-8")
@@ -108,7 +81,6 @@ public class UserAdminController {
             addModelParams(model, "Unauthorized", "Unknown User");
             return SessionUserAdminDao.instance.MY_APP_TYPE;
         }
-<<<<<<< HEAD
         String userTokenXml = SessionUserAdminDao.instance.findUserTokenXMLFromSession(request, response, model);
         if(userTokenXml==null){
         	log.trace("UserTokenXML null or too short to be useful. Redirecting to login.");
@@ -126,42 +98,6 @@ public class UserAdminController {
         		log.info("Logon OK. userTokenIdFromUserTokenXml={}", userTokenId);
         		return SessionUserAdminDao.instance.MY_APP_TYPE;
         	}
-=======
-
-        String userTicket = request.getParameter(USERTICKET_KEY);
-        if (userTokenId == null && userTicket != null && userTicket.length() > MIN_USERTICKET_LENGTH) {
-            String userTokenXml;
-            try {
-                userTokenXml = tokenServiceClient.getUserTokenByUserTicket(userTicket);
-                log.debug("Logon with userticket: userTokenXml={}", userTokenXml);
-
-                if (userTokenXml == null || userTokenXml.length() < MIN_USER_TOKEN_LENGTH) {
-                    log.trace("UserTokenXML null or too short to be useful. Checking Cookie.");
-                    String userTokenIdFromCookie = CookieManager.getUserTokenIdFromCookie(request);
-                    if (userTokenIdFromCookie != null && tokenServiceClient.verifyUserTokenId(userTokenIdFromCookie)){
-                        log.trace("Valid userTokenID found in Cookie.");
-                        userTokenXml=tokenServiceClient.getUserTokenByUserTokenID(userTokenIdFromCookie);
-                    }
-                }
-
-
-                userTokenId = UserTokenXpathHelper.getUserTokenIdFromUserTokenXML(userTokenXml);
-
-                if (!UserTokenXpathHelper.hasUserAdminRight(userTokenXml, UAWA_APPLICATION_ID)) {
-                    log.trace("Got user from userTokenXml, but wrong access rights. Redirecting to logout.");
-                    userTokenId = null;
-                    return LOGOUT_SERVICE_REDIRECT;
-                }
-
-                log.info("Logon OK. UserTokenXML obtained with user ticket contained a valid admin user. userTokenId={}", userTokenId);
-                addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml));
-                Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
-                CookieManager.createAndSetUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, response);
-                return MY_APP_TYPE;
-            } catch (MissingResourceException mre) {
-                log.trace("getUserTokenByUserTicket failed. The ticked might have already been used. Checking cookie. MissingResourceException=", mre.getMessage());
-            }
->>>>>>> branch 'master' of https://github.com/Cantara/Whydah-UserAdminWebApp.git
         }
         
         
