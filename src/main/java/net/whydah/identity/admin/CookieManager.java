@@ -61,6 +61,9 @@ public class CookieManager {
 
     public static void updateUserTokenCookie(String userTokenId, Integer tokenRemainingLifetimeSeconds, HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = getUserTokenCookie(request);
+        if(cookie==null){
+        	cookie = new Cookie(USER_TOKEN_REFERENCE_NAME, userTokenId);
+        }
         updateCookie(cookie, userTokenId, tokenRemainingLifetimeSeconds, response);
     }
 

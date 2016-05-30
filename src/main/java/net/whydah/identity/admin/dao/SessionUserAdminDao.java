@@ -19,6 +19,8 @@ import net.whydah.sso.user.helpers.UserTokenXpathHelper;
 
 
 
+
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.slf4j.Logger;
@@ -130,7 +132,9 @@ public enum SessionUserAdminDao {
 				//update cookie with a working usertokenid
 				String tokenid =  UserTokenXpathHelper.getUserTokenId(userTokenXml);
 				Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
-				CookieManager.createAndSetUserTokenCookie(tokenid, tokenRemainingLifetimeSeconds, response);
+        		CookieManager.updateUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, request, response);
+				
+        		
 				//fill in model
 				model.addAttribute(ConstantValue.USER_TOKEN_ID, tokenid);
 				if(userTicket!=null && isValidTicket){

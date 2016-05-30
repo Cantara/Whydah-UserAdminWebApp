@@ -29,7 +29,7 @@ public class ServerUtil {
 		Matcher m = p.matcher(uri);
 		if (m.matches()) {
 			String host=m.group(2).replaceFirst("www.", "");
-			String port=m.group(3)!=null?m.group(3):"80"; //default 80
+			String port=m.group(3)!=null?m.group(3).replace(":", ""):"80"; //default 80
 			return isServerOnline(host, Integer.valueOf(port));
 		}
 		return true;

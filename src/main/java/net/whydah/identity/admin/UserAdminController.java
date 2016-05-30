@@ -8,7 +8,6 @@ import net.whydah.sso.user.mappers.UserTokenMapper;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.eclipse.jetty.server.session.JDBCSessionManager.SessionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -54,6 +53,7 @@ public class UserAdminController {
 //            MY_APP_TYPE = "useradmin";
 //        }
 //
+//        tokenServiceClient = new WhydahServiceClient();
 //        LOGIN_SERVICE_REDIRECT = "redirect:" + properties.getProperty("logonservice") + "login?" + REDIRECT_URI_KEY + "=" + MY_APP_URI;
 //        LOGOUT_SERVICE = properties.getProperty("logonservice") + "welcome?" + REDIRECT_URI_KEY + "=" + MY_APP_URI;
 //        LOGOUT_SERVICE_REDIRECT = "redirect:" + LOGOUT_SERVICE;
@@ -81,6 +81,7 @@ public class UserAdminController {
             addModelParams(model, "Unauthorized", "Unknown User");
             return SessionUserAdminDao.instance.MY_APP_TYPE;
         }
+        
         String userTokenXml = SessionUserAdminDao.instance.findUserTokenXMLFromSession(request, response, model);
         if(userTokenXml==null){
         	log.trace("UserTokenXML null or too short to be useful. Redirecting to login.");
@@ -92,15 +93,11 @@ public class UserAdminController {
         		return SessionUserAdminDao.instance.LOGOUT_SERVICE_REDIRECT;
         	} else {
         		String userTokenId = UserTokenXpathHelper.getUserTokenIdFromUserTokenXML(userTokenXml);
-        		addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml));
-        		Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
-        		CookieManager.updateUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, request, response);
+        		addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml));        		
         		log.info("Logon OK. userTokenIdFromUserTokenXml={}", userTokenId);
         		return SessionUserAdminDao.instance.MY_APP_TYPE;
         	}
         }
-        
-        
 
 //        String userTicket = request.getParameter(USERTICKET_KEY);
 //        if (userTokenId == null && userTicket != null && userTicket.length() > MIN_USERTICKET_LENGTH) {
@@ -110,10 +107,14 @@ public class UserAdminController {
 //                log.debug("Logon with userticket: userTokenXml={}", userTokenXml);
 //
 //                if (userTokenXml == null || userTokenXml.length() < MIN_USER_TOKEN_LENGTH) {
-//                    log.trace("UserTokenXML null or too short to be useful. Redirecting to login.");
-//                    CookieManager.clearUserTokenCookie(request, response);
-//                    return LOGIN_SERVICE_REDIRECT;
+//                    log.trace("UserTokenXML null or too short to be useful. Checking Cookie.");
+//                    String userTokenIdFromCookie = CookieManager.getUserTokenIdFromCookie(request);
+//                    if (userTokenIdFromCookie != null && tokenServiceClient.verifyUserTokenId(userTokenIdFromCookie)){
+//                        log.trace("Valid userTokenID found in Cookie.");
+//                        userTokenXml=tokenServiceClient.getUserTokenByUserTokenID(userTokenIdFromCookie);
+//                    }
 //                }
+//
 //
 //                userTokenId = UserTokenXpathHelper.getUserTokenIdFromUserTokenXML(userTokenXml);
 //
@@ -171,12 +172,14 @@ public class UserAdminController {
 //        CookieManager.updateUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, request, response);
 //
 //        log.info("Logon OK. userTokenIdFromUserTokenXml={}", userTokenId);
-//        return MY_APP_TYPE;
+//        return SessionUserAdminDao.instance.MY_APP_TYPE;
     }
 
     @RequestMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response, Model model) {
         String userTokenIdFromCookie = CookieManager.getUserTokenIdFromCookie(request);
+        //model.addAttribute("redirectURI", MY_APP_URI);
+        //userTokenId = null;
         log.trace("Logout was called with userTokenIdFromCookie={}. Redirecting to {}.", userTokenIdFromCookie, SessionUserAdminDao.instance.LOGOUT_SERVICE_REDIRECT);
         CookieManager.clearUserTokenCookie(request, response);
         return SessionUserAdminDao.instance.LOGOUT_SERVICE_REDIRECT;
@@ -187,7 +190,9 @@ public class UserAdminController {
     	
         model.addAttribute("token", userTokenXml);
         model.addAttribute("realName", realName);
+        //model.addAttribute("logOutUrl", LOGOUT_SERVICE);
         model.addAttribute("logOutUrl", SessionUserAdminDao.instance.MY_APP_URI + "logout");
+
         String baseUrl = "/useradmin/" + SessionUserAdminDao.instance.getServiceClient().getWAS().getActiveApplicationTokenId() + "/" + UserTokenMapper.fromUserTokenXml(userTokenXml).getTokenid()+ "/";
         model.addAttribute("baseUrl", baseUrl);
     }
