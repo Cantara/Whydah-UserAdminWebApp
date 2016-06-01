@@ -104,7 +104,7 @@ UseradminApp.service('Users', function($http, Messages){
 			data: user
 		}).success(function (data) {
 			Messages.add('success', 'User "'+user.username+'" was added successfully.');
-			user.uid = data.uid;
+			that.user.uid = data.uid;
 			that.search(that.searchQuery);
 		    if(successCallback){
 		        successCallback();

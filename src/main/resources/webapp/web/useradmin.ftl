@@ -90,7 +90,7 @@
         <script src="js/lib/autocomplete.js"></script>
         <#--<script src="js/lib/ui-bootstrap-modal-tpls-0.14.3.js"></script>-->
         <#--<script src="js/lib/ui-bootstrap-modal-0.14.3.js"></script>-->
-        <script src="js/auth.js"></script>
+        <#--<script src="js/auth.js"></script>-->
 
         <!-- Main application -->
         <script src="js/UseradminApp.js"></script>
