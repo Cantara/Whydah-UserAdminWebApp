@@ -18,6 +18,13 @@ body {
     right: 0;
     z-index: 1070;
 }
+#page-content {
+    margin: 30px auto;
+    padding: 1em;
+    max-width: 800px;
+	text-align: center;
+}
+
 /* To-do: Increase width for smaller screen sizes */
 
 

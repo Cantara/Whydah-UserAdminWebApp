@@ -36,8 +36,9 @@ public enum SessionUserAdminDao {
 	private WhydahServiceClient serviceClient;
 	public String MY_APP_TYPE = "myapp";
 	public String MY_APP_URI;
+	public String LOGIN_SERVICE;
 	public String LOGIN_SERVICE_REDIRECT;
-	protected String LOGOUT_SERVICE;
+	public String LOGOUT_SERVICE;
 	public String LOGOUT_SERVICE_REDIRECT;
 	public String UAWA_APPLICATION_ID;
 	protected HttpClient httpClient;
@@ -57,9 +58,9 @@ public enum SessionUserAdminDao {
 	        if (MY_APP_TYPE == null || MY_APP_TYPE.isEmpty()) {
 	            MY_APP_TYPE = "useradmin";
 	        }
-	        
+	        LOGIN_SERVICE = properties.getProperty("logonservice") + "login?" + ConstantValue.REDIRECT_URI + "=" + MY_APP_URI;
 	        LOGIN_SERVICE_REDIRECT = "redirect:" + properties.getProperty("logonservice") + "login?" + ConstantValue.REDIRECT_URI + "=" + MY_APP_URI;
-	        LOGOUT_SERVICE = properties.getProperty("logonservice") + "welcome?" + ConstantValue.REDIRECT_URI + "=" + MY_APP_URI;
+	        LOGOUT_SERVICE = properties.getProperty("logonservice") + "logout?" + ConstantValue.REDIRECT_URI + "=" + MY_APP_URI;
 	        LOGOUT_SERVICE_REDIRECT = "redirect:" + LOGOUT_SERVICE;
 	        UAWA_APPLICATION_ID = properties.getProperty("applicationid");
 	        if (UAWA_APPLICATION_ID == null || UAWA_APPLICATION_ID.trim().isEmpty()) {

@@ -90,7 +90,9 @@ public class UserAdminController {
         } else {
         	if (!UserTokenXpathHelper.hasUserAdminRight(userTokenXml, SessionUserAdminDao.instance.UAWA_APPLICATION_ID)) {
         		log.trace("Got user from userTokenXml, but wrong access rights. Redirecting to logout.");
-        		return SessionUserAdminDao.instance.LOGOUT_SERVICE_REDIRECT;
+        		CookieManager.clearUserTokenCookie(request, response);
+        		addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml)); 
+        		return "login_error";
         	} else {
         		String userTokenId = UserTokenXpathHelper.getUserTokenIdFromUserTokenXML(userTokenXml);
         		addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml));        		
@@ -184,6 +186,17 @@ public class UserAdminController {
         CookieManager.clearUserTokenCookie(request, response);
         return SessionUserAdminDao.instance.LOGOUT_SERVICE_REDIRECT;
     }
+    
+//    
+//    @RequestMapping("/relogin")
+//    public String relogin(HttpServletRequest request, HttpServletResponse response, Model model) {
+//        String userTokenIdFromCookie = CookieManager.getUserTokenIdFromCookie(request);
+//        //model.addAttribute("redirectURI", MY_APP_URI);
+//        //userTokenId = null;
+//        log.trace("Logout was called with userTokenIdFromCookie={}. Redirecting to {}.", userTokenIdFromCookie, SessionUserAdminDao.instance.LOGOUT_SERVICE_REDIRECT);
+//        CookieManager.clearUserTokenCookie(request, response);
+//        return SessionUserAdminDao.instance.LOGOUT_SERVICE_REDIRECT;
+//    }
 
 
     private void addModelParams(Model model, String userTokenXml, String realName) {
@@ -192,7 +205,7 @@ public class UserAdminController {
         model.addAttribute("realName", realName);
         //model.addAttribute("logOutUrl", LOGOUT_SERVICE);
         model.addAttribute("logOutUrl", SessionUserAdminDao.instance.MY_APP_URI + "logout");
-
+        model.addAttribute("logOutRedirectUrl", SessionUserAdminDao.instance.LOGOUT_SERVICE);
         String baseUrl = "/useradmin/" + SessionUserAdminDao.instance.getServiceClient().getWAS().getActiveApplicationTokenId() + "/" + UserTokenMapper.fromUserTokenXml(userTokenXml).getTokenid()+ "/";
         model.addAttribute("baseUrl", baseUrl);
     }
