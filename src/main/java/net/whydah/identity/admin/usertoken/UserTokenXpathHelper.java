@@ -91,7 +91,7 @@ public class UserTokenXpathHelper {
             Document doc = db.parse(new InputSource(new StringReader(userTokenXml)));
             XPath xPath = XPathFactory.newInstance().newXPath();
 
-            String expression = "/usertoken/application[@ID=\"19\"]/role[@name=\"WhydahUserAdmin\"]/@value";
+            String expression = "/usertoken/application[@ID=\"2219\"]/role[@name=\"WhydahUserAdmin\"]/@value";
             XPathExpression xPathExpression = xPath.compile(expression);
             log.trace("hasUserAdminRight - token" + userTokenXml + "\nvalue:" + xPathExpression.evaluate(doc));
             String roleValue = (xPathExpression.evaluate(doc));
