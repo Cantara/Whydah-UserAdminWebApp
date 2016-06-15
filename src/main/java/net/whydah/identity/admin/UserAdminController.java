@@ -1,13 +1,9 @@
 package net.whydah.identity.admin;
 
-import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.ConstantValue;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
 import net.whydah.identity.admin.usertoken.UserTokenXpathHelper;
 import net.whydah.sso.user.mappers.UserTokenMapper;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -18,10 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
 import java.io.IOException;
-import java.util.MissingResourceException;
-import java.util.Properties;
 
 @Controller
 public class UserAdminController {
@@ -95,8 +88,10 @@ public class UserAdminController {
         		return "login_error";
         	} else {
         		String userTokenId = UserTokenXpathHelper.getUserTokenIdFromUserTokenXML(userTokenXml);
-        		addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml));        		
-        		log.info("Logon OK. userTokenIdFromUserTokenXml={}", userTokenId);
+                Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
+                CookieManager.createAndSetUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, response);
+                addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml));
+                log.info("Logon OK. userTokenIdFromUserTokenXml={}", userTokenId);
         		return SessionUserAdminDao.instance.MY_APP_TYPE;
         	}
         }
