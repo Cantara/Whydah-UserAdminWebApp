@@ -149,7 +149,7 @@ public enum SessionUserAdminDao {
             log.warn("welcome redirect - SecurityTokenException exception: ", e);
             return null;
         }
-        return null;
+        return userTokenXml;
     }
 
     public WhydahServiceClient getServiceClient() {
