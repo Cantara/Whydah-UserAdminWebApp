@@ -1,8 +1,5 @@
 package net.whydah.identity.admin;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 import net.whydah.identity.admin.config.AppConfig;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
@@ -36,7 +33,7 @@ public class UserAdminUasController {
     public static final String CONTENTTYPE_JSON_UTF8 = "application/json; charset=utf-8";
     private final String userAdminServiceUrl;
     private final HttpClient httpClient;
-    private final Client tokenServiceClient = Client.create();
+    private WhydahServiceClient tokenServiceClient = new WhydahServiceClient();
 
 
     public UserAdminUasController() throws IOException {
@@ -239,7 +236,7 @@ public class UserAdminUasController {
         log.trace("Resetting password for user: " + uid);
         PostMethod method = new PostMethod();
  //       String url = userAdminServiceUrl + "password/" + apptokenid +"/reset/username/" + username;
-        String url = userAdminServiceUrl  + apptokenid +"/user/" + uid+"/reset_password";
+        String url = userAdminServiceUrl + getUAWAApplicationId() + "/user/" + uid + "/reset_password";
         makeUasRequest(method, url, model, response);
 //        response.setContentType(CONTENTTYPE_JSON_UTF8);
         response.setContentType(MediaType.APPLICATION_JSON);
@@ -253,7 +250,7 @@ public class UserAdminUasController {
         log.trace("Resetting password for username: " + username);
         PostMethod method = new PostMethod();
         //       String url = userAdminServiceUrl + "password/" + apptokenid +"/reset/username/" + username;
-        String url = userAdminServiceUrl  + apptokenid +"/auth/password/reset/username/" + username;
+        String url = userAdminServiceUrl + getUAWAApplicationId() + "/auth/password/reset/username/" + username;
         makeUasRequest(method, url, model, response);
 //        response.setContentType(CONTENTTYPE_JSON_UTF8);
         response.setContentType(MediaType.APPLICATION_JSON);
@@ -392,7 +389,7 @@ public class UserAdminUasController {
     }
 
     private String buildUasUrl(String apptokenid, String usertokenid, String s) {
-        return userAdminServiceUrl + apptokenid + "/" + usertokenid + "/" + s;
+        return userAdminServiceUrl + getUAWAApplicationId() + "/" + usertokenid + "/" + s;
     }
 
     private String makeUasRequest(HttpMethod method, String url, Model model, HttpServletResponse response) {
@@ -438,5 +435,9 @@ public class UserAdminUasController {
             log.error("jsondata attribute not set when fetching data from URL: {}", url);
         }
         return responseBody.toString();
+    }
+
+    private String getUAWAApplicationId() {
+        return tokenServiceClient.getWAS().getActiveApplicationTokenId();
     }
 }
