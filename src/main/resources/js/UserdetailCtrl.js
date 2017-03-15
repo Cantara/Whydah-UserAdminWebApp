@@ -11,7 +11,7 @@ UseradminApp.controller('UserdetailCtrl', function($scope, Users) {
     {value: 'lastName',     readonly:false, minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
     {value: 'email',        readonly:false, minLength: 4, maxLength: 64, required: true, type: 'email', validationMsg:'Please enter a valid e-mail address.'},
     {value: 'cellPhone',    readonly:false, required: false, type: 'text'},
-    {value: 'personRef',    readonly:false, required: true, type: 'text'}
+    {value: 'personRef',    readonly:false, required: false, input: 'N/A' type: 'text'}
   ];
 
   $scope.getValidationClass = function(formPart) {
@@ -36,7 +36,7 @@ UseradminApp.controller('UserdetailCtrl', function($scope, Users) {
       lastName: 'Last name',
       email: 'E-mail',
       cellPhone: 'Cellphone',
-      personRef: 'CRM Customer',
+      personRef: 'Customer Reference',
       applicationName: 'Application',
       organizationName: 'Organization',
       roleName: 'Role',
