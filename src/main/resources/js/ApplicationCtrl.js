@@ -1,12 +1,13 @@
-UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $routeParams, Users, Applications) {
+UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $routeParams, Users, Applications) {
 
   $scope.session.activeTab = 'application';
 
   $scope.users = Users;
   $scope.applications = Applications;
+  $scope.displayCollectionList = [];
+  
   $scope.form = {};
   $scope.items = ['item1', 'item2', 'item3'];
-
   $scope.orderByColumn = 'name';
   $scope.orderReverse = false;
 
@@ -17,10 +18,13 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $rout
 
   $scope.searchApps = function() {
   	Applications.search($scope.searchQuery);
+  	
   }
 
   function init() {
+	
     Applications.search();
+   
   }
 
   if(typeof(Applications.list) != 'undefined' && Applications.list.length<1) {
@@ -44,7 +48,48 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http,$window, $rout
     });
   }
 
-
+  $scope.exportSelectedApps=function(){
+	  var blob = new Blob([JSON.stringify(Applications.getSelectedList(), null, 4)], {type: "text/plain;charset=utf-8"});
+	  saveAs(blob, "applications.js");
+  }
+  
+  $scope.exportApps = function() {
+	  Applications.search(); //get the latest version
+	  var blob = new Blob([JSON.stringify(Applications.list, null, 4)], {type: "text/plain;charset=utf-8"});
+	  saveAs(blob, "applications.js");
+  }
+  
+  $scope.importApps = function(){
+	  Applications.setDuplicateList(null);
+	  $('#applicationdImport').modal('show');
+  }
+  
+  $scope.uploadFile = function () {
+      var file = $scope.myFile;
+      if(file){
+	      var uploadUrl = baseUrl + "import", //Url of web service
+	      promise = Applications.importApps(file, uploadUrl);
+	      promise.then(function (response) {
+	    	  console.log(response);
+	    	  var pattern = /^error/i;
+	          var result =  /^error/i.test(response.result);
+	    	  if(/^error/i.test(response.result)===true){
+	    		  Applications.showMessage('danger','An error has occurred: ' + response.result);
+	    	  } else if(/^ok/i.test(response.result)===true){
+	    		  Applications.showMessage('success', "Imported successfully");
+	    		  $('#applicationdImport').modal('hide');
+	    	  } else {
+	    		  //display a list
+	    		  var obj = JSON.parse(response.result);
+	    		  Applications.setDuplicateList(response.result);
+	    	  }
+	      }, function (response) {
+	    	  Applications.showMessage('danger','An error has occurred: ' + response);
+	      })
+	   }
+      
+  }
+  
   $scope.newApplicationDetail = function() {
     Applications.application = {isNew: true};
     $scope.application = {isNew: true};

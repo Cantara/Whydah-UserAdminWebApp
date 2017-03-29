@@ -1,4 +1,4 @@
-UseradminApp.service('Applications', function($http,Messages){
+UseradminApp.service('Applications', function($http,Messages, $q){
 
     var defaultlist = [
         {
@@ -38,6 +38,8 @@ UseradminApp.service('Applications', function($http,Messages){
     }
 
     this.list = [];
+    this.duplicatelist = [];
+
     this.selected = false;
 
     this.search2 = function() {
@@ -51,7 +53,76 @@ UseradminApp.service('Applications', function($http,Messages){
         });
         return this;
     };
+    
+    this.importApps = function (file, uploadUrl) {
+        var fileFormData = new FormData();
+        fileFormData.append('file', file);
+        fileFormData.append('overridenIds', this.getSelectedOverridenApIds());
+        fileFormData.append('skippedIds', this.getSkippedApIds());
+        var deffered = $q.defer();
+        $http.post(uploadUrl, fileFormData, {
+            transformRequest: angular.identity,
+            headers: {'Content-Type': undefined}
 
+        }).success(function (response) {
+            deffered.resolve(response);
+        }).error(function (response) {
+            deffered.reject(response);
+        });
+
+        return deffered.promise;
+    };
+    
+    this.getSelectedList = function(){
+    	var selectedApps = [];
+    	for(var i=0; i<this.list.length; i++) {
+			if(this.list[i].isSelected)selectedApps.push(this.list[i]);
+		}
+    	return selectedApps;
+    }
+    
+    this.getSelectedOverridenApIds = function(){
+    	if(this.duplicatelist.length!=0){
+    		var selectedAppIds = [];
+    		for(var i=0; i<this.duplicatelist.length; i++) {
+    			if(this.duplicatelist[i].isSelected)selectedAppIds.push(this.duplicatelist[i].id);
+    		}
+    		console.log(selectedAppIds.toString());
+    		return selectedAppIds.toString();
+    	} else {
+    		return '';
+    	}
+    }
+    
+    this.getSkippedApIds = function(){
+    	if(this.duplicatelist.length!=0){
+    		var skippedAppIds = [];
+    		for(var i=0; i<this.duplicatelist.length; i++) {
+    			if(!this.duplicatelist[i].isSelected)skippedAppIds.push(this.duplicatelist[i].id);
+    		}
+    		console.log(skippedAppIds.toString());
+    		return skippedAppIds.toString();
+    	} else {
+    		return '';
+    	}
+    }
+    
+    this.setDuplicateList=function(duplicateIds){
+    	if(duplicateIds){
+    		var that = this;
+    		that.duplicatelist=[];
+    		angular.forEach(this.list, function(i, k){
+    			var newCloneApp = angular.copy(i);
+    			console.log(newCloneApp.id);
+    			if(duplicateIds.indexOf(newCloneApp.id) !== -1){
+    				that.duplicatelist.push(newCloneApp); 
+    			}
+    		});
+    	} else {
+    		this.duplicatelist=[];
+    	}
+    }
+    
      this.search = function(searchQuery) {
         console.log('Searching for applications...');
         this.searchQuery = searchQuery || '*';
@@ -61,7 +132,8 @@ UseradminApp.service('Applications', function($http,Messages){
             url: baseUrl+'applications/find/'+this.searchQuery
             //url: 'json/users.json',
          }).success(function (data) {
-            that.list = data;
+             that.list = data;
+        	
          }).error(function(data,status){
          // This is most likely due to usertoken timeout - TODO: Redirect to login webapp
          console.log('Unable to search', data);
@@ -80,7 +152,8 @@ UseradminApp.service('Applications', function($http,Messages){
           }
 
           });
-        return this;
+  
+         return this;
      };
 
     function buildRoleNames(application) {
@@ -248,6 +321,10 @@ UseradminApp.service('Applications', function($http,Messages){
             }
         }
         return application;
+    }
+    
+    this.showMessage = function(tag, msg){
+    	Messages.add(tag, msg);
     }
 
     this.saveFromJson = function(application, successCallback) {

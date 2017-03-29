@@ -1,5 +1,7 @@
 package net.whydah.identity.admin.config;
 
+import net.whydah.sso.config.ApplicationMode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,6 +9,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -50,4 +55,5 @@ public class AppConfig {
             System.exit(3);
         }
     }
+  
 }

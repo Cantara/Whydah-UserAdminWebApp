@@ -1,22 +1,30 @@
+
+<!-- OLD VERSION
 <div class="row margin-top">
     <div class="col-xs-9 col-sm-5 col-md-4">
         <input type="search" class="form-control" ng-model="searchQuery" placeholder="Search applications" ng-change="searchApps()" autofocus>
     </div>
 </div>
-
-
+ -->
+ 
 <!--Applications List-->
 <div class="row margin-top">
 
     <div class="col-sm-12">
 
         <button class="btn btn-default btn-sm" ng-click="newApplicationDetail()"><span class="glyphicon glyphicon-plus"></span> Add application</button>
+        <button ng-disabled="!applications.selected" class="btn btn-default btn-sm" ng-click="exportSelectedApps()"><span class="glyphicon glyphicon-export"></span> Export Selected App(s)</button>
+        <button class="btn btn-default btn-sm" ng-click="exportApps()"><span class="glyphicon glyphicon-export"></span> Export All Apps</button>
+        <button class="btn btn-default btn-sm" ng-click="importApps()"><span class="glyphicon glyphicon-import"></span> Import App(s)</button>
+		
 
-        <div class="table-responsive margin-top">
 
-            <table class="table">
+		<div class="table-responsive margin-top">
+
+			<table  st-table="displayCollectionList" st-safe-src="applications.list" class="table table-striped" >
                 <thead>
                 <tr>
+                   <!-- OLD VERSION
                     <th><label><input tri-state-checkbox elements="applications.list" elements-selected="applications.selected"></label></th>
                     <th ng-click="changeOrder('name')">Application name <span class="glyphicon glyphicon-sort"></span></th>
                     <th ng-click="changeOrder('company')">Company <span class="glyphicon glyphicon-sort"></span></th>
@@ -24,12 +32,29 @@
                     <th ng-click="changeOrder('tags')">Tags <span class="glyphicon glyphicon-sort"></span></th>
                     <th ng-click="changeOrder('applicationUrl')">Application URL <span class="glyphicon glyphicon-sort"></span></th>
                     <th ng-click="changeOrder('logoUrl')">Logo <span class="glyphicon glyphicon-sort"></span></th>
+                     -->
+                     
+                     <th class="td-checkbox"><label><input tri-state-checkbox elements="applications.list" elements-selected="applications.selected" /></label></th>
+			         <th st-sort="name">Application name <span class="glyphicon glyphicon-sort"></span></th>
+			         <th st-sort="company">Company <span class="glyphicon glyphicon-sort"></span></th>
+			         <th st-sort="description">Description <span class="glyphicon glyphicon-sort"></span></th>
+			         <th st-sort="tags">Tags <span class="glyphicon glyphicon-sort"></span></th>
+			         <th>Application URL</th>
+			         <th>Logo</th>
+                     
+                    
                 </tr>
+                <tr>
+			        <th colspan="8">
+			            <input st-search="" placeholder="search" class="input-sm form-control" type="text"/>
+			        </th>
+
+   			 	</tr>
                 </thead>
                 <tbody>
+                <!-- OLD VERSION
                 <tr ng-repeat="app in applications.list | orderBy:orderByColumn:orderReverse" class="itemrow">
                     <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
-                    <!--<td ng-click="activateApplicationDetail(app.id)" id="rowid_{{app.id}}">{{app.id}}</td>-->
                     <td ng-click="activateApplicationDetail(app.id)">{{app.id}} {{app.name}}</td>
                     <td ng-click="activateApplicationDetail(app.id)">{{app.company}}</td>
                     <td ng-click="activateApplicationDetail(app.id)">{{app.description| limitTo:20}}</td>
@@ -38,13 +63,23 @@
                     <td ng-click="activateApplicationDetail(app.id)">{{app.logoUrl| limitTo:20}}</td>
                     <td><button type="button" class="btn btn-default btn-sm" ng-click="activateApplicationDetail(app.id)">EDIT</button></td>
                     <td><button type="button" class="btn btn-default btn-sm" ng-click="activateApplicationJson(app.id)">JSON</button></td>
-                    <!--<td ng-click="activateApplicationDetail(app.id)">{{app.name}}</td>-->
-                    <!--<td ng-click="activateApplicationDetail(app.id)"><span class="small" ng-repeat="org in app.availableOrgNames track by $index">{{org}}; </span></td>-->
-                    <!--<td ng-click="activateApplicationDetail(app.id)"><span class="small" ng-repeat="role in app.availableRoleNames track by $index">{{role}}; </span></td>-->
                 </tr>
+                -->
+			    <tr ng-repeat="app in displayCollectionList" class="itemrow">
+			        <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
+			        <td ng-click="activateApplicationDetail(app.id)">{{app.id}} {{app.name}}</td>
+			        <td ng-click="activateApplicationDetail(app.id)">{{app.company}}</td>
+			        <td ng-click="activateApplicationDetail(app.id)">{{app.description}}</td>
+			        <td ng-click="activateApplicationDetail(app.id)">{{app.tags| limitTo:20}}</td>
+			        <td ng-click="activateApplicationDetail(app.id)">{{app.applicationUrl}}</td>
+			        <td ng-click="activateApplicationDetail(app.id)">{{app.logoUrl| limitTo:20}}</td>
+			        <td><button type="button" class="btn btn-default btn-sm" ng-click="activateApplicationDetail(app.id)">EDIT</button></td>
+                    <td><button type="button" class="btn btn-default btn-sm" ng-click="activateApplicationJson(app.id)">JSON</button></td>
+			    </tr>
+			    <!-- 
                 <tr ng-if="!applications.list.length && searchQuery">
                     <td colspan="4">No results for search "{{searchQuery}}".</td>
-                </tr>
+                </tr> -->
                 </tbody>
             </table>
 
@@ -53,6 +88,75 @@
     </div>
 
 </div>
+
+<!-- Application import functionality -->
+<div class="modal fade" id="applicationdImport" tabindex="-1" role="dialog" aria-labelledby="applicationimportlabel" aria-hidden="true" ng-controller="ApplicationCtrl">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="applicationimportlabel">
+                    Import applications
+                </h4>
+            </div>
+
+            <form name="form.applicationImport" class="validate-form"  enctype="multipart/form-data">
+
+                <div class="modal-body">
+					<div class="form-group" ng-show="applications.duplicatelist.length==0">
+						<label for="myFileField">Please choose the file applications.js and check it carefully again before uploading. The process will be rolled back if the configuration is invalid.</label> 
+						<input type="file" demo-file-model="myFile" class="form-control" id="myFileField" />
+					</div>
+					
+					
+					<button ng-click="uploadFile()" class="btn btn-primary">Import</button>
+					<h4 ng-show="applications.duplicatelist.length!=0">
+						Existing application(s) found as follows can be overriden if selected. Leave them intact if you would like to keep the existing ones. Click the Import button to proceed.
+					</h4>
+			        <table ng-show="applications.duplicatelist.length>0" st-table="duplicateList" st-safe-src="applications.duplicatelist" class="table table-striped" >
+                <thead>
+                <tr>   
+                     <th class="td-checkbox"><label><input tri-state-checkbox elements="applications.duplicatelist"  /></label></th>
+			         <th st-sort="name">Application name <span class="glyphicon glyphicon-sort"></span></th>
+			         <th st-sort="company">Company <span class="glyphicon glyphicon-sort"></span></th>
+			         <th st-sort="description">Description <span class="glyphicon glyphicon-sort"></span></th>
+			         <th st-sort="tags">Tags <span class="glyphicon glyphicon-sort"></span></th>
+                </tr>
+                <tr>
+			        <th colspan="5">
+			            <input st-search="" placeholder="search" class="input-sm form-control" type="text"/>
+			        </th>
+
+   			 	</tr>
+                </thead>
+                <tbody>
+			    <tr ng-repeat="app in duplicateList" class="itemrow">
+			        <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
+			        <td >{{app.id}} {{app.name}}</td>
+			        <td >{{app.company}}</td>
+			        <td >{{app.description| limitTo:20}}</td>
+			        <td >{{app.tags| limitTo:20}}</td>
+			    </tr>
+                </tbody>
+            </table>
+            
+				
+				</div>
+
+				
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
 
 <!-- Applicationdetail Modal -->
 <div class="modal fade" id="applicationdetail" tabindex="-1" role="dialog" aria-labelledby="applicationdetaillabel" aria-hidden="true" ng-controller="ApplicationCtrl">
@@ -84,7 +188,7 @@
 
                             <div class="col-sm-10">
                                 <input type="{{property.type}}" class="form-control" id="{{property.value}}" name="{{property.value}}" ng-readonly="{{property.readOnly}}" ng-model="applications.application[property.value]" ng-minlength="{{property.minLength}}" ng-maxlength="{{property.maxLength}}" ng-required="{{property.required}}">
-                                <span class="help-block" ng-show="formPart.$dirty && formPart.$invalid">{{property.validationMsg}}</span>
+                                <span class="help-block" ng-show="formPart.$dirty || formPart.$invalid">{{property.validationMsg}}</span>
                             </div>
                         </div>
                         <!--

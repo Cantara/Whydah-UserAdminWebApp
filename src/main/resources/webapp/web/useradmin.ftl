@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <link rel="icon" type="image/png" href="img/favicon.ico" />
         <title>Whydah Useradmin</title>
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
         <!--<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">-->
         <link href="css/bootstrap-3.1.1.min.css" rel="stylesheet">
         <link href="css/main.css" rel="stylesheet">
@@ -88,6 +89,10 @@
         <script src="js/lib/position.js"></script>
         <script src="js/lib/tooltip.js"></script>
         <script src="js/lib/autocomplete.js"></script>
+        <script src="js/lib/smart-table.debug.js"></script>
+        <script src="js/lib/smart-table-directives.js"></script>
+        <script src="js/lib/elastic.js"></script>
+        <script src="js/lib/FileSaver.js"></script>
         <#--<script src="js/lib/ui-bootstrap-modal-tpls-0.14.3.js"></script>-->
         <#--<script src="js/lib/ui-bootstrap-modal-0.14.3.js"></script>-->
         <#--<script src="js/auth.js"></script>-->
@@ -109,6 +114,7 @@
         <script src="js/triStateCheckbox.js"></script>
         <script src="js/editTable.js"></script>
         <script src="js/modal.js"></script>
+        <script src="js/directives.js"></script>
 
     </body>
 </html>

@@ -3,6 +3,7 @@ package net.whydah.identity.admin.dao;
 import net.whydah.identity.admin.CookieManager;
 import net.whydah.identity.admin.WhydahServiceClient;
 import net.whydah.identity.admin.config.AppConfig;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.slf4j.Logger;
@@ -12,8 +13,12 @@ import org.springframework.ui.Model;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.UriBuilder;
+
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 public enum SessionUserAdminDao {
@@ -33,7 +38,12 @@ public enum SessionUserAdminDao {
     protected HttpClient httpClient;
     public boolean STANDALONE;
     protected URI tokenServiceUri;
-
+//    private String defaultInternalAppIds = "2210,2211,2212,2219"; //UIB, STS, UAS, UASWA
+//    private List<String> internalAppIds = new ArrayList<String>();
+//    public List<String> getInternalAppIds() {
+//        return internalAppIds;
+//    }
+    
     private SessionUserAdminDao() {
 
         try {
@@ -55,7 +65,13 @@ public enum SessionUserAdminDao {
             if (UAWA_APPLICATION_ID == null || UAWA_APPLICATION_ID.trim().isEmpty()) {
                 throw new RuntimeException("Missing configuration property: applicationid");
             }
-
+//            String internalAppIdsConfig = properties.getProperty("internalappids", defaultInternalAppIds);
+//            if(internalAppIdsConfig!=null && !internalAppIdsConfig.equals("")){
+//            	internalAppIds = Arrays.asList(internalAppIdsConfig.split("\\s*,\\s*"));
+//            } else {
+//            	internalAppIds = Arrays.asList(defaultInternalAppIds.split("\\s*,\\s*"));
+//            }
+            
             httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
 
             StringBuilder strb = new StringBuilder("Initialized UserAdminController \n");

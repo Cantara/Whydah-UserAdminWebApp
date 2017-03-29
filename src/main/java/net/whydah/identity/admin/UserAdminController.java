@@ -4,17 +4,36 @@ import net.whydah.identity.admin.dao.ConstantValue;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
 import net.whydah.identity.admin.usertoken.UserTokenXpathHelper;
 import net.whydah.sso.user.mappers.UserTokenMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataParam;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 @Controller
 public class UserAdminController {
@@ -204,6 +223,30 @@ public class UserAdminController {
         String baseUrl = "/useradmin/" + SessionUserAdminDao.instance.getServiceClient().getWAS().getActiveApplicationTokenId() + "/" + UserTokenMapper.fromUserTokenXml(userTokenXml).getTokenid()+ "/";
         model.addAttribute("baseUrl", baseUrl);
     }
+    
+    @POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+	@RequestMapping(value = "/upload", method = RequestMethod.POST)
+	public String importApps(HttpServletRequest request, HttpServletResponse response, Model model,
+			@RequestParam CommonsMultipartFile file
+			) throws IOException, ServletException{
 
+    	 String filename=file.getOriginalFilename();  
+         
+       
+         try{  
+         byte barr[]=file.getBytes();  
+           
+         BufferedOutputStream bout=new BufferedOutputStream(  
+                  new FileOutputStream("H:"+"/"+filename));  
+         bout.write(barr);  
+         bout.flush();  
+         bout.close();  
+           
+         }catch(Exception e){System.out.println(e);}  
+         return null;
+
+	}
+    
 
 }
