@@ -624,7 +624,9 @@ public class UserAdminUasController {
 
 
     public static Path getCurrentPath() {
-        return Paths.get("").toAbsolutePath();
+        return
+                Paths.get(System.getProperty("user.dir")).toAbsolutePath();
+        //Paths.get("").toAbsolutePath();
     }
 
     public static void createDirectories(Path directory) throws IOException {
