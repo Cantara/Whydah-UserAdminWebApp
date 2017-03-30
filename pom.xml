@@ -9,6 +9,26 @@
 
     <developers>
         <developer>
+            <id>huyd</id>
+            <name>Huy Do</name>
+            <email>misterhuydo@gmail.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <organization>Capra Consulting AS</organization>
+            <organizationUrl>http://www.capraconsulting.no/</organizationUrl>
+        </developer>
+        <developer>
+            <id>baardl</id>
+            <name>Bard Lind</name>
+            <email>bard.lind@gmail.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <organization>Capra Consulting AS</organization>
+            <organizationUrl>http://www.capraconsulting.no/</organizationUrl>
+        </developer>
+        <developer>
             <id>totto</id>
             <name>Thor Henning Hetland</name>
             <email>totto@totto.org</email>
@@ -46,7 +66,7 @@
 
     <properties>
         <service.name>Whydah-UserAdminWebapp</service.name>
-        <whydah-sdk-version>2.2-rc-20</whydah-sdk-version>
+        <whydah-sdk-version>2.2-rc-23</whydah-sdk-version>
         <jersey.version>1.19</jersey.version>
         <spring.version>4.3.7.RELEASE</spring.version>
         <jetty.version>9.4.2.v20170220</jetty.version>
