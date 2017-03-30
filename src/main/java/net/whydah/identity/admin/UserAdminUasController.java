@@ -546,7 +546,7 @@ public class UserAdminUasController {
 						if(!addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response, napp.getId())){
 							//roll back here for safety?
 							addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(oldListMap.get(napp.getId())), model, response, napp.getId());
-							setFailureMsg(model,  "error: " + "failed to override the application " + napp.getId() + "-" + napp.getName() + ". This process has been rolled back");
+							setFailureMsg(model, "failed to override the application " + napp.getId() + "-" + napp.getName() + ". This process has been rolled back");
 							break; //give me a break now
 						}
 					} else {
@@ -556,7 +556,7 @@ public class UserAdminUasController {
 						} else {
 							//add application as normal
 							if(!addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response, null)){
-								setFailureMsg(model,  "error: " + "error: " + "failed to add the new application " + napp.getId() + "-" + napp.getName());
+								setFailureMsg(model,  "failed to add the new application " + napp.getId() + "-" + napp.getName());
 								break; //give me a break now
 							}
 						}
