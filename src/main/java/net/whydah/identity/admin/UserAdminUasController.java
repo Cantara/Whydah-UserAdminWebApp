@@ -1,51 +1,11 @@
 package net.whydah.identity.admin;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
-
-import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.StringUtils;
@@ -58,6 +18,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by Leon on 25.04.14.
@@ -633,43 +605,38 @@ public class UserAdminUasController {
 			throws FileNotFoundException, IOException {
 
 		filename = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss.SSS").format(new Date()) + "-" + filename;
-		String saveUploadDir = getCurrentWorkingDir() + "/uploads/";
-		try {
-			File f;
-			if (!(f = new File(getCurrentWorkingDir() + "/uploads/")).exists()) {
-				if(f.mkdirs()){
-					saveUploadDir = getCurrentWorkingDir();
-				}
-			}
-		} catch (SecurityException ex) {
-			saveUploadDir = getCurrentWorkingDir();
-		}
 
-		if(new File(saveUploadDir + filename).exists()){
-			new File(saveUploadDir + filename).delete();
-		}
+        Path currentDir = getCurrentPath();
+        Path tempUploadDir = currentDir.resolve("uploads");
+        createDirectories(tempUploadDir);
 
-		BufferedOutputStream bout=new BufferedOutputStream(new FileOutputStream(saveUploadDir +"/"+filename));  
-		bout.write(fContent);  
+        if (new File(currentDir + filename).exists()) {
+            new File(currentDir + filename).delete();
+        }
+
+        BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(currentDir + File.separator + filename));
+        bout.write(fContent);  
 		bout.flush();  
 		bout.close();
 		
 	
 	}
 
-	
-	
 
-	private String getCurrentWorkingDir(){
-		URL myURL = getClass().getProtectionDomain().getCodeSource().getLocation();
-		java.net.URI myURI = null;
-		try {
-			myURI = myURL.toURI();
-		} catch (URISyntaxException e1) 
-		{}
-		return java.nio.file.Paths.get(myURI).toFile().toString();
-	}
+    public static Path getCurrentPath() {
+        return Paths.get("").toAbsolutePath();
+    }
 
-	
+    public static void createDirectories(Path directory) throws IOException {
+        if (!Files.isDirectory(directory)) {
+            Path dir;
+            if ((dir = Files.createDirectories(directory)) != null) {
+                log.trace("Created directory: {}", dir.toString());
+            } else {
+                log.trace("Unable to create directory: {}", dir.toString());
+            }
+        }
+    }
+
 
 }
