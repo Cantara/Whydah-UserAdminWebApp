@@ -523,7 +523,7 @@ public class UserAdminUasController {
 			
 			//check and update
 			//HUY: THERE IS A PROBLEM WITH BOM (byte-order mark) when parsing string, must do json.replace("\uFEFF", "")
-			String json = new String(content);
+			String json = new String(content, "UTF-8");
 			
 			
 			
@@ -543,7 +543,7 @@ public class UserAdminUasController {
 				for(Application napp : newList){
 					if(oldListMap.containsKey(napp.getId()) && overridenIds.contains(napp.getId())){
 						//override duplicates
-						if(!addApplication(apptokenid, usertokenid, json, model, response)){
+						if(!addApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response)){
 							//roll back here for safety?
 							addApplication(apptokenid, usertokenid, ApplicationMapper.toJson(oldListMap.get(napp.getId())), model, response);
 							model.addAttribute(JSON_DATA_KEY, "error: " + "failed to override the application " + napp.getId() + "-" + napp.getName() + ". This process has been rolled back");
@@ -555,7 +555,7 @@ public class UserAdminUasController {
 							continue;
 						} else {
 							//add application as normal
-							if(!addApplication(apptokenid, usertokenid, json, model, response)){
+							if(!addApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response)){
 								model.addAttribute(JSON_DATA_KEY, "error: " + "failed to add the new application " + napp.getId() + "-" + napp.getName());
 								break; //give me a break now
 							}
