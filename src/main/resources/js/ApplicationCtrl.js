@@ -50,13 +50,13 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 
   $scope.exportSelectedApps=function(){
 	  var blob = new Blob([JSON.stringify(Applications.getSelectedList(), null, 4)], {type: "text/plain;charset=utf-8"});
-	  saveAs(blob, "applications.js");
+	  saveAs(blob, "applications.json");
   }
   
   $scope.exportApps = function() {
 	  Applications.search(); //get the latest version
 	  var blob = new Blob([JSON.stringify(Applications.list, null, 4)], {type: "text/plain;charset=utf-8"});
-	  saveAs(blob, "applications.js");
+	  saveAs(blob, "applications.json");
   }
   
   $scope.importApps = function(){
