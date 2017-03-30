@@ -615,8 +615,8 @@ public class UserAdminUasController {
         }
 
         BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(currentDir + File.separator + filename));
-        bout.write(fContent);  
-		bout.flush();  
+        bout.write(fContent);
+        bout.flush();
 		bout.close();
 		
 	
