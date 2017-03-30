@@ -543,10 +543,10 @@ public class UserAdminUasController {
 				for(Application napp : newList){
 					if(oldListMap.containsKey(napp.getId()) && overridenIds.contains(napp.getId())){
 						//override duplicates
-						if(!addApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response)){
+						if(!addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response, napp.getId())){
 							//roll back here for safety?
-							addApplication(apptokenid, usertokenid, ApplicationMapper.toJson(oldListMap.get(napp.getId())), model, response);
-							model.addAttribute(JSON_DATA_KEY, "error: " + "failed to override the application " + napp.getId() + "-" + napp.getName() + ". This process has been rolled back");
+							addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(oldListMap.get(napp.getId())), model, response, napp.getId());
+							setFailureMsg(model,  "error: " + "failed to override the application " + napp.getId() + "-" + napp.getName() + ". This process has been rolled back");
 							break; //give me a break now
 						}
 					} else {
@@ -555,8 +555,8 @@ public class UserAdminUasController {
 							continue;
 						} else {
 							//add application as normal
-							if(!addApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response)){
-								model.addAttribute(JSON_DATA_KEY, "error: " + "failed to add the new application " + napp.getId() + "-" + napp.getName());
+							if(!addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response, null)){
+								setFailureMsg(model,  "error: " + "error: " + "failed to add the new application " + napp.getId() + "-" + napp.getName());
 								break; //give me a break now
 							}
 						}
@@ -590,12 +590,12 @@ public class UserAdminUasController {
 		model.addAttribute(JSON_DATA_KEY,"{\"result\":\"error: "  +  msg + "\"}");
 	}
 	
-	private boolean addApplication(String apptokenid, String usertokenid, String content, Model model,  HttpServletResponse response ) throws UnsupportedEncodingException{
+	private boolean addorUpdateApplication(String apptokenid, String usertokenid, String content, Model model,  HttpServletResponse response, String appId ) throws UnsupportedEncodingException{
 
 		StringRequestEntity json = new StringRequestEntity(content, "application/json",  "UTF-8");
 		PostMethod method = new PostMethod();
 		method.setRequestEntity(json);
-		String url = buildUasUrl(apptokenid, usertokenid, "application/");
+		String url = buildUasUrl(apptokenid, usertokenid, "application/" + (appId==null||appId.isEmpty()?"":appId));
 		makeUasRequest(method, url, model, response);
 		return response.getStatus()==200;
 		
