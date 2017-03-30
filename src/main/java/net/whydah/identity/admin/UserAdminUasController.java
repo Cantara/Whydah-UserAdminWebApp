@@ -307,7 +307,7 @@ public class UserAdminUasController {
 		} catch (IOException e) {
 			log.error("", e);
 		}
-		
+
 		PostMethod method = new PostMethod();
 		method.setRequestEntity(inputStreamRequestEntity);
 		String url = buildUasUrl(apptokenid, usertokenid, "application/");
@@ -420,26 +420,27 @@ public class UserAdminUasController {
 			method.setURI(new URI(url, true));
 			int rescode = httpClient.executeMethod(method);
 			// TODO: check rescode?
-			if (rescode == 204) { // Delete
-				// Do something
-			} else {
-				InputStream responseBodyStream = method.getResponseBodyAsStream();
-				BufferedReader in = new BufferedReader(new InputStreamReader(responseBodyStream));
-				responseBody = new StringBuilder();
-				String line;
-				while ((line = in.readLine()) !=null) {
-					responseBody.append(line);
-				}
-				if (rescode == 500) {
-					log.warn("Failed connection to UAS. Reason {}", responseBody.toString() );
-					String msg = "{\"error\":\"Failed connection to backend. Please investigate the logs for reason.\"}";
-					model.addAttribute(JSON_DATA_KEY,msg);
-				} else {
-					model.addAttribute(JSON_DATA_KEY, responseBody.toString());
-					response.setContentType(CONTENTTYPE_JSON_UTF8);
-				}
+
+			InputStream responseBodyStream = method.getResponseBodyAsStream();
+			BufferedReader in = new BufferedReader(new InputStreamReader(responseBodyStream));
+			responseBody = new StringBuilder();
+			String line;
+			while ((line = in.readLine()) !=null) {
+				responseBody.append(line);
 			}
-			response.setStatus(rescode);
+			if (rescode == 500) {
+				log.warn("Failed connection to UAS. Reason {}", responseBody.toString() );
+				String msg = "{\"error\":\"Failed connection to backend. Please investigate the logs for reason.\"}";
+				model.addAttribute(JSON_DATA_KEY,msg);
+			} else {
+				model.addAttribute(JSON_DATA_KEY, responseBody.toString());
+				response.setContentType(CONTENTTYPE_JSON_UTF8);
+			}
+			if(rescode!=204){
+				response.setStatus(rescode);
+			} else {
+				response.setStatus(200); //204 - update or delete successfully, treat as 200
+			}
 		} catch (IOException e) {
 			response.setStatus(503);
 			log.error("IOException", e);
@@ -502,6 +503,7 @@ public class UserAdminUasController {
 
 
 	@POST
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@RequestMapping(value = "/import", method = RequestMethod.POST)
 	public String importApps(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model,
@@ -509,7 +511,7 @@ public class UserAdminUasController {
 			) throws IOException, ServletException{
 
 		String filename=file.getOriginalFilename();  
-		
+
 		try{  
 			//get old list
 			List<Application> oldList = ApplicationMapper.fromJsonList(getAllApplicationsJsonData(apptokenid, usertokenid, response, model));
@@ -517,16 +519,16 @@ public class UserAdminUasController {
 			for(Application oapp: oldList){
 				oldListMap.put(oapp.getId(), oapp);
 			}
-			
+
 			byte[] content =file.getBytes();  
 			saveUploadedFile(content, filename);
-			
+
 			//check and update
 			//HUY: THERE IS A PROBLEM WITH BOM (byte-order mark) when parsing string, must do json.replace("\uFEFF", "")
 			String json = new String(content, "UTF-8");
-			
-			
-			
+
+
+
 			List<Application> newList = ApplicationMapper.fromJsonList(json.replace("\uFEFF", ""));
 			List<String> duplicates = new ArrayList<String>();
 			for(Application napp : newList){
@@ -535,7 +537,7 @@ public class UserAdminUasController {
 					duplicates.add(napp.getId());
 				}
 			}
-			
+
 			//ask users to handle duplicates
 			if(duplicates.size()>0){
 				setMsg(model, "[" + StringUtils.join(duplicates, ',') + "]");
@@ -547,24 +549,24 @@ public class UserAdminUasController {
 							//roll back here for safety?
 							addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(oldListMap.get(napp.getId())), model, response, napp.getId());
 							setFailureMsg(model, "failed to override the application " + napp.getId() + "-" + napp.getName() + ". This process has been rolled back");
-							break; //give me a break now
+							return "json";//give me a break now
 						}
 					} else {
-						
+
 						if(skippedIds.contains(napp.getId())){
 							continue;
 						} else {
 							//add application as normal
 							if(!addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response, null)){
 								setFailureMsg(model,  "failed to add the new application " + napp.getId() + "-" + napp.getName());
-								break; //give me a break now
+								return "json";//give me a break now
 							}
 						}
 					}
 				}
 				setOKMsg(model);
 			}
-			
+
 
 		} catch(IllegalArgumentException ex){
 			System.out.println(ex);
@@ -573,32 +575,40 @@ public class UserAdminUasController {
 			System.out.println(e);
 			setFailureMsg(model, e.getMessage());
 		}  
-		
-		return "json";
+
+		return JSON_KEY;
 
 	}
-	
+
 	void setMsg(Model model, String msg){
 		model.addAttribute(JSON_DATA_KEY,"{\"result\":\"" + msg + "\"}");
 	}
-	
+
 	void setOKMsg(Model model){
-		String msg = "{\"result\":\"ok\"}";
-		model.addAttribute(JSON_DATA_KEY,msg);
+		model.addAttribute(JSON_DATA_KEY,"{\"result\":\"ok\"}");
 	}
 	void setFailureMsg(Model model, String msg){
 		model.addAttribute(JSON_DATA_KEY,"{\"result\":\"error: "  +  msg + "\"}");
 	}
-	
+
 	private boolean addorUpdateApplication(String apptokenid, String usertokenid, String content, Model model,  HttpServletResponse response, String appId ) throws UnsupportedEncodingException{
 
 		StringRequestEntity json = new StringRequestEntity(content, "application/json",  "UTF-8");
-		PostMethod method = new PostMethod();
-		method.setRequestEntity(json);
-		String url = buildUasUrl(apptokenid, usertokenid, "application/" + (appId==null||appId.isEmpty()?"":appId));
-		makeUasRequest(method, url, model, response);
-		return response.getStatus()==200;
-		
+		boolean createNew = (appId==null||appId.isEmpty());
+		if(createNew){
+			PostMethod method = new PostMethod();
+			method.setRequestEntity(json);
+			String url = buildUasUrl(apptokenid, usertokenid, "application/" + (appId==null||appId.isEmpty()?"":appId));
+			makeUasRequest(method, url, model, response);
+		} else {
+			PutMethod method = new PutMethod();
+			method.setRequestEntity(json);
+			String url = buildUasUrl(apptokenid, usertokenid, "application/" + (appId==null||appId.isEmpty()?"":appId));
+			makeUasRequest(method, url, model, response);
+		}
+
+		return response.getStatus()==200 || response.getStatus()==204;
+
 	}
 
 	private void saveUploadedFile(byte[] fContent, String filename)
@@ -606,39 +616,39 @@ public class UserAdminUasController {
 
 		filename = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss.SSS").format(new Date()) + "-" + filename;
 
-        Path currentDir = getCurrentPath();
-        Path tempUploadDir = currentDir.resolve("uploads");
-        createDirectories(tempUploadDir);
+		Path currentDir = getCurrentPath();
+		Path tempUploadDir = currentDir.resolve("uploads");
+		createDirectories(tempUploadDir);
 
-        if (new File(currentDir + filename).exists()) {
-            new File(currentDir + filename).delete();
-        }
+		if (new File(currentDir + filename).exists()) {
+			new File(currentDir + filename).delete();
+		}
 
-        BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(currentDir + File.separator + filename));
-        bout.write(fContent);
-        bout.flush();
+		BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(currentDir + File.separator + filename));
+		bout.write(fContent);
+		bout.flush();
 		bout.close();
-		
-	
+
+
 	}
 
 
-    public static Path getCurrentPath() {
-        return
-                Paths.get(System.getProperty("user.dir")).toAbsolutePath();
-        //Paths.get("").toAbsolutePath();
-    }
+	public static Path getCurrentPath() {
+		return
+				Paths.get(System.getProperty("user.dir")).toAbsolutePath();
+		//Paths.get("").toAbsolutePath();
+	}
 
-    public static void createDirectories(Path directory) throws IOException {
-        if (!Files.isDirectory(directory)) {
-            Path dir;
-            if ((dir = Files.createDirectories(directory)) != null) {
-                log.trace("Created directory: {}", dir.toString());
-            } else {
-                log.trace("Unable to create directory: {}", dir.toString());
-            }
-        }
-    }
+	public static void createDirectories(Path directory) throws IOException {
+		if (!Files.isDirectory(directory)) {
+			Path dir;
+			if ((dir = Files.createDirectories(directory)) != null) {
+				log.trace("Created directory: {}", dir.toString());
+			} else {
+				log.trace("Unable to create directory: {}", dir.toString());
+			}
+		}
+	}
 
 
 }

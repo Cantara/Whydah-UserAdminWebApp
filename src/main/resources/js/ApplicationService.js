@@ -87,7 +87,6 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     		for(var i=0; i<this.duplicatelist.length; i++) {
     			if(this.duplicatelist[i].isSelected)selectedAppIds.push(this.duplicatelist[i].id);
     		}
-    		console.log(selectedAppIds.toString());
     		return selectedAppIds.toString();
     	} else {
     		return '';
@@ -100,7 +99,6 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     		for(var i=0; i<this.duplicatelist.length; i++) {
     			if(!this.duplicatelist[i].isSelected)skippedAppIds.push(this.duplicatelist[i].id);
     		}
-    		console.log(skippedAppIds.toString());
     		return skippedAppIds.toString();
     	} else {
     		return '';
@@ -113,7 +111,6 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     		that.duplicatelist=[];
     		angular.forEach(this.list, function(i, k){
     			var newCloneApp = angular.copy(i);
-    			console.log(newCloneApp.id);
     			if(duplicateIds.indexOf(newCloneApp.id) !== -1){
     				that.duplicatelist.push(newCloneApp); 
     			}

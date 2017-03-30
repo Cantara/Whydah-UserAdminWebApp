@@ -70,21 +70,25 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	      var uploadUrl = baseUrl + "import", //Url of web service
 	      promise = Applications.importApps(file, uploadUrl);
 	      promise.then(function (response) {
-	    	  console.log(response);
-	    	  var pattern = /^error/i;
-	          var result =  /^error/i.test(response.result);
-	    	  if(/^error/i.test(response.result)===true){
-	    		  Applications.showMessage('danger','An error has occurred: ' + response.result);
-	    	  } else if(/^ok/i.test(response.result)===true){
-	    		  Applications.showMessage('success', "Imported successfully");
-	    		  $('#applicationdImport').modal('hide');
-	    	  } else {
-	    		  //display a list
-	    		  var obj = JSON.parse(response.result);
-	    		  Applications.setDuplicateList(response.result);
+	    	  if(response){
+		    	  var pattern = /^error/i;
+		          var result =  /^error/i.test(response.result);
+		    	  if(/^error/i.test(response.result)===true){
+		    		  Applications.showMessage('danger','An error has occurred: ' + response.result);
+		    		  return;
+		    	  } else if(/^ok/i.test(response.result)===true){
+		    		  Applications.showMessage('success', "Imported successfully");
+		    		  $('#applicationdImport').modal('hide');
+		    		  return;
+		    	  } else {
+		    		  //display a list
+		    		  var obj = JSON.parse(response.result);
+		    		  Applications.setDuplicateList(response.result);
+		    		  return;
+		    	  }
 	    	  }
 	      }, function (response) {
-	    	  Applications.showMessage('danger','An error has occurred: ' + response);
+	    	  Applications.showMessage('danger','An error has occurred: ' + response.result);
 	      })
 	   }
       
