@@ -411,7 +411,8 @@ public class UserAdminUasController {
 	}
 
 	private String makeUasRequest(HttpMethod method, String url, Model model, HttpServletResponse response) {
-		HttpMethodParams params = new HttpMethodParams();
+        log.info("Calling url" + url);
+        HttpMethodParams params = new HttpMethodParams();
 		StringBuilder responseBody=new StringBuilder();
 		params.setHttpElementCharset("UTF-8");
 		params.setContentCharset("UTF-8");
