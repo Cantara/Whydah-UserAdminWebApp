@@ -157,8 +157,8 @@ public class UserAdminUasController {
 	@RequestMapping(value = "/user/{uid}/", method = RequestMethod.DELETE)
 	public String deleteUser(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
 			@PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
-		log.trace("Deleting user with uid: " + uid);
-		DeleteMethod method = new DeleteMethod();
+        log.info("Deleting user with uid: " + uid);
+        DeleteMethod method = new DeleteMethod();
 		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
 		makeUasRequest(method, url, model, response);
 		response.setContentType(CONTENTTYPE_JSON_UTF8);
@@ -411,7 +411,7 @@ public class UserAdminUasController {
 	}
 
 	private String makeUasRequest(HttpMethod method, String url, Model model, HttpServletResponse response) {
-        log.info("Calling url" + url);
+        log.info("Calling url: " + url);
         HttpMethodParams params = new HttpMethodParams();
 		StringBuilder responseBody=new StringBuilder();
 		params.setHttpElementCharset("UTF-8");
