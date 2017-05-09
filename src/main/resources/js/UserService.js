@@ -131,10 +131,11 @@ UseradminApp.service('Users', function($http, Messages){
 
 	this.delete = function(user) {
 	    console.log('Deleting user', user);
+        var uid = this.user.uid;
 	    var that = this;
 		$http({
 			method: 'DELETE',
-			url: baseUrl+'user/'+user.uid
+			url: baseUrl+'user/'+uid+'/'
 		}).success(function (data) {
 			Messages.add('success', 'User "'+user.username+'" was deleted successfully.');
 			that.search(that.searchQuery);
