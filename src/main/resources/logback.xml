@@ -2,7 +2,7 @@
 <configuration scan="true" scanPeriod="60 seconds">
     <property name="LOG_DIR" value="logs/"/>
     <property name="env" value="prod"/>
-    <property name="appName" value="UseradminWenApp"/>
+    <property name="appName" value="UserAdminWebApp"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
