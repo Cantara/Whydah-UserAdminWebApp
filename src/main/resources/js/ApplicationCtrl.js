@@ -62,6 +62,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
   $scope.importApps = function(){
 	  Applications.setDuplicateList(null);
 	  $('#applicationdImport').modal('show');
+	  Applications.search();
   }
   
   $scope.uploadFile = function () {

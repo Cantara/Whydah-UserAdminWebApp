@@ -147,6 +147,9 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		    	  } else if(/^ok/i.test(response.result)===true){
 		    		  Users.showMessage('success', "Imported successfully");
 		    		  $('#UserImport').modal('hide');
+		    		  
+		    		  //refresh
+		    		  Users.search();
 		    		  return;
 		    	  }
 	    	  }
