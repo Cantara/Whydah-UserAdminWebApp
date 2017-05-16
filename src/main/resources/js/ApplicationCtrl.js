@@ -49,13 +49,13 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
   }
 
   $scope.exportSelectedApps=function(){
-	  var blob = new Blob([JSON.stringify(Applications.getSelectedList(), null, 4)], {type: "text/plain;charset=utf-8"});
+	  var blob = new Blob([angular.toJson(Applications.getSelectedList(), true)], {type: "text/plain;charset=utf-8"});
 	  saveAs(blob, "applications.json");
   }
   
   $scope.exportApps = function() {
 	  Applications.search(); //get the latest version
-	  var blob = new Blob([JSON.stringify(Applications.list, null, 4)], {type: "text/plain;charset=utf-8"});
+	  var blob = new Blob([angular.toJson(Applications.list, true)], {type: "text/plain;charset=utf-8"});
 	  saveAs(blob, "applications.json");
   }
   
@@ -67,7 +67,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
   $scope.uploadFile = function () {
       var file = $scope.myFile;
       if(file){
-	      var uploadUrl = baseUrl + "import", //Url of web service
+	      var uploadUrl = baseUrl + "importApps", //Url of web service
 	      promise = Applications.importApps(file, uploadUrl);
 	      promise.then(function (response) {
 	    	  if(response){

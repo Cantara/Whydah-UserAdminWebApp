@@ -3,6 +3,14 @@ package net.whydah.identity.admin;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
+import net.whydah.sso.basehelpers.JsonPathHelper;
+import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.mappers.UserIdentityMapper;
+import net.whydah.sso.user.mappers.UserRoleMapper;
+import net.whydah.sso.user.types.UserAggregate;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
+import net.whydah.sso.user.types.UserIdentity;
+
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.*;
@@ -19,11 +27,25 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -157,8 +179,8 @@ public class UserAdminUasController {
 	@RequestMapping(value = "/user/{uid}/", method = RequestMethod.DELETE)
 	public String deleteUser(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
 			@PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
-        log.info("Deleting user with uid: " + uid);
-        DeleteMethod method = new DeleteMethod();
+		log.info("Deleting user with uid: " + uid);
+		DeleteMethod method = new DeleteMethod();
 		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
 		makeUasRequest(method, url, model, response);
 		response.setContentType(CONTENTTYPE_JSON_UTF8);
@@ -369,12 +391,28 @@ public class UserAdminUasController {
 		return JSON_KEY;
 	}
 
-	private String getAllApplicationsJsonData(String apptokenid, String usertokenid,
-			HttpServletResponse response, Model model) {
+	private String getAllApplicationsJsonData(String apptokenid, String usertokenid, HttpServletResponse response, Model model) {
 		String url = buildUasUrl(apptokenid, usertokenid, "applications");
 		GetMethod method = new GetMethod();
 		String jsonResult = makeUasRequest(method, url, model, response);
 		return jsonResult;
+	}
+
+	private List<UserAggregate> getAllUserAggregates(String apptokenid, String usertokenid, HttpServletResponse response, Model model) throws JsonProcessingException, IOException{
+
+		HttpMethod method = new GetMethod();
+		String url = buildUasUrl(apptokenid, usertokenid, "users/find/*");
+		String userIdentityList = makeUasRequest(method, url, model, response);
+		List<UserAggregate> uaList = getFromJson(userIdentityList);
+		//get roles for each
+		for(UserAggregate ua : uaList){
+			HttpMethod m = new GetMethod();
+			String roles_url = buildUasUrl(apptokenid, usertokenid, "user/" + ua.getUid() + "/roles");
+			String roleJson = makeUasRequest(m, roles_url, model, response);
+			List<UserApplicationRoleEntry> entryList = UserRoleMapper.fromJsonAsList(roleJson);
+			ua.setRoleList(entryList);
+		}
+		return uaList;
 	}
 
 	@GET
@@ -411,8 +449,8 @@ public class UserAdminUasController {
 	}
 
 	private String makeUasRequest(HttpMethod method, String url, Model model, HttpServletResponse response) {
-        log.info("Calling url: " + url);
-        HttpMethodParams params = new HttpMethodParams();
+		log.info("Calling url: " + url);
+		HttpMethodParams params = new HttpMethodParams();
 		StringBuilder responseBody=new StringBuilder();
 		params.setHttpElementCharset("UTF-8");
 		params.setContentCharset("UTF-8");
@@ -461,52 +499,130 @@ public class UserAdminUasController {
 		return tokenServiceClient.getWAS().getActiveApplicationTokenId();
 	}
 
-	//    @GET
-	//    @RequestMapping(value = "/export", method = RequestMethod.GET)
-	//    public void export(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request,
-	//                                 HttpServletResponse response, Model model) throws IOException {
-	//        log.trace("getApplication - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
-	//        String url = buildUasUrl(apptokenid, usertokenid, "applications");
-	//        GetMethod method = new GetMethod();
-	//        String jsonResult = makeUasRequest(method, url, model, response);
-	//        processResponse(response, jsonResult);
-	//        
-	//    } 
-	//    
-	//    public static void processResponse(final HttpServletResponse response, final String content) {
-	//        try (OutputStream stream = response.getOutputStream()) {
-	//            
-	//            response.setContentType( "application/octet-stream");
-	//            response.setHeader("Content-Disposition", "attachment; filename=applications.js");
-	//            stream.write(content.getBytes());
-	//            stream.flush(); // commits response!
-	//        } catch (IOException ex) {
-	//            // clean error handling
-	//        }
-	//    }
+	//TODO: move this to UserAggregateMapper
+	private List<UserAggregate> getFromJson(String jsonArray) throws JsonProcessingException, IOException{
+		List<UserAggregate> list = new ArrayList<UserAggregate>();
+		ObjectMapper om = new ObjectMapper();
+		JsonNode node = om.readTree(jsonArray);
 
-	//	@POST
-	//	@RequestMapping(value = "/import", method = RequestMethod.POST)
-	//	public String importApps(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model,
-	//			@FormDataParam("file") InputStream uploadedInputStream,
-	//			@FormDataParam("file") FormDataContentDisposition fileDetail
-	//			){
-	//		
-	//		final Part filePart = request.getPart("file");
-	//		final String fileName = getFileName(filePart);
-	//
-	//		 
-	//		writeToFile(filePart.getInputStream(), "H://test.txt");
-	//		return null;
-	//
-	//
-	//	}
+		if(!node.isArray()&&node.has("result")){
+			node = node.get("result");
+		}
 
+		Iterator<JsonNode> iterator = node.elements();
+		while (iterator.hasNext()) {
+			
+			
+			JsonNode sNode = iterator.next();
+			//TODO: check UserAggregateMapper.fromJson(...); there is a bug when reading uid (occurs when having more than one uid field in the json
+			//UserAggregate ua = UserAggregateMapper.fromJson(sNode.toString());
+			
+			//Have to do manually for now
+			String uid = sNode.get("uid").textValue();
+			String personRef =  sNode.get("personRef").textValue();
+			String username = sNode.get("username").textValue();
+			String firstName = sNode.get("firstName").textValue();
+			String lastName = sNode.get("lastName").textValue();
+			String email = sNode.get("email").textValue();
+			String cellPhone = sNode.get("cellPhone").textValue();
+			
+			
+			UserAggregate ua = new UserAggregate(uid, username, firstName, lastName, personRef, email, cellPhone);
+			
+			if(sNode.has("roles")){
+				List<UserApplicationRoleEntry> roles = UserRoleMapper.fromJsonAsList(sNode.get("roles").toString());
+				ua.setRoleList(roles);
+			}
+			list.add(ua);
+		}
+		return list;
+	}
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@RequestMapping(value = "/import", method = RequestMethod.POST)
+	@RequestMapping(value = "/importUsers", method = RequestMethod.POST)
+	public String importUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model,
+			@RequestParam CommonsMultipartFile file
+			) throws IOException, ServletException{
+
+		String filename=file.getOriginalFilename();  
+
+		try
+		{  
+
+			List<UserAggregate> oldList = getAllUserAggregates(apptokenid, usertokenid, response, model);
+			Map<String, UserAggregate> oldListMap = new HashMap<String, UserAggregate>();
+			for(UserAggregate ua: oldList){
+				oldListMap.put(ua.getUid(), ua);
+			}
+
+			byte[] content = file.getBytes();
+			saveUploadedFile(content, filename);
+			String json = new String(content, "UTF-8");
+			json = json.replace("\uFEFF", "");
+			List<UserAggregate> importList = getFromJson(json);
+
+			for(UserAggregate nua : importList){
+				if(oldListMap.containsKey(nua.getUid())){
+
+					if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, false)){
+						addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(oldListMap.get(nua.getUid())), model, response, false);
+						setFailureMsg(model, "failed to override the user " + nua.getUid() + "-" + nua.getUsername() + ". This process has been rolled back");
+						return "json";//give me a break now
+					}
+
+				} else {
+
+
+					//add application as normal
+					if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, true)){
+						setFailureMsg(model,  "failed to add the new user " + nua.getUid() + "-" + nua.getUsername());
+						return "json";//give me a break now
+					}
+
+				}
+			}
+			
+			setOKMsg(model);
+
+
+		} catch(IllegalArgumentException ex){
+			System.out.println(ex);
+			setFailureMsg(model,"failed to parse the json file");
+		} catch(Exception e){
+			System.out.println(e);
+			setFailureMsg(model, e.getMessage());
+		}  
+
+		return JSON_KEY;
+
+	}
+
+	private boolean addorUpdateUserAggregate(String apptokenid, String usertokenid, String content, Model model,  HttpServletResponse response, boolean createNew) throws UnsupportedEncodingException{
+
+		StringRequestEntity json = new StringRequestEntity(content, "application/json",  "UTF-8");
+
+		if(createNew){
+			PostMethod method = new PostMethod();
+			method.setRequestEntity(json);
+			String url = buildUasUrl(apptokenid, usertokenid, "useraggregate/");
+			makeUasRequest(method, url, model, response);
+		} else {
+			PutMethod method = new PutMethod();
+			method.setRequestEntity(json);
+			String url = buildUasUrl(apptokenid, usertokenid, "useraggregate/");
+			makeUasRequest(method, url, model, response);
+		}
+
+		return response.getStatus()==200;
+
+	}
+
+	@POST
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@RequestMapping(value = "/importApps", method = RequestMethod.POST)
 	public String importApps(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model,
 			@RequestParam CommonsMultipartFile file, @RequestParam String overridenIds, @RequestParam String skippedIds
 			) throws IOException, ServletException{
@@ -588,6 +704,7 @@ public class UserAdminUasController {
 	void setOKMsg(Model model){
 		model.addAttribute(JSON_DATA_KEY,"{\"result\":\"ok\"}");
 	}
+
 	void setFailureMsg(Model model, String msg){
 		model.addAttribute(JSON_DATA_KEY,"{\"result\":\"error: "  +  msg + "\"}");
 	}
@@ -632,7 +749,6 @@ public class UserAdminUasController {
 
 
 	}
-
 
 	public static Path getCurrentPath() {
 		return

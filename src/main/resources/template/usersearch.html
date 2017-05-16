@@ -51,6 +51,11 @@
         <span class="glyphicon glyphicon-lock"></span>
         Reset password
       </button>
+      <button ng-disabled="!users.selected" class="btn btn-default btn-sm" ng-click="exportSelectedUsers()">
+      	<span class="glyphicon glyphicon-export"></span> Export Selected User(s)
+      </button>
+      <button class="btn btn-default btn-sm" ng-click="exportUsers()"><span class="glyphicon glyphicon-export"></span> Export All Users</button>
+      <button class="btn btn-default btn-sm" ng-click="importUsers()"><span class="glyphicon glyphicon-import"></span> Import User(s)</button>
     </div>
 
     <div class="table-responsive margin-top">
@@ -91,6 +96,48 @@
   </div>
 
 </div>
+
+<!-- Application import functionality -->
+<div class="modal fade" id="UserImport" tabindex="-1" role="dialog" aria-labelledby="applicationimportlabel" aria-hidden="true" ng-controller="UserCtrl">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="applicationimportlabel">
+				    <span>Import Users</span>
+                </h4>
+            </div>
+
+            <form name="form.applicationImport" class="validate-form"  enctype="multipart/form-data">
+
+                <div class="modal-body">
+					<div class="form-group" ng-show="applications.duplicatelist.length==0">
+						<label for="myFileField">Please choose the file users.js</label> 
+						<input type="file" demo-file-model="myFile" class="form-control" id="myFileField" />
+					</div>
+					
+					
+					<button ng-click="uploadFile()" class="btn btn-primary">
+						<span>Import</span>
+					</button>
+				</div>
+
+				
+
+                <div class="modal-footer">
+             
+                    <button ng-show="applications.duplicatelist.length==0" type="button" class="btn btn-default" data-dismiss="modal">
+                        Close
+                    </button>
+                    
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
 
 
 <!-- Userdetail Modal -->

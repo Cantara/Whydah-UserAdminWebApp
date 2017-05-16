@@ -1,6 +1,6 @@
-UseradminApp.service('Users', function($http, Messages){
+UseradminApp.service('Users', function($http, Messages, $q){
 	
-	this.list = [];
+	this.list = []; //users and no roles
 	this.rows = "";
 	this.user = {};
 	this.userRoles = {};
@@ -8,6 +8,7 @@ UseradminApp.service('Users', function($http, Messages){
 	this.selected = false;
 	this.applications = [];
 	this.applicationFilter = [];
+	this.fullList=[]; //users with roles
 
 	this.getSelectedUsers = function() {
 	    var selectedUsers = [];
@@ -35,8 +36,11 @@ UseradminApp.service('Users', function($http, Messages){
 			url: baseUrl+'users/find/'+this.searchQuery
 			//url: 'json/users.json',
 		}).success(function (data) {
-			that.list = data.result;
+			console.log(data);		
 			that.rows = data.rows;
+			that.list = JSON.parse(angular.toJson(data.result));
+			
+			
 		}).error(function(data,status){
 			// This is most likely due to usertoken timeout - TODO: Redirect to login webapp   
 			console.log('Unable to search', data);
@@ -57,6 +61,38 @@ UseradminApp.service('Users', function($http, Messages){
 		});
 		return this;
 	};
+	
+	this.getRolesForCurrentUser = function(callback) {
+        var uid = this.user.uid;
+	    console.log('Getting roles for user with uid=', uid);
+	    var that = this;
+		$http({
+			method: 'GET',
+			url: baseUrl+'user/'+uid+'/roles/'
+		}).success(function (data) {
+		    console.log('Got userroles', data);
+		    that.userRoles = data;
+		    if(callback) {
+		        callback(data);
+		    }
+		});
+		return this;
+    };
+    
+	this.getRolesForThisUser=function(u, callback){
+		var that = this;				
+		$http({
+				method: 'GET',
+				url: baseUrl+'user/'+u.uid+'/roles/'
+			}).success(function (data) {
+			    u.roles = data;
+			    that.fullList.push(u);
+			    callback();
+			    
+			});
+	    
+		
+	}
 
 	this.get = function(uid, callback) {
 	    console.log('Getting user with uid=', uid);
@@ -263,5 +299,26 @@ UseradminApp.service('Users', function($http, Messages){
 		});
 		return this;
     };
+    
+    this.importUsers = function (file, uploadUrl) {
+        var fileFormData = new FormData();
+        fileFormData.append('file', file);
+        var deffered = $q.defer();
+        $http.post(uploadUrl, fileFormData, {
+            transformRequest: angular.identity,
+            headers: {'Content-Type': undefined}
+
+        }).success(function (response) {
+            deffered.resolve(response);
+        }).error(function (response) {
+            deffered.reject(response);
+        });
+
+        return deffered.promise;
+    };
+    
+    this.showMessage = function(tag, msg){
+    	Messages.add(tag, msg);
+    }
 
 });

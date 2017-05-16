@@ -224,29 +224,6 @@ public class UserAdminController {
         model.addAttribute("baseUrl", baseUrl);
     }
     
-    @POST
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public String importApps(HttpServletRequest request, HttpServletResponse response, Model model,
-			@RequestParam CommonsMultipartFile file
-			) throws IOException, ServletException{
-
-    	 String filename=file.getOriginalFilename();  
-         
-       
-         try{  
-         byte barr[]=file.getBytes();  
-           
-         BufferedOutputStream bout=new BufferedOutputStream(  
-                  new FileOutputStream("H:"+"/"+filename));  
-         bout.write(barr);  
-         bout.flush();  
-         bout.close();  
-           
-         }catch(Exception e){System.out.println(e);}  
-         return null;
-
-	}
     
 
 }

@@ -95,5 +95,66 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
   if(Users.list.length<1) {
     init();
   }
+  
+  $scope.exportSelectedUsers=function(){
+	  Users.fullList = []; //clear now
+      for(var i=0; i<Users.getSelectedUsers().length; i++) {
+		  Users.getRolesForThisUser(Users.getSelectedUsers()[i], function(){
+			  if(Users.fullList.length === Users.getSelectedUsers().length){
+				  var blob = new Blob([angular.toJson(Users.fullList, true)], {type: "text/plain;charset=utf-8"});
+				  saveAs(blob, "users.json");
+			  }
+		  });
+      }
+	 
+//	  Users.fullList = []; //clear now
+//      for(var i=0; i<Users.list.length; i++) {
+//		  Users.getRolesForThisUser(Users.list[i], function(){
+//			  var blob = new Blob([angular.toJson(Users.fullList, true)], {type: "text/plain;charset=utf-8"});
+//			  saveAs(blob, "users.json");
+//		  });
+//      }
+  }
+  
+  $scope.exportUsers = function() {
+	  Users.fullList = []; //clear now
+      for(var i=0; i<Users.list.length; i++) {
+		  Users.getRolesForThisUser(Users.list[i], function(){
+			  if(Users.fullList.length === Users.list.length){
+				  var blob = new Blob([angular.toJson(Users.fullList, true)], {type: "text/plain;charset=utf-8"});
+			  	  saveAs(blob, "users.json");
+			  }
+		  });
+      }
+  }
+  
+  $scope.importUsers = function(){	 
+	  $('#UserImport').modal('show');
+  }
+  
+  $scope.uploadFile = function () {
+      var file = $scope.myFile;
+      if(file){
+	      var uploadUrl = baseUrl + "importUsers", //Url of web service
+	      promise = Users.importUsers(file, uploadUrl);
+	      promise.then(function (response) {
+	    	  if(response){
+		    	  var pattern = /^error/i;
+		          var result =  /^error/i.test(response.result);
+		    	  if(/^error/i.test(response.result)===true){
+		    		  Users.showMessage('danger','An error has occurred: ' + response.result);
+		    		  return;
+		    	  } else if(/^ok/i.test(response.result)===true){
+		    		  Users.showMessage('success', "Imported successfully");
+		    		  $('#UserImport').modal('hide');
+		    		  return;
+		    	  }
+	    	  }
+	      }, function (response) {
+	    	  Users.showMessage('danger','An error has occurred: ' + response.result);
+	      })
+	   }
+      
+  }
 
 });
