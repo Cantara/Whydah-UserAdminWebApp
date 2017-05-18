@@ -94,7 +94,7 @@
         <script src="js/lib/smart-table-directives.js"></script>
         <script src="js/lib/elastic.js"></script>
         <script src="js/lib/FileSaver.js"></script>
-        <script src="js/lib/ngProgress.js"></script>
+        <script src="js/lib/ngprogress.js"></script>
         <script src="js/lib/md5.js"></script>
 
         <!-- Main application -->
