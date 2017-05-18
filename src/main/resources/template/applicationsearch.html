@@ -90,7 +90,7 @@
 </div>
 
 <!-- Application import functionality -->
-<div class="modal fade" id="applicationdImport" tabindex="-1" role="dialog" aria-labelledby="applicationimportlabel" aria-hidden="true" ng-controller="ApplicationCtrl">
+<div class="modal fade" id="applicationImport" tabindex="-1" role="dialog" aria-labelledby="applicationimportlabel" aria-hidden="true" ng-controller="ApplicationCtrl">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -280,3 +280,15 @@
     </div>
 </div>
 
+
+<!-- Import Progress -->
+
+
+<div class="progress" ng-show="showProgress">
+	<div class="panel panel-info" style="padding: 0px; margin: 0px">
+		<div class="panel-heading">Importing Apps {{progressbar.status()}} %</div>
+		<div class="panel-body">
+			<div id="progress"></div>
+		</div>
+	</div>
+</div>

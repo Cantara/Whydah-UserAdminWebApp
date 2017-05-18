@@ -1,6 +1,7 @@
 package net.whydah.identity.admin;
 
 import net.whydah.identity.admin.config.AppConfig;
+import net.whydah.identity.admin.dao.SessionUserAdminDao;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.basehelpers.JsonPathHelper;
@@ -47,6 +48,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -66,7 +69,8 @@ public class UserAdminUasController {
 	private final String userAdminServiceUrl;
 	private final HttpClient httpClient;
 	private WhydahServiceClient tokenServiceClient = new WhydahServiceClient();
-
+	private static Map<String, Integer> importUsersProgress=new HashMap<String, Integer>();
+	private static Map<String, Integer> importAppsProgress=new HashMap<String, Integer>();
 
 	public UserAdminUasController() throws IOException {
 		Properties properties = AppConfig.readProperties();
@@ -459,27 +463,30 @@ public class UserAdminUasController {
 			method.setURI(new URI(url, true));
 			int rescode = httpClient.executeMethod(method);
 			// TODO: check rescode?
-
-			InputStream responseBodyStream = method.getResponseBodyAsStream();
-			BufferedReader in = new BufferedReader(new InputStreamReader(responseBodyStream));
-			responseBody = new StringBuilder();
-			String line;
-			while ((line = in.readLine()) !=null) {
-				responseBody.append(line);
-			}
-			if (rescode == 500) {
-				log.warn("Failed connection to UAS. Reason {}", responseBody.toString() );
-				String msg = "{\"error\":\"Failed connection to backend. Please investigate the logs for reason.\"}";
-				model.addAttribute(JSON_DATA_KEY,msg);
-			} else {
-				model.addAttribute(JSON_DATA_KEY, responseBody.toString());
+			if(rescode==204){
+				response.setStatus(200);
+				model.addAttribute(JSON_DATA_KEY, "");
 				response.setContentType(CONTENTTYPE_JSON_UTF8);
-			}
-			if(rescode!=204){
-				response.setStatus(rescode);
 			} else {
-				response.setStatus(200); //204 - update or delete successfully, treat as 200
+				InputStream responseBodyStream = method.getResponseBodyAsStream();
+				BufferedReader in = new BufferedReader(new InputStreamReader(responseBodyStream));
+				responseBody = new StringBuilder();
+				String line;
+				while ((line = in.readLine()) !=null) {
+					responseBody.append(line);
+				}
+				if (rescode == 500) {
+					log.warn("Failed connection to UAS. Reason {}", responseBody.toString() );
+					String msg = "{\"error\":\"Failed connection to backend. Please investigate the logs for reason.\"}";
+					model.addAttribute(JSON_DATA_KEY,msg);
+				} else {
+
+					model.addAttribute(JSON_DATA_KEY, responseBody.toString());
+					response.setContentType(CONTENTTYPE_JSON_UTF8);
+
+				}
 			}
+
 		} catch (IOException e) {
 			response.setStatus(503);
 			log.error("IOException", e);
@@ -511,12 +518,12 @@ public class UserAdminUasController {
 
 		Iterator<JsonNode> iterator = node.elements();
 		while (iterator.hasNext()) {
-			
-			
+
+
 			JsonNode sNode = iterator.next();
 			//TODO: check UserAggregateMapper.fromJson(...); there is a bug when reading uid (occurs when having more than one uid field in the json
 			//UserAggregate ua = UserAggregateMapper.fromJson(sNode.toString());
-			
+
 			//Have to do manually for now
 			String uid = sNode.get("uid").textValue();
 			String personRef =  sNode.get("personRef").textValue();
@@ -525,10 +532,10 @@ public class UserAdminUasController {
 			String lastName = sNode.get("lastName").textValue();
 			String email = sNode.get("email").textValue();
 			String cellPhone = sNode.get("cellPhone").textValue();
-			
-			
+
+
 			UserAggregate ua = new UserAggregate(uid, username, firstName, lastName, personRef, email, cellPhone);
-			
+
 			if(sNode.has("roles")){
 				List<UserApplicationRoleEntry> roles = UserRoleMapper.fromJsonAsList(sNode.get("roles").toString());
 				ua.setRoleList(roles);
@@ -543,14 +550,15 @@ public class UserAdminUasController {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@RequestMapping(value = "/importUsers", method = RequestMethod.POST)
 	public String importUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model,
-			@RequestParam CommonsMultipartFile file
+			@RequestParam CommonsMultipartFile file, @RequestParam String overridenIds, @RequestParam String skippedIds
 			) throws IOException, ServletException{
 
 		String filename=file.getOriginalFilename();  
+		String progressKey = usertokenid + SessionUserAdminDao.instance.getMD5Str(filename).toLowerCase();
+		importUsersProgress.put(progressKey, 0);
 
 		try
 		{  
-
 			List<UserAggregate> oldList = getAllUserAggregates(apptokenid, usertokenid, response, model);
 			Map<String, UserAggregate> oldListMap = new HashMap<String, UserAggregate>();
 			for(UserAggregate ua: oldList){
@@ -562,29 +570,61 @@ public class UserAdminUasController {
 			String json = new String(content, "UTF-8");
 			json = json.replace("\uFEFF", "");
 			List<UserAggregate> importList = getFromJson(json);
-
+			List<String> duplicates = new ArrayList<String>();
 			for(UserAggregate nua : importList){
-				if(oldListMap.containsKey(nua.getUid())){
-
-					if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, false)){
-						addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(oldListMap.get(nua.getUid())), model, response, false);
-						setFailureMsg(model, "failed to override the user " + nua.getUid() + "-" + nua.getUsername() + ". This process has been rolled back");
-						return "json";//give me a break now
-					}
-
-				} else {
-
-
-					//add application as normal
-					if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, true)){
-						setFailureMsg(model,  "failed to add the new user " + nua.getUid() + "-" + nua.getUsername());
-						return "json";//give me a break now
-					}
-
+				if(oldListMap.containsKey(nua.getUid()) && !overridenIds.contains(nua.getUid()) && !skippedIds.contains(nua.getUid())){
+					//duplicates
+					duplicates.add(nua.getUid());
 				}
 			}
-			
-			setOKMsg(model);
+
+			if(duplicates.size()>0){
+				setMsg(model, "[" + StringUtils.join(duplicates, ',') + "]");
+			} else {
+				Double lastPercentReported = (double) 0;
+				Double workingPercentForEachRow = (importList.size()>0? (double) 100/importList.size(): 0.0);
+				Double currentPercent = (double) 0;
+
+				for(UserAggregate nua : importList){
+
+					currentPercent += workingPercentForEachRow;
+
+					if(oldListMap.containsKey(nua.getUid())){
+
+						if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, false)){
+							addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(oldListMap.get(nua.getUid())), model, response, false);
+							setFailureMsg(model, "failed to override the user " + nua.getUid() + "-" + nua.getUsername() + ". This process has been rolled back");
+							importUsersProgress.remove(progressKey);
+							return "json";//give me a break now
+						}
+
+					} else {
+
+
+						//add application as normal
+						if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, true)){
+							setFailureMsg(model,  "failed to add the new user " + nua.getUid() + "-" + nua.getUsername());
+							importUsersProgress.remove(progressKey);
+							return "json";//give me a break now
+						}
+
+					}
+
+					if ((currentPercent >= 1 && lastPercentReported==0)|| (currentPercent - lastPercentReported >= 1)) {
+						lastPercentReported = currentPercent;
+
+						importUsersProgress.put(progressKey, currentPercent.intValue());
+
+					}
+
+				
+				}
+
+				importUsersProgress.put(progressKey, 100);
+
+
+				setOKMsg(model);
+			}
 
 
 		} catch(IllegalArgumentException ex){
@@ -598,6 +638,55 @@ public class UserAdminUasController {
 		return JSON_KEY;
 
 	}
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@RequestMapping(value = "/importUsers/progress/{fileNameMD5}", method = RequestMethod.GET)
+	public String getUsersImportProgress(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+			HttpServletRequest request, HttpServletResponse response, Model model, @PathVariable("fileNameMD5") String fileNameMD5) {
+		log.trace("getUsersImportProgress.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
+		if (usertokenid == null || usertokenid.length() < 7) {
+			model.addAttribute(JSON_DATA_KEY, "0");
+		} else {
+
+			if(importUsersProgress.containsKey(usertokenid + fileNameMD5.toLowerCase())){
+				model.addAttribute(JSON_DATA_KEY, importUsersProgress.get(usertokenid + fileNameMD5.toLowerCase()));
+				if(importUsersProgress.get(usertokenid + fileNameMD5.toLowerCase())==100){
+					importUsersProgress.remove(usertokenid + fileNameMD5.toLowerCase());
+				}
+			} else {
+				model.addAttribute(JSON_DATA_KEY, "0");
+			}
+		}
+
+		return JSON_KEY;
+
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@RequestMapping(value = "/importApps/progress/{fileNameMD5}", method = RequestMethod.GET)
+	public String getAppsImportProgress(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+			HttpServletRequest request, HttpServletResponse response, Model model, @PathVariable("fileNameMD5") String fileNameMD5) {
+		log.trace("getAppsImportProgress.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
+		if (usertokenid == null || usertokenid.length() < 7) {
+			model.addAttribute(JSON_DATA_KEY, "0");
+		} else {
+
+			if(importAppsProgress.containsKey(usertokenid + fileNameMD5.toLowerCase())){
+				model.addAttribute(JSON_DATA_KEY, importAppsProgress.get(usertokenid + fileNameMD5.toLowerCase()));
+				if(importAppsProgress.get(usertokenid + fileNameMD5.toLowerCase())==100){
+					importAppsProgress.remove(usertokenid + fileNameMD5.toLowerCase());
+				}
+			} else {
+				model.addAttribute(JSON_DATA_KEY, "0");
+			}
+		}
+
+		return JSON_KEY;
+
+	}
+
 
 	private boolean addorUpdateUserAggregate(String apptokenid, String usertokenid, String content, Model model,  HttpServletResponse response, boolean createNew) throws UnsupportedEncodingException{
 
@@ -628,6 +717,8 @@ public class UserAdminUasController {
 			) throws IOException, ServletException{
 
 		String filename=file.getOriginalFilename();  
+		String progressKey = usertokenid + SessionUserAdminDao.instance.getMD5Str(filename).toLowerCase();
+		importAppsProgress.put(progressKey, 0);
 
 		try{  
 			//get old list
@@ -659,13 +750,22 @@ public class UserAdminUasController {
 			if(duplicates.size()>0){
 				setMsg(model, "[" + StringUtils.join(duplicates, ',') + "]");
 			} else {
+
+				Double lastPercentReported = (double) 0;
+				Double workingPercentForEachRow = (newList.size()>0? (double) 100/newList.size(): 0.0);
+				Double currentPercent = (double) 0;
+				
 				for(Application napp : newList){
+
+					currentPercent += workingPercentForEachRow;
+					
 					if(oldListMap.containsKey(napp.getId()) && overridenIds.contains(napp.getId())){
 						//override duplicates
 						if(!addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response, napp.getId())){
 							//roll back here for safety?
 							addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(oldListMap.get(napp.getId())), model, response, napp.getId());
 							setFailureMsg(model, "failed to override the application " + napp.getId() + "-" + napp.getName() + ". This process has been rolled back");
+							importAppsProgress.remove(progressKey);
 							return "json";//give me a break now
 						}
 					} else {
@@ -676,11 +776,24 @@ public class UserAdminUasController {
 							//add application as normal
 							if(!addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response, null)){
 								setFailureMsg(model,  "failed to add the new application " + napp.getId() + "-" + napp.getName());
+								importAppsProgress.remove(progressKey);
 								return "json";//give me a break now
 							}
 						}
 					}
+					
+
+					if ((currentPercent >= 1 && lastPercentReported==0)|| (currentPercent - lastPercentReported >= 1)) {
+						lastPercentReported = currentPercent;
+
+						importAppsProgress.put(progressKey, currentPercent.intValue());
+
+					}
+					
 				}
+				
+				importAppsProgress.put(progressKey, 100);
+				
 				setOKMsg(model);
 			}
 

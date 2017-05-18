@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.UriBuilder;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -172,5 +173,20 @@ public enum SessionUserAdminDao {
         return serviceClient;
     }
 
+    public String getMD5Str(String chechSum) {
+	    String hashedPass = null;
+	    try {
+	      java.security.MessageDigest messageDigest = java.security.MessageDigest.getInstance("MD5");
+	      messageDigest.update(chechSum.getBytes(), 0, chechSum.length());
+	      hashedPass = new BigInteger(1, messageDigest.digest()).toString(16);
+	      if (hashedPass.length() < 32) {
+	        hashedPass = "0" + hashedPass;
+	      }
+	    } catch (Exception e) {
+	      System.out.println("failed to create md5");
+	      System.out.println(e.getMessage());
+	    }
+	    return hashedPass;
+	  }
 
 }

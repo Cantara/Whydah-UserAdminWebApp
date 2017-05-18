@@ -412,5 +412,15 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         });
         return this;
     };
+    
+    this.getImportProgress = function(fileName, callback) {
+		$http({
+			method: 'GET',
+			url: baseUrl+'importApps/progress/' + fileName,
+		}).success(function (data) {
+			callback(data);
+		});
+		return this;
+	};
 
 });

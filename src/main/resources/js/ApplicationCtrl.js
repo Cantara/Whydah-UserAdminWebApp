@@ -1,4 +1,4 @@
-UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $routeParams, Users, Applications) {
+UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $routeParams, Users, Applications, ngProgressFactory, $interval) {
 
   $scope.session.activeTab = 'application';
 
@@ -25,6 +25,10 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	
     Applications.search();
    
+    $scope.progressbar = ngProgressFactory.createInstance();
+	$scope.progressbar.setParent(document.getElementById('progress'));
+
+	
   }
 
   if(typeof(Applications.list) != 'undefined' && Applications.list.length<1) {
@@ -44,7 +48,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
     Applications.get(id, function(){
       //$scope.form.userDetail.$setPristine();
       $('#applicationJson').modal('show');
-      $scope.prettifyJson();
+      //$scope.prettifyJson();
     });
   }
 
@@ -59,41 +63,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	  saveAs(blob, "applications.json");
   }
   
-  $scope.importApps = function(){
-	  Applications.setDuplicateList(null);
-	  $('#applicationdImport').modal('show');
-	  Applications.search();
-  }
   
-  $scope.uploadFile = function () {
-      var file = $scope.myFile;
-      if(file){
-	      var uploadUrl = baseUrl + "importApps", //Url of web service
-	      promise = Applications.importApps(file, uploadUrl);
-	      promise.then(function (response) {
-	    	  if(response){
-		    	  var pattern = /^error/i;
-		          var result =  /^error/i.test(response.result);
-		    	  if(/^error/i.test(response.result)===true){
-		    		  Applications.showMessage('danger','An error has occurred: ' + response.result);
-		    		  return;
-		    	  } else if(/^ok/i.test(response.result)===true){
-		    		  Applications.showMessage('success', "Imported successfully");
-		    		  $('#applicationdImport').modal('hide');
-		    		  return;
-		    	  } else {
-		    		  //display a list
-		    		  var obj = JSON.parse(response.result);
-		    		  Applications.setDuplicateList(response.result);
-		    		  return;
-		    	  }
-	    	  }
-	      }, function (response) {
-	    	  Applications.showMessage('danger','An error has occurred: ' + response.result);
-	      })
-	   }
-      
-  }
   
   $scope.newApplicationDetail = function() {
     Applications.application = {isNew: true};
@@ -212,6 +182,74 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
         $scope.form.applicationDetail.$setPristine();
       });
     }
+  }
+  
+  var theInterval;
+  $scope.$on('$destroy', function () {
+		 if(theInterval){
+			 $interval.cancel(theInterval);
+		 }
+   });
+  
+  $scope.importApps = function(){
+	  Applications.setDuplicateList(null);
+	  $('#applicationImport').modal('show');
+	  Applications.search();
+  }
+  
+  $scope.uploadFile = function () {
+      var file = $scope.myFile;
+      if(file){
+    	  
+    	 
+    	  
+	      var uploadUrl = baseUrl + "importApps", //Url of web service
+	      promise = Applications.importApps(file, uploadUrl);
+	      
+	      if(Applications.duplicatelist && Applications.duplicatelist.length>0){
+				$scope.$parent.importing = true;
+				console.log("Ready to import apps now.");
+				console.log("Timer has been started, to update import progress.");
+				//ask server for the progress each 2 secs
+				theInterval = $interval(function(){
+					Applications.getImportProgress(hex_md5(file.name), function(data){
+						if(data>0){
+							//can close the modal now
+							$('#applicationImport').modal('hide');
+							$scope.$parent.showProgress=true;
+							if($scope.$parent.progressbar){
+								$scope.$parent.progressbar.set(data);
+							}
+							if(data==100){
+								$scope.$parent.showProgress=false;
+							}
+						} 
+					});
+	            }, 1000);
+			}
+	      
+	      promise.then(function (response) {
+	    	  if(response){
+		    	  var pattern = /^error/i;
+		          var result =  /^error/i.test(response.result);
+		    	  if(/^error/i.test(response.result)===true){
+		    		  Applications.showMessage('danger','An error has occurred: ' + response.result);
+		    		  return;
+		    	  } else if(/^ok/i.test(response.result)===true){
+		    		  Applications.showMessage('success', "Imported successfully");
+		    		  $('#applicationImport').modal('hide');
+		    		  return;
+		    	  } else {
+		  
+		    		  Applications.setDuplicateList(response.result);
+		    		  return;
+		    	  }
+	    	  }
+	      }, function (response) {
+	    	  Applications.showMessage('danger','An error has occurred: ' + response.result);
+	      })
+	   }
+      
   }
 
 });

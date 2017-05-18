@@ -35,8 +35,7 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			method: 'GET',
 			url: baseUrl+'users/find/'+this.searchQuery
 			//url: 'json/users.json',
-		}).success(function (data) {
-			console.log(data);		
+		}).success(function (data) {		
 			that.rows = data.rows;
 			that.list = JSON.parse(angular.toJson(data.result));
 			
@@ -303,6 +302,9 @@ UseradminApp.service('Users', function($http, Messages, $q){
     this.importUsers = function (file, uploadUrl) {
         var fileFormData = new FormData();
         fileFormData.append('file', file);
+        fileFormData.append('overridenIds', this.getSelectedOverridenUserUids());
+        fileFormData.append('skippedIds', this.getSkippedUserUids());
+ 
         var deffered = $q.defer();
         $http.post(uploadUrl, fileFormData, {
             transformRequest: angular.identity,
@@ -319,6 +321,57 @@ UseradminApp.service('Users', function($http, Messages, $q){
     
     this.showMessage = function(tag, msg){
     	Messages.add(tag, msg);
+    }
+    
+    this.getImportProgress = function(fileName, callback) {
+		$http({
+			method: 'GET',
+			url: baseUrl+'importUsers/progress/' + fileName,
+		}).success(function (data) {
+			callback(data);
+		});
+		return this;
+	};
+	
+	this.duplicatelist = [];
+	
+	this.getSelectedOverridenUserUids = function(){
+    	if(this.duplicatelist.length!=0){
+    		var selectedUserUids = [];
+    		for(var i=0; i<this.duplicatelist.length; i++) {
+    			if(this.duplicatelist[i].isSelected)selectedUserUids.push(this.duplicatelist[i].uid);
+    		}
+    		return selectedUserUids.toString();
+    	} else {
+    		return '';
+    	}
+    }
+    
+    this.getSkippedUserUids = function(){
+    	if(this.duplicatelist.length!=0){
+    		var skippedUserUids = [];
+    		for(var i=0; i<this.duplicatelist.length; i++) {
+    			if(!this.duplicatelist[i].isSelected)skippedUserUids.push(this.duplicatelist[i].uid);
+    		}
+    		return skippedUserUids.toString();
+    	} else {
+    		return '';
+    	}
+    }
+    
+    this.setDuplicateList=function(duplicateIds){
+    	if(duplicateIds){
+    		var that = this;
+    		that.duplicatelist=[];
+    		angular.forEach(this.list, function(i, k){
+    			var newCloneUser = angular.copy(i);
+    			if(duplicateIds.indexOf(newCloneUser.uid) !== -1){
+    				that.duplicatelist.push(newCloneUser); 
+    			}
+    		});
+    	} else {
+    		this.duplicatelist=[];
+    	}
     }
 
 });

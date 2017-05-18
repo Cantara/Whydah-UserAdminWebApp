@@ -10,6 +10,7 @@
         <link href="css/bootstrap-3.1.1.min.css" rel="stylesheet">
         <link href="css/main.css" rel="stylesheet">
         <link href="css/autocomplete.css" rel="stylesheet">
+        <link href="css/nprogress.css" rel="stylesheet">
     </head>
     <body ng-controller="MainCtrl">
 
@@ -82,7 +83,7 @@
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-animate.min.js"></script>
-
+		
 
         <!-- Libs -->
         <script src="js/lib/bindHtml.js"></script>
@@ -93,9 +94,8 @@
         <script src="js/lib/smart-table-directives.js"></script>
         <script src="js/lib/elastic.js"></script>
         <script src="js/lib/FileSaver.js"></script>
-        <#--<script src="js/lib/ui-bootstrap-modal-tpls-0.14.3.js"></script>-->
-        <#--<script src="js/lib/ui-bootstrap-modal-0.14.3.js"></script>-->
-        <#--<script src="js/auth.js"></script>-->
+        <script src="js/lib/ngProgress.js"></script>
+        <script src="js/lib/md5.js"></script>
 
         <!-- Main application -->
         <script src="js/UseradminApp.js"></script>
@@ -115,6 +115,7 @@
         <script src="js/editTable.js"></script>
         <script src="js/modal.js"></script>
         <script src="js/directives.js"></script>
+       
 
     </body>
 </html>

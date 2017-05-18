@@ -1,264 +1,392 @@
 <div class="row margin-top">
-  <div class="col-xs-9 col-sm-5 col-md-4">
-    <input type="search" id="searchfield" class="form-control" ng-model="searchQuery" placeholder="Search users" ng-change="searchUsers()" autofocus>
-    <span class="small">{{users.rows}} found</span>
-  </div>
-  <div class="col-xs-3 col-sm-5 col-md-8 hidden">
-    <div class="dropdown">
-      <button class="btn btn-default dropdown-toggle btn-sm" type="button" id="filterdropdown" data-toggle="dropdown">
-        <span class="glyphicon glyphicon-filter"></span>
-        Filter 
-        <span class="badge" ng-show="(users.applications | filter:{isSelected: true}).length > 0">
-          {{(applications.list | filter:{isSelected: true}).length}}
-        </span>
-        <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu" role="menu" aria-labelledby="filterdropdown">
-        <li role="presentation" class="dropdown-header margin-top">Application</li>
-        <li role="presentation" ng-repeat="app in applications.list">
-          <a role="menuitem" tabindex="-1" href ng-click="app.isSelected=!app.isSelected">
-            <span class="glyphicon" ng-class="{'glyphicon-check': app.isSelected, 'glyphicon-unchecked': !app.isSelected}"></span>
-            {{app.applicationName}}
-          </a>
-        </li>
-        <li role="presentation" class="divider"></li>
-        <li role="presentation"><a role="menuitem" tabindex="-1" href ng-click="clearAllApps()">Clear all</a></li>
-      </ul>
-    </div>
-  </div>
+	<div class="col-xs-9 col-sm-5 col-md-4">
+		<input type="search" id="searchfield" class="form-control"
+			ng-model="searchQuery" placeholder="Search users"
+			ng-change="searchUsers()" autofocus> <span class="small">{{users.rows}}
+			found</span>
+	</div>
+	<div class="col-xs-3 col-sm-5 col-md-8 hidden">
+		<div class="dropdown">
+			<button class="btn btn-default dropdown-toggle btn-sm" type="button"
+				id="filterdropdown" data-toggle="dropdown">
+				<span class="glyphicon glyphicon-filter"></span> Filter <span
+					class="badge"
+					ng-show="(users.applications | filter:{isSelected: true}).length > 0">
+					{{(applications.list | filter:{isSelected: true}).length}} </span> <span
+					class="caret"></span>
+			</button>
+			<ul class="dropdown-menu" role="menu"
+				aria-labelledby="filterdropdown">
+				<li role="presentation" class="dropdown-header margin-top">Application</li>
+				<li role="presentation" ng-repeat="app in applications.list"><a
+					role="menuitem" tabindex="-1" href
+					ng-click="app.isSelected=!app.isSelected"> <span
+						class="glyphicon"
+						ng-class="{'glyphicon-check': app.isSelected, 'glyphicon-unchecked': !app.isSelected}"></span>
+						{{app.applicationName}}
+				</a></li>
+				<li role="presentation" class="divider"></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href
+					ng-click="clearAllApps()">Clear all</a></li>
+			</ul>
+		</div>
+	</div>
 </div>
 
 <div class="row margin-top">
 
-  <div class="col-sm-12">
+	<div class="col-sm-12">
 
-    <button id="adduserbutton" class="btn btn-default btn-sm" ng-click="newUserDetail()">
-        <span class="glyphicon glyphicon-plus"></span>
-        <span class="glyphicon glyphicon-user"></span>
-        Add user
-    </button>
+		<button id="adduserbutton" class="btn btn-default btn-sm"
+			ng-click="newUserDetail()">
+			<span class="glyphicon glyphicon-plus"></span> <span
+				class="glyphicon glyphicon-user"></span> Add user
+		</button>
 
-    <div class="btn-group" tooltip="{{users.requiredMessage}}">
-      <button class="btn btn-default btn-sm" ng-disabled="!users.selected" ng-click="addRoleForUsers()">
-        <span class="glyphicon glyphicon-plus"></span>
-        Add role
-      </button>
-      <button class="btn btn-default btn-sm" ng-disabled="!users.selected" ng-if="false">
-        <span class="glyphicon glyphicon-minus"></span>
-        Remove role
-      </button>
-      <button class="btn btn-default btn-sm" ng-disabled="!users.selected" ng-click="resetPasswordForUsers()">
-        <span class="glyphicon glyphicon-lock"></span>
-        Reset password
-      </button>
-      <button ng-disabled="!users.selected" class="btn btn-default btn-sm" ng-click="exportSelectedUsers()">
-      	<span class="glyphicon glyphicon-export"></span> Export Selected User(s)
-      </button>
-      <button class="btn btn-default btn-sm" ng-click="exportUsers()"><span class="glyphicon glyphicon-export"></span> Export All Users</button>
-      <button class="btn btn-default btn-sm" ng-click="importUsers()"><span class="glyphicon glyphicon-import"></span> Import User(s)</button>
-    </div>
+		<div class="btn-group" tooltip="{{users.requiredMessage}}">
+			<button class="btn btn-default btn-sm" ng-disabled="!users.selected"
+				ng-click="addRoleForUsers()">
+				<span class="glyphicon glyphicon-plus"></span> Add role
+			</button>
+			<button class="btn btn-default btn-sm" ng-disabled="!users.selected"
+				ng-if="false">
+				<span class="glyphicon glyphicon-minus"></span> Remove role
+			</button>
+			<button class="btn btn-default btn-sm" ng-disabled="!users.selected"
+				ng-click="resetPasswordForUsers()">
+				<span class="glyphicon glyphicon-lock"></span> Reset password
+			</button>
+			<button ng-disabled="!users.selected" class="btn btn-default btn-sm"
+				ng-click="exportSelectedUsers()">
+				<span class="glyphicon glyphicon-export"></span> Export Selected
+				User(s)
+			</button>
+			<button class="btn btn-default btn-sm" ng-click="exportUsers()">
+				<span class="glyphicon glyphicon-export"></span> Export All Users
+			</button>
+			<button class="btn btn-default btn-sm" ng-click="importUsers()"
+				ng-disabled="importing">
+				<span class="glyphicon glyphicon-import"></span> Import User(s)
+			</button>
+		</div>
 
-    <div class="table-responsive margin-top">
+		<div class="table-responsive margin-top">
 
-      <table class="table">
-        <thead>
-          <tr>
-            <th class="td-checkbox"><label><input tri-state-checkbox elements="users.list" elements-selected="users.selected"></label></th>
-            <th ng-click="changeOrder('uid')">UID. <span class="glyphicon glyphicon-sort"></span></th>
-            <th ng-click="changeOrder('username')">Username <span class="glyphicon glyphicon-sort"></span></th>
-            <th ng-click="changeOrder('firstName')">Firstname <span class="glyphicon glyphicon-sort"></span></th>
-            <th ng-click="changeOrder('lastName')">Lastname <span class="glyphicon glyphicon-sort"></span></th>
-            <th ng-click="changeOrder('cellPhone')">Phone <span class="glyphicon glyphicon-sort"></span></th>
-            <th ng-click="changeOrder('email')">E-mail <span class="glyphicon glyphicon-sort"></span></th>
-              <th ng-click="changeOrder('personRef')">Customer Reference <span class="glyphicon glyphicon-sort"></span>
-              </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="user in users.list | orderBy:orderByColumn:orderReverse" class="itemrow">
-            <td><label><input type="checkbox" ng-model="user.isSelected"></label></td>
-            <td ng-click="activateUserDetail(user.uid)">{{user.uid | wrap:true:12:'...'}}</td>
-            <td ng-click="activateUserDetail(user.uid)" id="rowid_{{user.username}}">{{user.username}}</td>
-            <td ng-click="activateUserDetail(user.uid)">{{user.firstName}}</td>
-            <td ng-click="activateUserDetail(user.uid)">{{user.lastName}}</td>
-            <td ng-click="activateUserDetail(user.uid)">{{user.cellPhone}}</td>
-            <td ng-click="activateUserDetail(user.uid)">{{user.email | wrap:true:10:'...'}}</td>
-            <td ng-click="activateUserDetail(user.uid)">{{user.personRef}}</td>
-          </tr>
-          <tr ng-if="!users.list.length && searchQuery">
-            <td colspan="4">No results for search "{{searchQuery}}".</td>
-          </tr>
-        </tbody>
-      </table>
+			<table class="table">
+				<thead>
+					<tr>
+						<th class="td-checkbox"><label><input tri-state-checkbox elements="users.list" elements-selected="users.selected"></label></th>
+						<th ng-click="changeOrder('uid')">UID. <span class="glyphicon glyphicon-sort"></span></th>
+						<th ng-click="changeOrder('username')">Username <span class="glyphicon glyphicon-sort"></span></th>
+						<th ng-click="changeOrder('firstName')">Firstname <span class="glyphicon glyphicon-sort"></span></th>
+						<th ng-click="changeOrder('lastName')">Lastname <span class="glyphicon glyphicon-sort"></span></th>
+						<th ng-click="changeOrder('cellPhone')">Phone <span class="glyphicon glyphicon-sort"></span></th>
+						<th ng-click="changeOrder('email')">E-mail <span class="glyphicon glyphicon-sort"></span></th>
+						<th ng-click="changeOrder('personRef')">Customer Reference <span class="glyphicon glyphicon-sort"></span></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						ng-repeat="user in users.list | orderBy:orderByColumn:orderReverse"
+						class="itemrow">
+						<td><label><input type="checkbox"
+								ng-model="user.isSelected"></label></td>
+						<td ng-click="activateUserDetail(user.uid)">{{user.uid |
+							wrap:true:12:'...'}}</td>
+						<td ng-click="activateUserDetail(user.uid)"
+							id="rowid_{{user.username}}">{{user.username}}</td>
+						<td ng-click="activateUserDetail(user.uid)">{{user.firstName}}</td>
+						<td ng-click="activateUserDetail(user.uid)">{{user.lastName}}</td>
+						<td ng-click="activateUserDetail(user.uid)">{{user.cellPhone}}</td>
+						<td ng-click="activateUserDetail(user.uid)">{{user.email |
+							wrap:true:10:'...'}}</td>
+						<td ng-click="activateUserDetail(user.uid)">{{user.personRef}}</td>
+					</tr>
+					<tr ng-if="!users.list.length && searchQuery">
+						<td colspan="4">No results for search "{{searchQuery}}".</td>
+					</tr>
+				</tbody>
+			</table>
 
-    </div>
+		</div>
 
-  </div>
+	</div>
 
 </div>
 
-<!-- Application import functionality -->
-<div class="modal fade" id="UserImport" tabindex="-1" role="dialog" aria-labelledby="applicationimportlabel" aria-hidden="true" ng-controller="UserCtrl">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="applicationimportlabel">
-				    <span>Import Users</span>
-                </h4>
-            </div>
 
-            <form name="form.applicationImport" class="validate-form"  enctype="multipart/form-data">
 
-                <div class="modal-body">
-					<div class="form-group" ng-show="applications.duplicatelist.length==0">
-						<label for="myFileField">Please choose the file users.js</label> 
-						<input type="file" demo-file-model="myFile" class="form-control" id="myFileField" />
+<!-- User import functionality -->
+<div class="modal fade" id="UserImport" tabindex="-1" role="dialog"
+	aria-labelledby="userimportlabel" aria-hidden="true"
+	ng-controller="UserCtrl">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="userimportlabel">
+					<span>Import Users</span>
+				</h4>
+			</div>
+
+			<form name="form.userImport" class="validate-form"
+				enctype="multipart/form-data">
+
+				<div class="modal-body">
+					<div class="form-group"
+						ng-show="users.duplicatelist.length==0">
+						<label for="myFileField">Please choose the file users.js</label> <input
+							type="file" demo-file-model="myFile" class="form-control"
+							id="myFileField" />
 					</div>
-					
-					
+
+
 					<button ng-click="uploadFile()" class="btn btn-primary">
-						<span>Import</span>
+						<span ng-show="users.duplicatelist.length!=0">Import</span> 
+						<span ng-show="users.duplicatelist.length==0">Upload</span>
 					</button>
+
+					<h4 ng-show="users.duplicatelist.length!=0">Existing
+						User(s) found as follows can be overriden if selected.
+						Leave them intact if you would like to keep the existing ones.
+						Click the Import button to proceed.</h4>
+					<table ng-show="users.duplicatelist.length>0"
+						st-table="duplicateList" st-safe-src="users.duplicatelist"
+						class="table table-striped">
+						<thead>
+							<tr>
+								<th class="td-checkbox"><label><input tri-state-checkbox elements="users.duplicatelist" /></label></th>
+								<th st-sort="uid">UID. <span class="glyphicon glyphicon-sort"></span></th>
+								<th st-sort="username">Username <span class="glyphicon glyphicon-sort"></span></th>
+								<th st-sort="firstName">firstName <span class="glyphicon glyphicon-sort"></span></th>
+								<th st-sort="lastName">Lastname<span class="glyphicon glyphicon-sort"></span></th>
+								<th st-sort="cellPhone">Phone <span class="glyphicon glyphicon-sort"></span></th>
+								<th st-sort="email">E-mail <span class="glyphicon glyphicon-sort"></span></th>
+								<th st-sort="personRef">Customer Reference <span class="glyphicon glyphicon-sort"></span></th>
+						
+							
+							</tr>
+							<tr>
+								<th colspan="8"><input st-search="" placeholder="search"
+									class="input-sm form-control" type="text" /></th>
+
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="user in duplicateList" class="itemrow">
+								<td><label><input type="checkbox" ng-model="user.isSelected"></label></td>
+								<td>{{user.uid | wrap:true:12:'...'}}</td>
+								<td>{{user.username}}</td>
+								<td>{{user.firstName}}</td>
+								<td>{{user.lastName}}</td>
+								<td>{{user.cellPhone}}</td>
+								<td>{{user.email | wrap:true:10:'...'}}</td>
+								<td>{{user.personRef}}</td>
+							</tr>
+						</tbody>
+					</table>
+
+
 				</div>
 
-				
 
-                <div class="modal-footer">
-             
-                    <button ng-show="applications.duplicatelist.length==0" type="button" class="btn btn-default" data-dismiss="modal">
-                        Close
-                    </button>
-                    
-                </div>
 
-            </form>
+				<div class="modal-footer">
 
-        </div>
-    </div>
+					<button ng-show="users.duplicatelist.length==0"
+						type="button" class="btn btn-default" data-dismiss="modal">
+						Close</button>
+
+				</div>
+
+			</form>
+
+		</div>
+	</div>
 </div>
 
 
 
 <!-- Userdetail Modal -->
-<div class="modal fade" id="userdetail" tabindex="-1" role="dialog" aria-labelledby="userdetaillabel" aria-hidden="true" ng-controller="UserdetailCtrl">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="userdetaillabel">
-            {{users.user.username || 'New user'}}
-        </h4>
-      </div>
+<div class="modal fade" id="userdetail" tabindex="-1" role="dialog"
+	aria-labelledby="userdetaillabel" aria-hidden="true"
+	ng-controller="UserdetailCtrl">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="userdetaillabel">
+					{{users.user.username || 'New user'}}</h4>
+			</div>
 
-      <form name="form.userDetail" class="validate-form" novalidate> <!-- novalidate prevents HTML5 validation, as we will validate using Angular -->
+			<form name="form.userDetail" class="validate-form" novalidate>
+				<!-- novalidate prevents HTML5 validation, as we will validate using Angular -->
 
-            <div class="modal-body">
-            <div class="form-horizontal">
-              <div class="form-group" ng-if="users.user.isNew">
-                <label for="username" class="col-sm-2 control-label" ng-class="has-error">Username</label>
-                <div class="col-sm-10"
-                     ng-class="userNameTakenError()">
-                    <input type="text" class="form-control" id="username" name="username" ng-model="users.user.username">
-                    <span class="help-block" ng-show="userNameTaken">Username is already in use</span>
-                </div>
-              </div>
-              <div class="form-group"
-                   ng-form="formPart"
-                   ng-class="getValidationClass(formPart)"
-                   ng-repeat="property in userProperties">
-                <label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
-                <div class="col-sm-10">
-                    <input type="{{property.type}}" class="form-control" id="{{property.value}}" name="{{property.value}}" ng-readonly="{{property.readonly}}"  ng-model="users.user[property.value]" ng-minlength="{{property.minLength}}" ng-maxlength="{{property.maxLength}}" ng-required="{{property.required}}">
-                    <span class="help-block" ng-show="formPart.$dirty && formPart.$invalid">{{property.validationMsg}}</span>
-                </div>
-              </div>
-            </div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group" ng-if="users.user.isNew">
+							<label for="username" class="col-sm-2 control-label"
+								ng-class="has-error">Username</label>
+							<div class="col-sm-10" ng-class="userNameTakenError()">
+								<input type="text" class="form-control" id="username"
+									name="username" ng-model="users.user.username"> <span
+									class="help-block" ng-show="userNameTaken">Username is
+									already in use</span>
+							</div>
+						</div>
+						<div class="form-group" ng-form="formPart"
+							ng-class="getValidationClass(formPart)"
+							ng-repeat="property in userProperties">
+							<label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
+							<div class="col-sm-10">
+								<input type="{{property.type}}" class="form-control"
+									id="{{property.value}}" name="{{property.value}}"
+									ng-readonly="{{property.readonly}}"
+									ng-model="users.user[property.value]"
+									ng-minlength="{{property.minLength}}"
+									ng-maxlength="{{property.maxLength}}"
+									ng-required="{{property.required}}"> <span
+									class="help-block"
+									ng-show="formPart.$dirty && formPart.$invalid">{{property.validationMsg}}</span>
+							</div>
+						</div>
+					</div>
 
-            <div ng-if="!users.user.isNew">
-                <button type="button" class="btn btn-default btn-sm" ng-click="addRoleForCurrentUser()"><span class="glyphicon glyphicon-plus"></span> Add role</button>
-                <div class="btn-group" tooltip="{{rolesRequiredMessage}}">
-                  <button type="button" class="btn btn-default btn-sm" ng-click="deleteRolesForUser()" ng-disabled="!roles.selected"><span class="glyphicon glyphicon-trash"></span> Delete selected roles</button>
-                </div>
+					<div ng-if="!users.user.isNew">
+						<button type="button" class="btn btn-default btn-sm"
+							ng-click="addRoleForCurrentUser()">
+							<span class="glyphicon glyphicon-plus"></span> Add role
+						</button>
+						<div class="btn-group" tooltip="{{rolesRequiredMessage}}">
+							<button type="button" class="btn btn-default btn-sm"
+								ng-click="deleteRolesForUser()" ng-disabled="!roles.selected">
+								<span class="glyphicon glyphicon-trash"></span> Delete selected
+								roles
+							</button>
+						</div>
 
-                <div class="table-responsive margin-top">
-                  <table edit-table elements="users.userRoles" visible-fields="visibleRoleProperties" elements-selected="roles.selected" edit-action="saveRoleForCurrentUser(role)"></table>
-                </div>
-            </div>
+						<div class="table-responsive margin-top">
+							<table edit-table elements="users.userRoles"
+								visible-fields="visibleRoleProperties"
+								elements-selected="roles.selected"
+								edit-action="saveRoleForCurrentUser(role)"></table>
+						</div>
+					</div>
 
-          </div>
-          <div class="modal-footer">
-            <button type="button" id="close" class="btn btn-default" data-dismiss="modal">
-                Close
-                <span ng-if="form.userDetail.$dirty">and discard changes</span>
-            </button>
-            <button type="button" id="saveChanges" class="btn btn-primary" ng-disabled="form.userDetail.$invalid || form.userDetail.$pristine" ng-click="save()">Save changes</button>
-            <button type="button" id="deleteUser" class="btn btn-xs btn-danger pull-left" data-dismiss="modal" ng-click="delete()" ng-if="!users.user.isNew"><span class="glyphicon glyphicon-trash"></span> Delete {{users.user.username}}</button>
-          </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="close" class="btn btn-default"
+						data-dismiss="modal">
+						Close <span ng-if="form.userDetail.$dirty">and discard
+							changes</span>
+					</button>
+					<button type="button" id="saveChanges" class="btn btn-primary"
+						ng-disabled="form.userDetail.$invalid || form.userDetail.$pristine"
+						ng-click="save()">Save changes</button>
+					<button type="button" id="deleteUser"
+						class="btn btn-xs btn-danger pull-left" data-dismiss="modal"
+						ng-click="delete()" ng-if="!users.user.isNew">
+						<span class="glyphicon glyphicon-trash"></span> Delete
+						{{users.user.username}}
+					</button>
+				</div>
 
-      </form>
+			</form>
 
-    </div>
-  </div>
+		</div>
+	</div>
 </div>
 
 <!-- Role Modal -->
-<div class="modal fade" id="addrole" tabindex="-1" role="dialog" aria-labelledby="addrolelabel" aria-hidden="true" ng-controller="RoleCtrl">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="addrolelabel">Add role</h4>
-      </div>
+<div class="modal fade" id="addrole" tabindex="-1" role="dialog"
+	aria-labelledby="addrolelabel" aria-hidden="true"
+	ng-controller="RoleCtrl">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="addrolelabel">Add role</h4>
+			</div>
 
-        <form name="form.roleDetail" class="validate-form" novalidate>
+			<form name="form.roleDetail" class="validate-form" novalidate>
 
-          <div class="modal-body">
+				<div class="modal-body">
 
-            <div class="form-horizontal">
+					<div class="form-horizontal">
 
-                <div ng-if="addRoleForMultiple" class="form-group">
-                    <label class="col-sm-2 control-label">For users</label>
-                    <div class="col-sm-10">
-                        <span ng-repeat="user in users.list | filter:{isSelected: true}" class="label label-default" style="margin-right: 0.5em">
-                          {{user.firstName}} {{user.lastName}}
-                        </span>
-                    </div>
-                </div>
+						<div ng-if="addRoleForMultiple" class="form-group">
+							<label class="col-sm-2 control-label">For users</label>
+							<div class="col-sm-10">
+								<span ng-repeat="user in users.list | filter:{isSelected: true}"
+									class="label label-default" style="margin-right: 0.5em">
+									{{user.firstName}} {{user.lastName}} </span>
+							</div>
+						</div>
 
-                <div class="form-group">
-                    <label for="application" class="col-sm-2 control-label">{{dict[conf.lang].application}}</label>
-                    <div class="col-sm-10">
-                        <select class="form-control" id="application" ng-model="role.applicationId" ng-options="app.id as app.name for app in applications.list" ng-change="setCurrentApplication(role.applicationId)"></select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="organization" class="col-sm-2 control-label">{{dict[conf.lang].organization}}</label>
-                    <div class="col-sm-10">
-                        <autocomplete data="currentApplication.availableOrgNames" click-activation="true" attr-placeholder="" attr-input-class="form-control" attr-input-id="organization" ng-model="role.organizationName"></autocomplete>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="rolename" class="col-sm-2 control-label">{{dict[conf.lang].applicationRoleName}}</label>
-                    <div class="col-sm-10">
-                        <autocomplete data="currentApplication.availableRoleNames" click-activation="true" attr-placeholder="" attr-input-class="form-control" attr-input-id="rolename" ng-model="role.applicationRoleName"></autocomplete>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="rolevalue" class="col-sm-2 control-label">{{dict[conf.lang].applicationRoleValue}}</label>
-                    <div class="col-sm-10"><input type="text" class="form-control" id="rolevalue" ng-model="role.applicationRoleValue" ng-minlength="0" ng-maxlength="128"></div>
-                </div>
-            </div>
+						<div class="form-group">
+							<label for="application" class="col-sm-2 control-label">{{dict[conf.lang].application}}</label>
+							<div class="col-sm-10">
+								<select class="form-control" id="application"
+									ng-model="role.applicationId"
+									ng-options="app.id as app.name for app in applications.list"
+									ng-change="setCurrentApplication(role.applicationId)"></select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="organization" class="col-sm-2 control-label">{{dict[conf.lang].organization}}</label>
+							<div class="col-sm-10">
+								<autocomplete data="currentApplication.availableOrgNames"
+									click-activation="true" attr-placeholder=""
+									attr-input-class="form-control" attr-input-id="organization"
+									ng-model="role.organizationName"></autocomplete>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="rolename" class="col-sm-2 control-label">{{dict[conf.lang].applicationRoleName}}</label>
+							<div class="col-sm-10">
+								<autocomplete data="currentApplication.availableRoleNames"
+									click-activation="true" attr-placeholder=""
+									attr-input-class="form-control" attr-input-id="rolename"
+									ng-model="role.applicationRoleName"></autocomplete>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="rolevalue" class="col-sm-2 control-label">{{dict[conf.lang].applicationRoleValue}}</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="rolevalue"
+									ng-model="role.applicationRoleValue" ng-minlength="0"
+									ng-maxlength="128">
+							</div>
+						</div>
+					</div>
 
-          </div>
+				</div>
 
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="addRole()">Add role</button>
-          </div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal"
+						ng-click="addRole()">Add role</button>
+				</div>
 
-        </form>
+			</form>
 
-    </div>
-  </div>
+		</div>
+	</div>
 </div>
+
+<!-- Import Progress -->
+
+
+<div class="progress" ng-show="showProgress">
+	<div class="panel panel-info" style="padding: 0px; margin: 0px">
+		<div class="panel-heading">Importing Users {{progressbar.status()}} %</div>
+		<div class="panel-body">
+			<div id="progress"></div>
+		</div>
+	</div>
+</div>
+
+
