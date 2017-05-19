@@ -1,17 +1,18 @@
 package net.whydah.identity.admin;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
 import net.whydah.sso.application.mappers.ApplicationMapper;
+import net.whydah.sso.application.mappers.ApplicationTagMapper;
 import net.whydah.sso.application.types.Application;
-import net.whydah.sso.basehelpers.JsonPathHelper;
+import net.whydah.sso.application.types.Tag;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
-import net.whydah.sso.user.mappers.UserIdentityMapper;
 import net.whydah.sso.user.mappers.UserRoleMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
-import net.whydah.sso.user.types.UserIdentity;
-
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.*;
@@ -28,28 +29,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-
 import java.io.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -394,6 +379,27 @@ public class UserAdminUasController {
 		response.setContentType(CONTENTTYPE_JSON_UTF8);
 		return JSON_KEY;
 	}
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @RequestMapping(value = "/applicationtags", method = RequestMethod.GET)
+    public String getApplicationTagss(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model) {
+        log.trace("getApplications - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
+        usertokenid = findValidUserTokenId(usertokenid, request);
+
+        String jsonResult = getAllApplicationsJsonData(apptokenid, usertokenid,
+                response, model);
+        List<Application> applicationList = ApplicationMapper.fromJsonList(jsonResult);
+        List<Tag> tagList = new LinkedList<>();
+        for (Application application : applicationList) {
+            tagList.addAll(ApplicationTagMapper.getTagList(application.getTags()));
+        }
+        String jsonData = ApplicationTagMapper.toJson(tagList);
+        model.addAttribute(JSON_DATA_KEY, jsonData);
+        log.trace("tags=" + jsonData);
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
+    }
 
 	private String getAllApplicationsJsonData(String apptokenid, String usertokenid, HttpServletResponse response, Model model) {
 		String url = buildUasUrl(apptokenid, usertokenid, "applications");
