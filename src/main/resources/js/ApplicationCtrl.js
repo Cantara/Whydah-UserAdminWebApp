@@ -76,6 +76,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
   
   $scope.newApplicationDetail = function() {
     Applications.application = {isNew: true};
+    Applications.application.tagList=[];
     $scope.application = {isNew: true};
     //Users.userRoles = {};
     //$scope.form.applicationDetail.$setPristine();
