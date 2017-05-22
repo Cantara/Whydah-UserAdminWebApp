@@ -52,6 +52,15 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
     });
   }
 
+  $scope.activateApplicationLog = function(id) {
+    console.log('Activating application log...', id);
+    Applications.getlog(id, function(){
+      //$scope.form.userDetail.$setPristine();
+      $('#applicationJson').modal('show');
+      //$scope.prettifyJson();
+    });
+  }
+
   $scope.exportSelectedApps=function(){
 	  var blob = new Blob([angular.toJson(Applications.getSelectedList(), true)], {type: "text/plain;charset=utf-8"});
 	  saveAs(blob, "applications.json");

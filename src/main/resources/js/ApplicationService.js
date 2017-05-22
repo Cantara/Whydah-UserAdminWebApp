@@ -198,6 +198,22 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         return this;
     };
 
+
+    this.getLog = function(id, callback) {
+        console.log('Getting Application log for id=', id);
+        var that = this;
+        $http({
+            method: 'GET',
+            url: baseUrl+'observe/statistics/'+id+'/usersession'
+        }).success(function (data) {
+            console.log('Got applicaton log', data);
+            if(callback) {
+                callback(data);
+            }
+        });
+        return this;
+    };
+
     this.add = function(application, successCallback) {
         console.log('Adding application', application);
         var that = this;
