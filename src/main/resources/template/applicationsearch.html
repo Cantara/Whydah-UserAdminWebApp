@@ -35,13 +35,13 @@
                      -->
                      
                      <th class="td-checkbox"><label><input tri-state-checkbox elements="applications.list" elements-selected="applications.selected" /></label></th>
+                     <th>Logo</th>
 			         <th st-sort="name">Application name <span class="glyphicon glyphicon-sort"></span></th>
 			         <th st-sort="company">Company <span class="glyphicon glyphicon-sort"></span></th>
 			         <th st-sort="description">Description <span class="glyphicon glyphicon-sort"></span></th>
 			         <th st-sort="tags">Tags <span class="glyphicon glyphicon-sort"></span></th>
 			         <th>Application URL</th>
-			         <th>Logo</th>
-                     
+
                     
                 </tr>
                 <tr>
@@ -67,13 +67,14 @@
                 -->
 			    <tr ng-repeat="app in displayCollectionList" class="itemrow">
 			        <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
+                    <td ng-click="activateApplicationDetail(app.id)"><img src="{{application.logoUrl}}"></td>
 			        <td ng-click="activateApplicationDetail(app.id)">{{app.id}} {{app.name}}</td>
 			        <td ng-click="activateApplicationDetail(app.id)">{{app.company}}</td>
 			        <td ng-click="activateApplicationDetail(app.id)">{{app.description}}</td>
 			        <td ng-click="activateApplicationDetail(app.id)">{{app.tags| limitTo:20}}</td>
 			        <td ng-click="activateApplicationDetail(app.id)">{{app.applicationUrl}}</td>
-			        <td ng-click="activateApplicationDetail(app.id)">{{app.logoUrl| limitTo:20}}</td>
-			        <td><button type="button" class="btn btn-default btn-sm" ng-click="activateApplicationDetail(app.id)">EDIT</button></td>
+
+                    <td><button type="button" class="btn btn-default btn-sm" ng-click="activateApplicationDetail(app.id)">EDIT</button></td>
                     <td><button type="button" class="btn btn-default btn-sm" ng-click="activateApplicationJson(app.id)">JSON</button></td>
 			    </tr>
 			    <!-- 
