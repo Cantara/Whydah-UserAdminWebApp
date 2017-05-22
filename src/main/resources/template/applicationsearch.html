@@ -67,7 +67,9 @@
                 -->
 			    <tr ng-repeat="app in displayCollectionList" class="itemrow">
 			        <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
-                    <td ng-click="activateApplicationDetail(app.id)"><img src="{{app.logoUrl}}" style="max-height: 100px; max-width: 100px;"/></td>
+                    <td ng-click="activateApplicationDetail(app.id)"><img src="{{app.logoUrl}}"
+                                                                          style="max-height: 80px; max-width: 80px;"/>
+                    </td>
                     <td ng-click="activateApplicationDetail(app.id)">{{app.id}} <br/><b>{{app.name}}</b></td>
 			        <td ng-click="activateApplicationDetail(app.id)">{{app.company}}</td>
 			        <td ng-click="activateApplicationDetail(app.id)">{{app.description}}</td>
