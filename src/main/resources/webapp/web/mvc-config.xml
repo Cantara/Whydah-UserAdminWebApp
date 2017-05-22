@@ -16,7 +16,7 @@
     <mvc:resources mapping="/images/**" location="/, classpath:/images/" />
     <mvc:resources mapping="/img/**" location="/, classpath:/img/" />
     <mvc:resources mapping="/template/**" location="/, classpath:/template/" />
-    <mvc:resources mapping="/favicon.ico" location="/, classpath:/images/favicon.ico" />
+    <mvc:resources mapping="/favicon.ico" location="/, classpath:/img/favicon.ico" />
     <mvc:resources mapping="/js/**" location="/, classpath:/js/" />
 	<mvc:resources mapping="/fonts/**" location="/, classpath:/fonts/" />
     <mvc:resources mapping="/json/**" location="/, classpath:/json/" />
