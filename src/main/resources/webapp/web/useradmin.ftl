@@ -74,6 +74,7 @@
 
         <script>
             var baseUrl = "${baseUrl}";
+            var statUrl = "${statUrl}";
             var userName = "${realName}";
         </script>
 
