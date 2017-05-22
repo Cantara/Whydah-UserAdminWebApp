@@ -227,7 +227,7 @@ public class UserAdminController {
         model.addAttribute("statUrl", baseUrl);
         try {
             Properties properties = AppConfig.readProperties();
-            model.addAttribute("statUrl", properties.getProperty("statisticsservice"));
+            model.addAttribute("statUrl", properties.getProperty("statisticsservice")==null||properties.getProperty("statisticsservice").equals("")?baseUrl:properties.getProperty("statisticsservice"));
         } catch (Exception e){
             log.warn("Unable to read properties and set statUrl value");
         }

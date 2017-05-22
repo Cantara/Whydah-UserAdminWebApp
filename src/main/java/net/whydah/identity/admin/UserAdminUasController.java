@@ -1,8 +1,11 @@
 package net.whydah.identity.admin;
 
+import static org.junit.Assert.assertTrue;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
 import net.whydah.sso.application.mappers.ApplicationMapper;
@@ -14,9 +17,9 @@ import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.mappers.UserRoleMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
+
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -36,8 +39,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+
 import java.io.*;
-import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -300,6 +303,35 @@ public class UserAdminUasController {
 		response.setContentType(CONTENTTYPE_JSON_UTF8);
 		return JSON_KEY;
 	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
+	@RequestMapping(value = "applicationtags/{applicationId}", method = RequestMethod.GET)
+	public String getApplicationJsonTag(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+			@PathVariable("applicationId") String applicationId, HttpServletRequest request,
+			HttpServletResponse response, Model model) {
+		log.trace("getApplication - entry.  applicationtokenid={},  usertokenid={}, applicationId={}", apptokenid, usertokenid, applicationId);
+		usertokenid = findValidUserTokenId(usertokenid, request);
+
+		//        String resourcePath = "application/"+applicationId;
+		String url = buildUasUrl(apptokenid, usertokenid, "application/"+applicationId);
+		GetMethod method = new GetMethod();
+		String jsonResult = makeUasRequest(method, url, model, response);
+		
+		Application app = ApplicationMapper.fromJson(jsonResult);
+		List<Tag> tagList = new ArrayList<Tag>();
+		if(app.getTags()!=null){
+			tagList = ApplicationTagMapper.getTagList(app.getTags());
+		}
+		
+		model.addAttribute(JSON_DATA_KEY, ApplicationTagMapper.toJson(tagList));
+		response.setContentType(CONTENTTYPE_JSON_UTF8);
+		return JSON_KEY;
+
+	}
+	
+     
+     
 
 	protected String findValidUserTokenId(@PathVariable("usertokenid") String usertokenid, HttpServletRequest request) {
 		if (usertokenid == null || usertokenid.length() < 7) {
@@ -403,7 +435,7 @@ public class UserAdminUasController {
         response.setContentType(CONTENTTYPE_JSON_UTF8);
         return JSON_KEY;
     }
-
+    
 	// APPLICATION
 	@GET
 	@Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")

@@ -189,17 +189,36 @@
                         <!--<label for="name" class="col-sm-2 control-label">Application name</label>-->
                         <!--<div class="col-sm-10"><input type="text" class="form-control" id="name" name="name" ng-model="application.application.name"></div>-->
                         <!--</div>-->
+                        
                         <div class="form-group"
                              ng-form="formPart"
                              ng-class="getValidationClass(formPart)"
                              ng-repeat="property in applicationProperties">
-                            <label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
-
-                            <div class="col-sm-10">
-                                <input type="{{property.type}}" class="form-control" id="{{property.value}}" name="{{property.value}}" ng-readonly="{{property.readOnly}}" ng-model="applications.application[property.value]" ng-minlength="{{property.minLength}}" ng-maxlength="{{property.maxLength}}" ng-required="{{property.required}}">
-                                <span class="help-block" ng-show="formPart.$dirty || formPart.$invalid">{{property.validationMsg}}</span>
+                           <div ng-show="property.value!='tags'">
+	                            <label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
+	
+	                            <div class="col-sm-10">
+	                                <input type="{{property.type}}" class="form-control" id="{{property.value}}" name="{{property.value}}" ng-readonly="{{property.readOnly}}" ng-model="applications.application[property.value]" ng-minlength="{{property.minLength}}" ng-maxlength="{{property.maxLength}}" ng-required="{{property.required}}">
+	                                <span class="help-block" ng-show="formPart.$dirty || formPart.$invalid">{{property.validationMsg}}</span>
+	                            </div>
                             </div>
-                        </div>
+                            
+                            <div ng-show="property.value==='tags'">
+								<label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
+								<div class="col-sm-10">
+								    
+								    <div>
+									<fieldset data-ng-repeat="tag in applications.application.tagList">
+										<input type="text" ng-model="tag.name" name="tagname" placeholder="Please enter a tag name">
+										<input type="text" ng-model="tag.value" name="tagvalue"  placeholder="Please enter the tag's value" ng-required="true">
+										<button class="remove" ng-click="removeTag($index)">-</button>
+									</fieldset>
+									</div>
+									<button class="addtags" ng-click="addANewTag()">Add Tags</button>
+								</div>
+							</div>
+						</div>
+							
                         <!--
                         <label class="col-sm-2 control-label">{{dict[conf.lang][roleNames]||'Available Role Names'}}</label>
                         <div class="col-sm-10">

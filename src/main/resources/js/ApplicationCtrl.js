@@ -53,14 +53,14 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
   }
 
   $scope.activateApplicationLog = function(id) {
-    console.log('Activating application log...', id);
-    Applications.getLog(id, function(){
-      //$scope.form.userDetail.$setPristine();
-      $('#data').modal('show');
-      //$scope.prettifyJson();
-    });
+	    console.log('Activating application log...', id);
+	    Applications.getLog(id, function(){
+	      //$scope.form.userDetail.$setPristine();
+	      $('#data').modal('show');
+	      //$scope.prettifyJson();
+	    });
   }
-
+  
   $scope.exportSelectedApps=function(){
 	  var blob = new Blob([angular.toJson(Applications.getSelectedList(), true)], {type: "text/plain;charset=utf-8"});
 	  saveAs(blob, "applications.json");
@@ -109,7 +109,8 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
     {value: 'fullTokenApplication',    required: false, type: 'text'},
     {value: 'secret', minLength: 12, maxLength: 254, required: false, type: 'text', validationMsg:'Must be between 12-254 characters long. No spaces allowed.'},
     {value: 'roleNames', required: false, type: 'text', validationMsg:'Comma separated list of available role names'},
-    {value: 'orgNames', required: false, type: 'text', validationMsg:'Comma separated list of available organization names'}
+    {value: 'orgNames', required: false, type: 'text', validationMsg:'Comma separated list of available organization names'},
+    {value: 'tags', required: false, type: 'text'}
   ];
 
   $scope.applicationJsonProperties = [
@@ -129,7 +130,8 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
       secret: 'Application Secret',
       applicationJson: 'Json override',
       roleNames: 'Available role names',
-      orgNames: 'Available organization names'
+      orgNames: 'Available organization names',
+      tags: 'Tags'
     }
   }
 
@@ -205,6 +207,21 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	  $('#applicationImport').modal('show');
 	  Applications.search();
   }
+
+  $scope.removeTag = function(index){
+	  Applications.application.tagList.splice(index, 1);
+      console.log("INDEX " + index);
+      $scope.form.applicationDetail.$setDirty();
+  }
+
+  $scope.addANewTag = function(){
+	  Applications.application.tagList.push({"name":"","value":""});
+	  angular.forEach(Applications.application.tagList, function(i, k){
+          console.log(i.name + i.value);
+      });
+
+  }
+  
   
   $scope.uploadFile = function () {
       var file = $scope.myFile;

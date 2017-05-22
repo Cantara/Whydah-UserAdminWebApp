@@ -191,14 +191,24 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             that.application.applicationJson = JSON.stringify(data);
             that.application.roleNames = buildRoleNames(that.application);
             that.application.orgNames = buildOrgNames(that.application);
-            if(callback) {
-                callback(that.application);
-            }
+            
+            //get tag json
+            $http({
+                method: 'GET',
+                url: baseUrl+'applicationtags/'+id+'/'
+            }).success(function (data) {
+                 console.log("tag list "  + data);
+            	 that.application.tagList = data;
+                if(callback) {
+                    callback(that.application);
+                }
+            });
+            
+           
         });
         return this;
     };
-
-
+    
     this.getLog = function(id, callback) {
         console.log('Getting Application log for id=', id);
         var that = this;
@@ -333,6 +343,14 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                 }
             }
         }
+        if(application.hasOwnProperty('tagList')){
+            application.tags ='';
+            angular.forEach(application.tagList, function(i, k){
+                application.tags += (application.tags===''?'':',') + (i.name.trim()!='UNNAMED'&&i.name.trim()!=''? (i.name.trim() + "_" + i.value.trim()) : i.value.trim());
+            })
+            console.log("TAGS" + application.tags);
+        }
+        
         return application;
     }
     
