@@ -56,7 +56,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	    console.log('Activating application log...', id);
 	    Applications.getLog(id, function(){
 	      //$scope.form.userDetail.$setPristine();
-	      $('#data').modal('show');
+	      $('#applicationLog').modal('show');
 	      //$scope.prettifyJson();
 	    });
   }
@@ -116,6 +116,10 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 
   $scope.applicationJsonProperties = [
     {value: 'applicationJson', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
+  ];
+
+  $scope.applicationLogProperties = [
+    {value: 'applicationLog', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
   ];
 
   $scope.dict = {
