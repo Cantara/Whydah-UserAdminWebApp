@@ -1,5 +1,6 @@
 package net.whydah.identity.admin;
 
+import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.ConstantValue;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
 import net.whydah.identity.admin.usertoken.UserTokenXpathHelper;
@@ -34,6 +35,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Properties;
 
 @Controller
 public class UserAdminController {
@@ -222,6 +224,13 @@ public class UserAdminController {
         model.addAttribute("logOutRedirectUrl", SessionUserAdminDao.instance.LOGOUT_SERVICE);
         String baseUrl = "/useradmin/" + SessionUserAdminDao.instance.getServiceClient().getWAS().getActiveApplicationTokenId() + "/" + UserTokenMapper.fromUserTokenXml(userTokenXml).getTokenid()+ "/";
         model.addAttribute("baseUrl", baseUrl);
+        model.addAttribute("statUrl", baseUrl);
+        try {
+            Properties properties = AppConfig.readProperties();
+            model.addAttribute("statUrl", properties.getProperty("statisticsservice"));
+        } catch (Exception e){
+            log.warn("Unable to read properties and set statUrl value");
+        }
     }
     
     

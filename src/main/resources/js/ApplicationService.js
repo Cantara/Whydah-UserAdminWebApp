@@ -204,7 +204,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         var that = this;
         $http({
             method: 'GET',
-            url: baseUrl+'observe/statistics/'+id+'/usersession'
+            url: statUrl+'observe/statistics/'+id+'/usersession'
         }).success(function (data) {
             console.log('Got applicaton log', data);
             if(callback) {
