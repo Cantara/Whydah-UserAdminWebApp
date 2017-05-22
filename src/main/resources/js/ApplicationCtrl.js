@@ -54,11 +54,18 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 
   $scope.activateApplicationLog = function(id) {
 	    console.log('Activating application log...', id);
-	    Applications.getLog(id, function(){
-	      //$scope.form.userDetail.$setPristine();
-	      $('#applicationLog').modal('show');
-	      //$scope.prettifyJson();
-	    });
+	    Applications.showMessage('info', "Loading application history. Please wait a moment.");
+	    Applications.get(id, function(){
+	       
+	    	  Applications.getLog(id, function(){
+	    	   
+	    	      $('#applicationLog').modal('show');
+	    	      
+	    	    });
+	    	  
+	      });
+	    
+	  
   }
   
   $scope.exportSelectedApps=function(){
@@ -136,7 +143,8 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
       applicationJson: 'Json override',
       roleNames: 'Available role names',
       orgNames: 'Available organization names',
-      tags: 'Tags'
+      tags: 'Tags',
+      applicationLog: 'Log',
     }
   }
 
@@ -180,15 +188,15 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
     }
   }
 
-  $scope.prettifyJson = function() {
-    try {
-      var jsonObject = JSON.parse($scope.applications.application.applicationJson);
-      var prettifiedJson = JSON.stringify(jsonObject, undefined, 2);
-      $scope.applications.application.applicationJson = prettifiedJson;
-    }catch (e) {
-      Messages.add('danger', 'Could not prettify applicationJson. Error while parsing');
-    }
-  }
+//  $scope.prettifyJson = function() {
+//    try {
+//      var jsonObject = JSON.parse($scope.applications.application.applicationJson);
+//      var prettifiedJson = JSON.stringify(jsonObject, undefined, 2);
+//      $scope.applications.application.applicationJson = prettifiedJson;
+//    }catch (e) {
+//      Messages.add('danger', 'Could not prettify applicationJson. Error while parsing');
+//    }
+//  }
 
   $scope.delete = function() {
     var deleteUser = $window.confirm('Are you absolutely sure you want to delete '+ Applications.application.name +'?');

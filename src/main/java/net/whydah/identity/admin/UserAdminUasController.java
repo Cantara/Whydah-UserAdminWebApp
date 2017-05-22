@@ -2,19 +2,23 @@ package net.whydah.identity.admin;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.mappers.ApplicationTagMapper;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.Tag;
+import net.whydah.sso.basehelpers.JsonPathHelper;
 import net.whydah.sso.commands.extensions.statistics.CommandListUserActivities;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.mappers.UserRoleMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
+
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.*;
@@ -36,10 +40,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -445,7 +451,13 @@ public class UserAdminUasController {
         String jsonresult = "{}";
         try {
             Properties properties = AppConfig.readProperties();
+            
             jsonresult = new CommandListUserActivities(java.net.URI.create(properties.getProperty("statisticsservice")),apptokenid,usertokenid,applicationId).execute();
+            if(jsonresult!=null){
+            	//we should filter activities for this particular application
+            	jsonresult = getUserSessionsJsonFromUserActivityJson(jsonresult, null, applicationId);
+            	
+            }
         } catch (Exception e){
             log.warn("Unable to get statistics for application., returning empty json",e);
         }
@@ -940,5 +952,59 @@ public class UserAdminUasController {
 		}
 	}
 
+	//TODO: move this method to UserActivityHelper in TypeLib
+	private static final ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	public static String getUserSessionsJsonFromUserActivityJson(String userActivityJson, String filterusername, String filterAppId) {
+        try {
+            if (userActivityJson == null) {
+                log.trace("getDataElementsFromUserActivityJson was empty, so returning null.");
+            } else {
+                List<String> applications = JsonPathHelper.findJsonpathList(userActivityJson, "$..userSessions.*");
+                if (applications == null) {
+                    log.debug("jsonpath returned zero hits");
+                    return null;
+                }
+                List<Map> userSessions = new LinkedList<>();
+
+                final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+                Calendar c = new GregorianCalendar();
+
+                int i = 0;
+                List<String> registeredApplication = new LinkedList<>();
+                while (i < applications.size()) {
+                    Map<String, String> userSession = new HashMap<>();
+                    String activityJson = mapper.writeValueAsString(applications.get(applications.size() - i - 1));
+                    String timestamp = JsonPathHelper.findJsonpathList(userActivityJson, "$..userSessions[" + i + "].startTime").toString();
+                    List<String> data = JsonPathHelper.findJsonpathList(activityJson, "$..data.*");
+                    String activityType = data.get(0);
+                    String applicationid = data.get(1);
+                    String username = data.get(2);
+                    String applicationtokenid = data.get(3);
+          
+                    timestamp = timestamp.substring(1, timestamp.length() - 1);
+                    c.setTimeInMillis(Long.parseLong(timestamp));
+                    if ((filterusername == null || filterusername.length() < 1 || filterusername.equalsIgnoreCase(username)) && applicationid.equals(filterAppId)) {
+                        if (!registeredApplication.contains(applicationid + activityType)) {
+                            //    userSession.put("username", username);
+                            userSession.put("applicationid", applicationid);
+                            userSession.put("activityType", activityType);
+                            userSession.put("timestamp", dateFormat.format(c.getTime()));
+                            //   userSession.put("applicationtokenid", applicationtokenid);
+
+                            registeredApplication.add(applicationid + activityType);
+                            userSessions.add(userSession);
+                        }
+                    }
+                    i++;
+                }
+                return mapper.writeValueAsString(userSessions);
+            }
+        } catch (Exception e) {
+            log.warn("Could not convert getDataElementsFromUserActivityJson Json}");
+        }
+
+        return null;
+    }
 
 }
