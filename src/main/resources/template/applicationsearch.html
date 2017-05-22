@@ -36,7 +36,7 @@
                      
                      <th class="td-checkbox"><label><input tri-state-checkbox elements="applications.list" elements-selected="applications.selected" /></label></th>
                      <th>Logo</th>
-			         <th st-sort="name">Application name <span class="glyphicon glyphicon-sort"></span></th>
+			         <th st-sort="name">Application ID and Name <span class="glyphicon glyphicon-sort"></span></th>
 			         <th st-sort="company">Company <span class="glyphicon glyphicon-sort"></span></th>
 			         <th st-sort="description">Description <span class="glyphicon glyphicon-sort"></span></th>
 			         <th st-sort="tags">Tags <span class="glyphicon glyphicon-sort"></span></th>
@@ -68,7 +68,7 @@
 			    <tr ng-repeat="app in displayCollectionList" class="itemrow">
 			        <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
                     <td ng-click="activateApplicationDetail(app.id)"><img src="{{app.logoUrl}}" style="max-height: 100px; max-width: 100px;"/></td>
-			        <td ng-click="activateApplicationDetail(app.id)">{{app.id}} <br/>{{app.name}}</td>
+                    <td ng-click="activateApplicationDetail(app.id)">{{app.id}} <br/><b>{{app.name}}</b></td>
 			        <td ng-click="activateApplicationDetail(app.id)">{{app.company}}</td>
 			        <td ng-click="activateApplicationDetail(app.id)">{{app.description}}</td>
 			        <td ng-click="activateApplicationDetail(app.id)">{{app.tags| limitTo:20}}</td>
