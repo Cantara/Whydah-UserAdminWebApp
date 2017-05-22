@@ -325,14 +325,13 @@
                         <div class="form-group"
                              ng-form="formPart"
                              ng-class="getValidationClass(formPart)"
-                             ng-repeat="property in applicationJsonProperties">
+                             ng-repeat="property in applicationLogProperties">
                             <label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
 
                             <div class="col-sm-10">
                                 <textarea rows="30" type="{{property.type}}" class="form-control"
                                           id="{{property.value}}" name="{{property.value}}"
-                                          ng-readonly="{{property.readOnly}}"
-                                          ng-model="applications.application[property.value]"
+                                          ng-readonly="{{property.readOnly}}" ng-model="application[property.value]"
                                           ng-minlength="{{property.minLength}}" ng-maxlength="{{property.maxLength}}"
                                           ng-required="{{property.required}}"/>
                             </div>
