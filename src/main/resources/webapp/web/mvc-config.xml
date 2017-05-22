@@ -13,7 +13,7 @@
 
     <!-- <mvc:resources location="/images/" mapping="/images/**"/> -->
    <!--  -->
-    <mvc:resources mapping="/images/**" location="/, classpath:/images/" />
+    <mvc:resources mapping="/images/**" location="/, classpath:/img/"/>
     <mvc:resources mapping="/img/**" location="/, classpath:/img/" />
     <mvc:resources mapping="/template/**" location="/, classpath:/template/" />
     <mvc:resources mapping="/favicon.ico" location="/, classpath:/img/favicon.ico" />
