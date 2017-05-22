@@ -56,7 +56,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
     console.log('Activating application log...', id);
     Applications.getLog(id, function(){
       //$scope.form.userDetail.$setPristine();
-      $('#applicationJson').modal('show');
+      $('#data').modal('show');
       //$scope.prettifyJson();
     });
   }

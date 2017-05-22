@@ -207,9 +207,8 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             url: baseUrl+'applicationlog/'+id+'/'
         }).success(function (data) {
             console.log('Got applicaton log', data);
-            that.application.applicationJson = data;
             if(callback) {
-                callback(that.application);
+                callback(data);
             }
         });
         return this;
