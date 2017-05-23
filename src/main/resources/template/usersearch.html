@@ -142,7 +142,7 @@
 				<div class="modal-body">
 					<div class="form-group"
 						ng-show="users.duplicatelist.length==0">
-                        <label for="myFileField">Please choose the file [users.json]</label> <input
+                        <label for="myFileField">Please choose file to improt [users.json]</label> <input
 							type="file" demo-file-model="myFile" class="form-control"
 							id="myFileField" />
 					</div>
@@ -190,12 +190,6 @@
 								<td>{{user.cellPhone}}</td>
 								<td>{{user.email | wrap:true:10:'...'}}</td>
 								<td>{{user.personRef}}</td>
-                                <td>
-                                    <button type="button" class="btn btn-default btn-sm"
-                                            ng-click="activateUserLog(user.uid)">
-                                        Activity
-                                    </button>
-								</td>
 							</tr>
 						</tbody>
 					</table>
@@ -393,7 +387,7 @@
 
 <!-- ApplicationJson Modal -->
 <div class="modal fade" id="userLog" tabindex="-1" role="dialog" aria-labelledby="userdetaillabel"
-     aria-hidden="true" ng-controller="UserCtrl">
+     aria-hidden="true" ng-controller="UserDetailCtrl">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
