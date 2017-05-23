@@ -109,6 +109,22 @@ UseradminApp.service('Users', function($http, Messages, $q){
 		return this;
 	};
 
+    this.getLog = function(id, callback) {
+        console.log('Getting Users log for id=', id);
+        var that = this;
+        $http({
+            method: 'GET',
+            url: baseUrl+'applicationlog/'+id+'/'
+        }).success(function (data) {
+            console.log('Got applicaton log', data);
+            that.user.userLog = JSON.stringify(data);
+            if(callback) {
+                 callback(that.user;
+            }
+        });
+        return this;
+    };
+
     // Current json-request for save
     // jsond: {"personRef":"1", "username":"leon", "firstName":"Leon", "lastName":"Ho", "email":"leon.ho@altran.com", "cellPhone":"993 97 835"}
 	this.save = function(user, successCallback) {

@@ -61,11 +61,11 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 	}
 
     $scope.activateUserLog = function(id) {
-	    console.log('Activating application log...', id);
+	    console.log('Activating user log...', id);
 	    Applications.showMessage('info', "Loading user history. Please wait a moment.");
 	    Users.get(id, function(){
 
-	    	  Applications.getLog(id, function(){
+	    	  Users.getLog(id, function(){
 
 	    	      $('#applicationLog').modal('show');
 
