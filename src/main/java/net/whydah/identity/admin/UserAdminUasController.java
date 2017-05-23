@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
 import net.whydah.sso.application.mappers.ApplicationMapper;
@@ -18,7 +17,6 @@ import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.mappers.UserRoleMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
-
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.*;
@@ -40,7 +38,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -451,8 +448,8 @@ public class UserAdminUasController {
         String jsonresult = "{}";
         try {
             Properties properties = AppConfig.readProperties();
-            
-            jsonresult = new CommandListUserActivities(java.net.URI.create(properties.getProperty("statisticsservice")),apptokenid,usertokenid,applicationId).execute();
+
+            jsonresult = new CommandListUserActivities(java.net.URI.create(properties.getProperty("statisticsservice")), apptokenid, usertokenid, applicationId.trim()).execute();
             if(jsonresult!=null){
             	//we should filter activities for this particular application
             	jsonresult = getUserSessionsJsonFromUserActivityJson(jsonresult, null, applicationId);
