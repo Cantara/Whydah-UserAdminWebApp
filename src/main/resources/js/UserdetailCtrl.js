@@ -29,6 +29,10 @@ UseradminApp.controller('UserdetailCtrl', function($scope, Users) {
     {name: 'applicationRoleValue',  label: 'Value',         editable: true}
   ];
 
+  $scope.userLogProperties = [
+    {value: 'userLog', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
+  ];
+
   $scope.dict = {
     en: {
       uid: 'UID',
