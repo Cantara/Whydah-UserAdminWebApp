@@ -13,6 +13,7 @@ import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.Tag;
 import net.whydah.sso.basehelpers.JsonPathHelper;
 import net.whydah.sso.commands.extensions.statistics.CommandListUserActivities;
+import net.whydah.sso.extensions.useractivity.helpers.UserActivityHelper;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.mappers.UserRoleMapper;
 import net.whydah.sso.user.types.UserAggregate;
@@ -440,10 +441,10 @@ public class UserAdminUasController {
 	@Produces(MediaType.APPLICATION_JSON+ ";charset=utf-8")
 	@RequestMapping(value = "applicationlog/{applicationId}", method = RequestMethod.GET)
 	public String getApplicationLog(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
-								 @PathVariable("applicationId") String applicationId, HttpServletRequest request,
-								 HttpServletResponse response, Model model) {
-		log.trace("getApplicationLog - entry.  applicationtokenid={},  usertokenid={}, applicationId={}", apptokenid, usertokenid, applicationId);
-		usertokenid = findValidUserTokenId(usertokenid, request);
+                                    @PathVariable("applicationId") String applicationId, HttpServletRequest request,
+                                    HttpServletResponse response, Model model) {
+        log.trace("getApplicationLog - entry.  applicationtokenid={},  usertokenid={}, applicationId={}", apptokenid, usertokenid, applicationId);
+        usertokenid = findValidUserTokenId(usertokenid, request);
 
         String jsonresult = "{}";
         try {
@@ -451,9 +452,9 @@ public class UserAdminUasController {
 
             jsonresult = new CommandListUserActivities(java.net.URI.create(properties.getProperty("statisticsservice")), apptokenid, usertokenid, applicationId.trim()).execute();
             if(jsonresult!=null){
-            	//we should filter activities for this particular application
-            	jsonresult = getUserSessionsJsonFromUserActivityJson(jsonresult, null, applicationId);
-            	
+                //we should filter activities for this particular application
+                jsonresult = getUserSessionsJsonFromUserActivityJson(jsonresult, null, applicationId);
+
             }
         } catch (Exception e){
             log.warn("Unable to get statistics for application., returning empty json",e);
@@ -461,11 +462,40 @@ public class UserAdminUasController {
         model.addAttribute(JSON_DATA_KEY, jsonresult);
 
         response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
-	}
+        return JSON_KEY;
+    }
 
-	private String getAllApplicationsJsonData(String apptokenid, String usertokenid, HttpServletResponse response, Model model) {
-		String url = buildUasUrl(apptokenid, usertokenid, "applications");
+    // APPLICATION
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @RequestMapping(value = "userlog/{uid}", method = RequestMethod.GET)
+    public String getUserLog(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+                             @PathVariable("uid") String uid, HttpServletRequest request,
+                             HttpServletResponse response, Model model) {
+        log.trace("getUserLog - entry.  applicationtokenid={},  uid={}, applicationId={}", apptokenid, usertokenid, uid);
+        usertokenid = findValidUserTokenId(usertokenid, request);
+
+        String jsonresult = "{}";
+        try {
+            Properties properties = AppConfig.readProperties();
+
+            jsonresult = new CommandListUserActivities(java.net.URI.create(properties.getProperty("statisticsservice")), apptokenid, usertokenid, uid.trim()).execute();
+            if (jsonresult != null) {
+                //we should filter activities for this particular application
+                jsonresult = UserActivityHelper.getUserSessionsJsonFromUserActivityJson(jsonresult, uid);
+
+            }
+        } catch (Exception e) {
+            log.warn("Unable to get statistics for application., returning empty json", e);
+        }
+        model.addAttribute(JSON_DATA_KEY, jsonresult);
+
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
+    }
+
+    private String getAllApplicationsJsonData(String apptokenid, String usertokenid, HttpServletResponse response, Model model) {
+        String url = buildUasUrl(apptokenid, usertokenid, "applications");
 		GetMethod method = new GetMethod();
 		String jsonResult = makeUasRequest(method, url, model, response);
 		return jsonResult;

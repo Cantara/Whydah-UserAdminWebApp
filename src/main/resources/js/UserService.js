@@ -110,13 +110,13 @@ UseradminApp.service('Users', function($http, Messages, $q){
 	};
 
     this.getLog = function(id, callback) {
-        console.log('Getting Users log for id=', id);
+        console.log('Getting Users log for uid=', id);
         var that = this;
         $http({
             method: 'GET',
-            url: baseUrl+'applicationlog/'+id+'/'
+            url: baseUrl+'userlog/'+id+'/'
         }).success(function (data) {
-            console.log('Got applicaton log', data);
+            console.log('Got user log', data);
             that.user.userLog = JSON.stringify(data);
             if(callback) {
                  callback(that.user);
