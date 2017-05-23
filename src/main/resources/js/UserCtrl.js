@@ -145,6 +145,9 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		}
 	}
 
+  $scope.userLogProperties = [
+    {value: 'userLog', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
+  ];
 
 
 
