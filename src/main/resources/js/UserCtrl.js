@@ -62,8 +62,8 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 
     $scope.activateUserLog = function(id) {
 	    console.log('Activating application log...', id);
-	    Applications.showMessage('info', "Loading application history. Please wait a moment.");
-	    Applications.get(id, function(){
+	    Applications.showMessage('info', "Loading user history. Please wait a moment.");
+	    Users.get(id, function(){
 
 	    	  Applications.getLog(id, function(){
 
