@@ -119,7 +119,7 @@ UseradminApp.service('Users', function($http, Messages, $q){
             console.log('Got applicaton log', data);
             that.user.userLog = JSON.stringify(data);
             if(callback) {
-                 callback(that.user;
+                 callback(that.user);
             }
         });
         return this;
