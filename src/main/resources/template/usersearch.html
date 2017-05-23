@@ -164,6 +164,7 @@
 								<th st-sort="cellPhone">Phone <span class="glyphicon glyphicon-sort"></span></th>
 								<th st-sort="email">E-mail <span class="glyphicon glyphicon-sort"></span></th>
 								<th st-sort="personRef">Customer Reference <span class="glyphicon glyphicon-sort"></span></th>
+                                <th st-sort="personRef">Log <span class="glyphicon glyphicon-sort"></span></th>
 
 
 							</tr>
@@ -183,9 +184,11 @@
 								<td>{{user.cellPhone}}</td>
 								<td>{{user.email | wrap:true:10:'...'}}</td>
 								<td>{{user.personRef}}</td>
-								<td>&nbsp; &nbsp;<button type="button" class="btn btn-default btn-sm"
-                                                         ng-click="activateUserLog(user.uid)">Activity
-								</button>
+                                <td>
+                                    <button type="button" class="btn btn-default btn-sm"
+                                            ng-click="activateUserLog(user.uid)">
+                                        Activity
+                                    </button>
 								</td>
 							</tr>
 						</tbody>
