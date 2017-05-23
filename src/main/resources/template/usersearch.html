@@ -101,6 +101,12 @@
 						<td ng-click="activateUserDetail(user.uid)">{{user.email |
 							wrap:true:10:'...'}}</td>
 						<td ng-click="activateUserDetail(user.uid)">{{user.personRef}}</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm"
+                                    ng-click="activateUserLog(user.uid)">
+                                Activity
+                            </button>
+                        </td>
 					</tr>
 					<tr ng-if="!users.list.length && searchQuery">
 						<td colspan="4">No results for search "{{searchQuery}}".</td>
