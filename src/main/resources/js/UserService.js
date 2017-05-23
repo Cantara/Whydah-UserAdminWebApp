@@ -102,6 +102,8 @@ UseradminApp.service('Users', function($http, Messages, $q){
 		}).success(function (data) {
 		    console.log('Got user', data);
 		    that.user = data;
+		    that.user.userLog = new Object();
+
 		    if(callback) {
 		        callback(data);
 		    }
