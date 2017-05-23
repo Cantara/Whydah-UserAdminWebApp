@@ -60,6 +60,22 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		$('#userdetail').modal('show');
 	}
 
+    $scope.activateUserLog = function(id) {
+	    console.log('Activating application log...', id);
+	    Applications.showMessage('info', "Loading application history. Please wait a moment.");
+	    Applications.get(id, function(){
+
+	    	  Applications.getLog(id, function(){
+
+	    	      $('#applicationLog').modal('show');
+
+	    	    });
+
+	      });
+
+
+  }
+
 	$scope.addRoleForUsers = function() {
 		$scope.addRoleForMultiple = true;
 		$('#addrole').modal('show');
