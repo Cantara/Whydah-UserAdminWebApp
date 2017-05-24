@@ -84,6 +84,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
   $scope.newApplicationDetail = function() {
     Applications.application = {isNew: true};
     Applications.application.tagList=[];
+    Applications.application.secret = getUUID();
     $scope.application = {isNew: true};
     $scope.application.secret = getUUID();
     //Users.userRoles = {};
