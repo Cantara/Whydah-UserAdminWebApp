@@ -128,12 +128,12 @@ UseradminApp.service('Users', function($http, Messages, $q){
         return this;
     };
 
-    this.getCrm = function(id, callback) {
-        console.log('Getting User Crm for personRef=', id);
+    this.getCrm = function(id, personRef, callback) {
+        console.log('Getting User Crm for personRef=', personRef);
         var that = this;
         $http({
             method: 'GET',
-            url: baseUrl+'userCrm/'+id+'/'
+            url: baseUrl+'usercrm/'+personRef+'/'
         }).success(function (data) {
             console.log('Got user crm', data);
             that.user.userCrm = JSON.stringify(data);

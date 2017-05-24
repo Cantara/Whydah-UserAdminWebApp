@@ -71,11 +71,11 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 	      });
     }
 
-    $scope.activateUserCrm = function(id) {
+    $scope.activateUserCrm = function(id,personRef) {
 	    console.log('Activating user Crm...', id);
 	    Users.showMessage('info', "Loading user Crm. Please wait a moment.");
 	    Users.get(id, function(){
-	    	  Users.getCrm(id, function(){
+	    	  Users.getCrm(id, personRef, function(){
 	    	      $('#userCrm').modal('show');
 	    	    });
 	      });

@@ -498,14 +498,13 @@ public class UserAdminUasController {
     // USERCRM
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @RequestMapping(value = "userCrm/{personRef}", method = RequestMethod.GET)
+    @RequestMapping(value = "usercrm/{personRef}", method = RequestMethod.GET)
     public String getUserCRM(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
                              @PathVariable("personRef") String personRef, HttpServletRequest request,
                              HttpServletResponse response, Model model) {
         log.trace("getUserCRM - entry.  applicationtokenid={},  personRef={}, applicationId={}", apptokenid, usertokenid, personRef);
-        usertokenid = findValidUserTokenId(usertokenid, request);
 
-        String jsonresult = "{}";
+        String jsonresult = "{\"status\":\"Not found\"}";
         try {
             Properties properties = AppConfig.readProperties();
 
