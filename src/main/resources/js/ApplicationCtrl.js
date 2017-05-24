@@ -85,6 +85,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
     Applications.application = {isNew: true};
     Applications.application.tagList=[];
     $scope.application = {isNew: true};
+    $scope.application.secret = getUUID();
     //Users.userRoles = {};
     //$scope.form.applicationDetail.$setPristine();
     $('#applicationdetail').modal('show');
@@ -103,6 +104,17 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
     });
     */
   }
+
+   var getUUID = function(){
+          	 var d = new Date().getTime();
+               var uuid = 'xxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/[x]/g, function(c) {
+                   var r = (d + Math.random()*16)%16 | 0;
+                   d = Math.floor(d/16);
+                   return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+               });
+               return uuid;
+          }
+
 
   // -- Should be in ApplicationdetailCtrl ---
   $scope.applicationProperties = [
