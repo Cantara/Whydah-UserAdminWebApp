@@ -103,6 +103,7 @@ UseradminApp.service('Users', function($http, Messages, $q){
 		    console.log('Got user', data);
 		    that.user = data;
 		    that.user.userLog = new Object();
+		    that.user.userCrm = new Object();
 
 		    if(callback) {
 		        callback(data);
@@ -112,7 +113,7 @@ UseradminApp.service('Users', function($http, Messages, $q){
 	};
 
     this.getLog = function(id, callback) {
-        console.log('Getting Users log for uid=', id);
+        console.log('Getting User log for uid=', id);
         var that = this;
         $http({
             method: 'GET',
@@ -120,6 +121,22 @@ UseradminApp.service('Users', function($http, Messages, $q){
         }).success(function (data) {
             console.log('Got user log', data);
             that.user.userLog = JSON.stringify(data);
+            if(callback) {
+                 callback(that.user);
+            }
+        });
+        return this;
+    };
+
+    this.getCrm = function(id, callback) {
+        console.log('Getting User Crm for personRef=', id);
+        var that = this;
+        $http({
+            method: 'GET',
+            url: baseUrl+'userCrm/'+id+'/'
+        }).success(function (data) {
+            console.log('Got user crm', data);
+            that.user.userCrm = JSON.stringify(data);
             if(callback) {
                  callback(that.user);
             }

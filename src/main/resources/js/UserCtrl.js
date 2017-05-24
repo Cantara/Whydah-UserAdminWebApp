@@ -65,17 +65,21 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 	    console.log('Activating user log...', id);
 	    Users.showMessage('info', "Loading user history. Please wait a moment.");
 	    Users.get(id, function(){
-
 	    	  Users.getLog(id, function(){
-
 	    	      $('#userLog').modal('show');
-
 	    	    });
-
 	      });
+    }
 
-
-  }
+    $scope.activateUserCrm = function(id) {
+	    console.log('Activating user Crm...', id);
+	    Users.showMessage('info', "Loading user Crm. Please wait a moment.");
+	    Users.get(id, function(){
+	    	  Users.getCrm(id, function(){
+	    	      $('#userCrm').modal('show');
+	    	    });
+	      });
+    }
 
 	$scope.addRoleForUsers = function() {
 		$scope.addRoleForMultiple = true;
@@ -149,6 +153,9 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
     {value: 'userLog', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
   ];
 
+  $scope.userCrmProperties = [
+    {value: 'userCrm', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
+  ];
 
 
 	$scope.importUsers = function(){	 
