@@ -12,6 +12,7 @@ import net.whydah.sso.application.mappers.ApplicationTagMapper;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.Tag;
 import net.whydah.sso.basehelpers.JsonPathHelper;
+import net.whydah.sso.commands.extensions.crmapi.CommandGetCRMCustomer;
 import net.whydah.sso.commands.extensions.statistics.CommandListUserActivities;
 import net.whydah.sso.extensions.useractivity.helpers.UserActivityHelper;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
@@ -465,7 +466,7 @@ public class UserAdminUasController {
         return JSON_KEY;
     }
 
-    // APPLICATION
+    // USERLOG
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @RequestMapping(value = "userlog/{uid}", method = RequestMethod.GET)
@@ -486,7 +487,31 @@ public class UserAdminUasController {
 
             }
         } catch (Exception e) {
-            log.warn("Unable to get statistics for application., returning empty json", e);
+            log.warn("Unable to get getUserLog., returning empty json", e);
+        }
+        model.addAttribute(JSON_DATA_KEY, jsonresult);
+
+        response.setContentType(CONTENTTYPE_JSON_UTF8);
+        return JSON_KEY;
+    }
+
+    // USERCRM
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @RequestMapping(value = "userCrm/{personRef}", method = RequestMethod.GET)
+    public String getUserCRM(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+                             @PathVariable("personRef") String personRef, HttpServletRequest request,
+                             HttpServletResponse response, Model model) {
+        log.trace("getUserCRM - entry.  applicationtokenid={},  personRef={}, applicationId={}", apptokenid, usertokenid, personRef);
+        usertokenid = findValidUserTokenId(usertokenid, request);
+
+        String jsonresult = "{}";
+        try {
+            Properties properties = AppConfig.readProperties();
+
+            jsonresult = new CommandGetCRMCustomer(java.net.URI.create(properties.getProperty("crmservice")), apptokenid, usertokenid, personRef).execute();
+        } catch (Exception e) {
+            log.warn("Unable to get getUserCRM, returning empty json", e);
         }
         model.addAttribute(JSON_DATA_KEY, jsonresult);
 
