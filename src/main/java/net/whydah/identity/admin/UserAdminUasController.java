@@ -438,7 +438,7 @@ public class UserAdminUasController {
 	public String getApplicationLog(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
                                     @PathVariable("applicationId") String applicationId, HttpServletRequest request,
                                     HttpServletResponse response, Model model) {
-        log.trace("getApplicationLog - entry.  applicationtokenid={},  usertokenid={}, applicationId={}", apptokenid, usertokenid, applicationId);
+        log.info("getApplicationLog - entry.  applicationtokenid={},  usertokenid={}, applicationId={}", apptokenid, usertokenid, applicationId);
         usertokenid = findValidUserTokenId(usertokenid, request);
 
         String jsonresult = "{}";
@@ -467,7 +467,7 @@ public class UserAdminUasController {
     public String getUserLog(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
                              @PathVariable("uid") String uid, HttpServletRequest request,
                              HttpServletResponse response, Model model) {
-        log.trace("getUserLog - entry.  applicationtokenid={},  uid={}, applicationId={}", apptokenid, usertokenid, uid);
+        log.info("getUserLog - entry.  applicationtokenid={},  applicationId={}, uid={}", apptokenid, usertokenid, uid);
         usertokenid = findValidUserTokenId(usertokenid, request);
 
         String jsonresult = "{}";
@@ -496,7 +496,7 @@ public class UserAdminUasController {
     public String getUserCRM(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
                              @PathVariable("personRef") String personRef, HttpServletRequest request,
                              HttpServletResponse response, Model model) {
-        log.trace("getUserCRM - entry.  applicationtokenid={},  personRef={}, applicationId={}", apptokenid, usertokenid, personRef);
+        log.info("getUserCRM - entry.  usertokenid={},  personRef={}, personRef={}", apptokenid, usertokenid, personRef);
 
         String jsonresult = "{\"status\":\"Not found\"}";
         try {
