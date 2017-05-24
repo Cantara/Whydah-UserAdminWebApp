@@ -2,8 +2,7 @@ package net.whydah.identity.admin;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import net.whydah.identity.ServerRunner;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
 import net.whydah.sso.application.mappers.ApplicationMapper;
@@ -39,9 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -527,8 +524,8 @@ public class UserAdminUasController {
 		HttpMethod method = new GetMethod();
 		String url = buildUasUrl(apptokenid, usertokenid, "users/find/*");
 		String userIdentityList = makeUasRequest(method, url, model, response);
-		List<UserAggregate> uaList = getFromJson(userIdentityList);
-		//get roles for each
+        List<UserAggregate> uaList = UserAggregateMapper.getFromJson(userIdentityList);
+        //get roles for each
 		for(UserAggregate ua : uaList){
 			HttpMethod m = new GetMethod();
 			String roles_url = buildUasUrl(apptokenid, usertokenid, "user/" + ua.getUid() + "/roles");
@@ -626,44 +623,6 @@ public class UserAdminUasController {
 		return tokenServiceClient.getWAS().getActiveApplicationTokenId();
 	}
 
-	//TODO: move this to UserAggregateMapper
-	private List<UserAggregate> getFromJson(String jsonArray) throws JsonProcessingException, IOException{
-		List<UserAggregate> list = new ArrayList<UserAggregate>();
-		ObjectMapper om = new ObjectMapper();
-		JsonNode node = om.readTree(jsonArray);
-
-		if(!node.isArray()&&node.has("result")){
-			node = node.get("result");
-		}
-
-		Iterator<JsonNode> iterator = node.elements();
-		while (iterator.hasNext()) {
-
-
-			JsonNode sNode = iterator.next();
-			//TODO: check UserAggregateMapper.fromJson(...); there is a bug when reading uid (occurs when having more than one uid field in the json
-			//UserAggregate ua = UserAggregateMapper.fromJson(sNode.toString());
-
-			//Have to do manually for now
-			String uid = sNode.get("uid").textValue();
-			String personRef =  sNode.get("personRef").textValue();
-			String username = sNode.get("username").textValue();
-			String firstName = sNode.get("firstName").textValue();
-			String lastName = sNode.get("lastName").textValue();
-			String email = sNode.get("email").textValue();
-			String cellPhone = sNode.get("cellPhone").textValue();
-
-
-			UserAggregate ua = new UserAggregate(uid, username, firstName, lastName, personRef, email, cellPhone);
-
-			if(sNode.has("roles")){
-				List<UserApplicationRoleEntry> roles = UserRoleMapper.fromJsonAsList(sNode.get("roles").toString());
-				ua.setRoleList(roles);
-			}
-			list.add(ua);
-		}
-		return list;
-	}
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -689,8 +648,8 @@ public class UserAdminUasController {
 			saveUploadedFile(content, filename);
 			String json = new String(content, "UTF-8");
 			json = json.replace("\uFEFF", "");
-			List<UserAggregate> importList = getFromJson(json);
-			List<String> duplicates = new ArrayList<String>();
+            List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);
+            List<String> duplicates = new ArrayList<String>();
 			for(UserAggregate nua : importList){
 				if(oldListMap.containsKey(nua.getUid()) && !overridenIds.contains(nua.getUid()) && !skippedIds.contains(nua.getUid())){
 					//duplicates
@@ -967,38 +926,22 @@ public class UserAdminUasController {
 
 		filename = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss.SSS").format(new Date()) + "-" + filename;
 
-		Path currentDir = getCurrentPath();
-		Path tempUploadDir = currentDir.resolve("uploads");
-		createDirectories(tempUploadDir);
+        Path currentDir = ServerRunner.getCurrentPath();
+        Path tempUploadDir = currentDir.resolve("data_import_dir");
+        ServerRunner.createDirectories(tempUploadDir);
 
-		if (new File(currentDir + filename).exists()) {
-			new File(currentDir + filename).delete();
-		}
+        if (new File(tempUploadDir + filename).exists()) {
+            new File(tempUploadDir + filename).delete();
+        }
 
-		BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(currentDir + File.separator + filename));
-		bout.write(fContent);
+        BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(tempUploadDir + File.separator + filename));
+        bout.write(fContent);
 		bout.flush();
 		bout.close();
 
 
 	}
 
-	public static Path getCurrentPath() {
-		return
-				Paths.get(System.getProperty("user.dir")).toAbsolutePath();
-		//Paths.get("").toAbsolutePath();
-	}
-
-	public static void createDirectories(Path directory) throws IOException {
-		if (!Files.isDirectory(directory)) {
-			Path dir;
-			if ((dir = Files.createDirectories(directory)) != null) {
-				log.trace("Created directory: {}", dir.toString());
-			} else {
-				log.trace("Unable to create directory: {}", dir.toString());
-			}
-		}
-	}
 
 
 
