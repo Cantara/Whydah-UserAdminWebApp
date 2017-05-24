@@ -188,7 +188,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             console.log('Got applicaton', data);
             that.application = data;
             that.application.secret = data.security.secret;
-            that.application.applicationJson = JSON.stringify(data);
+            that.application.applicationJson = JSON.stringify(data, null, 2);
             that.application.applicationLog = new Object();
             that.application.roleNames = buildRoleNames(that.application);
             that.application.orgNames = buildOrgNames(that.application);
@@ -218,7 +218,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             url: baseUrl+'applicationlog/'+id+'/'
         }).success(function (data) {
             console.log('Got applicaton log', data);
-            that.application.applicationLog = JSON.stringify(data);
+            that.application.applicationLog = JSON.stringify(data, null, 2);
             if(callback) {
                  callback(that.application);
             }
