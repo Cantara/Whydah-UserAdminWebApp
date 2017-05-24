@@ -415,6 +415,7 @@ public class UserAdminUasController {
 		return JSON_KEY;
 	}
 
+    // APPLICATIONTAGS
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @RequestMapping(value = "/applicationtags", method = RequestMethod.GET)
