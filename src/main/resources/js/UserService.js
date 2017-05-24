@@ -29,7 +29,7 @@ UseradminApp.service('Users', function($http, Messages, $q){
 
 	this.search = function(searchQuery) {
 		console.log('Searching for users...');
-		this.searchQuery = searchQuery || '*';
+		this.searchQuery = | '*'+searchQuery;
 		var that = this;
 		$http({
 			method: 'GET',
