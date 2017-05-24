@@ -81,7 +81,7 @@ public class UserAdminUasController {
 		}
         if (!utf8query.equalsIgnoreCase("*")) {
             utf8query = "*" + utf8query;
-            utf8query = utf8query.replace("@", "?");
+            utf8query = utf8query.replace("@", " ");
         }
 
         log.info("findUsers - Finding users with query: " + utf8query);
