@@ -79,8 +79,12 @@ public class UserAdminUasController {
 		} catch (UnsupportedEncodingException uee) {
 
 		}
-		log.trace("findUsers - Finding users with query: " + utf8query);
-		HttpMethod method = new GetMethod();
+        if (!utf8query.equalsIgnoreCase("*")) {
+            utf8query = "*" + utf8query;
+        }
+
+        log.info("findUsers - Finding users with query: " + utf8query);
+        HttpMethod method = new GetMethod();
 		String url;
 		try {
 			url = buildUasUrl(apptokenid, usertokenid, "users/find/" + URIUtil.encodeAll(utf8query));
