@@ -38,7 +38,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		$http({
 			method: 'GET',
 			url: myHostJsonUsers+username
-		}).success(function(data){
+		}).then(function(data){
 			callback(data);
 		});
 	}

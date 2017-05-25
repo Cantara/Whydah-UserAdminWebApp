@@ -208,7 +208,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         $http({
             method: 'GET',
             url: baseUrl+'application/'+id+'/'
-        }).success(function (data) {
+        }).then(function (data) {
             console.log('Got applicaton', data);
             that.application = data;
             that.application.secret = data.security.secret;
@@ -245,7 +245,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         $http({
             method: 'GET',
             url: baseUrl+'applicationlog/'+id+'/'
-        }).success(function (response) {
+        }).then(function (response) {
 			var data = response.data;
 			var status = response.status;
             console.log('Got applicaton log', data);
@@ -412,7 +412,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                     method: 'PUT',
                     url: baseUrl + 'application/' + application.id + '/',
                     data: postData
-                }).success(function (response) {
+                }).then(function (response) {
         			var data = response.data;
         			var status = response.status;
                     Messages.add('success', 'application "' + application.name + '" was updated successfully.');
@@ -421,7 +421,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                     if (successCallback) {
                         successCallback();
                     }
-                }).error(function (response) {
+                }, function (response) {
         			var data = response.data;
         			var status = response.status;
                     console.log('application was not updated', data);
@@ -465,7 +465,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             method: 'DELETE',
             url: baseUrl+'application/'+application.id +'/'
             //data: application
-        }).success(function (response) {
+        }).then(function (response) {
 			var data = response.data;
 			var status = response.status;
             Messages.add('success', 'application "'+application.name+'" was deleted.');
