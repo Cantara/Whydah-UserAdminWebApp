@@ -208,7 +208,8 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         $http({
             method: 'GET',
             url: baseUrl+'application/'+id+'/'
-        }).then(function (data) {
+        }).then(function (response) {
+        	var data = response.data;
             console.log('Got applicaton', data);
             that.application = data;
             that.application.secret = data.security.secret;
