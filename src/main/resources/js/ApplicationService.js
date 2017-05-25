@@ -38,7 +38,9 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     }
 
     this.list = [];
+    
     this.duplicatelist = [];
+    this.allTags =[];
 
     this.selected = false;
 
@@ -48,7 +50,9 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         $http({
             method: 'GET',
             url: baseUrl + 'applications'
-        }).success(function (data) {
+        }).then(function (response) {
+			var data = response.data;
+			var status = response.status;
             that.list = data;
         });
         return this;
@@ -64,9 +68,9 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             transformRequest: angular.identity,
             headers: {'Content-Type': undefined}
 
-        }).success(function (response) {
+        }).then(function (response) {
             deffered.resolve(response);
-        }).error(function (response) {
+        }, function (response) {
             deffered.reject(response);
         });
 
@@ -120,7 +124,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     	}
     }
     
-     this.search = function(searchQuery) {
+     this.search = function(searchQuery, initialiseFilter) {
         console.log('Searching for applications...');
         this.searchQuery = searchQuery || '*';
          var that = this;
@@ -128,10 +132,30 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             method: 'GET',
             url: baseUrl+'applications/find/'+this.searchQuery
             //url: 'json/users.json',
-         }).success(function (data) {
-             that.list = data;
-        	
-         }).error(function(data,status){
+         }).then(function (response) {
+			var data = response.data;
+			var status = response.status;
+            that.list = data;
+            //get all tags as well
+            $http({
+                method: 'GET',
+                url: baseUrl+'applicationtags'
+             }).then(function(response){
+            	 that.allTags = response.data;
+            	
+            	//TODO: receive filter history from server as well
+                 var filterHistory = null;
+                 //apply filter to the list
+                 initialiseFilter(filterHistory);
+                 
+                 
+             }, function(response){
+            	 Messages.add('danger', 'Unable to get all tags - status code' + response.status);
+             });
+            
+         }, function (response) {
+			var data = response.data;
+			var status = response.status;
          // This is most likely due to usertoken timeout - TODO: Redirect to login webapp
          console.log('Unable to search', data);
          switch (status) {
@@ -188,22 +212,27 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             console.log('Got applicaton', data);
             that.application = data;
             that.application.secret = data.security.secret;
-            that.application.applicationJson = JSON.stringify(data, null, 2);
+            that.application.applicationJson = JSON.stringify(data);
             that.application.applicationLog = new Object();
             that.application.roleNames = buildRoleNames(that.application);
             that.application.orgNames = buildOrgNames(that.application);
+           
+            that.application.tagList = that.allTags[id]? that.allTags[id]:[];
+            callback(that.application);
             
             //get tag json
-            $http({
-                method: 'GET',
-                url: baseUrl+'applicationtags/'+id+'/'
-            }).success(function (data) {
-                 console.log("tag list "  + data);
-            	 that.application.tagList = data;
-                if(callback) {
-                    callback(that.application);
-                }
-            });
+//            $http({
+//                method: 'GET',
+//                url: baseUrl+'applicationtags/'+id+'/'
+//            }).success(function (response) {
+//    			var data = response.data;
+//    			var status = response.status;
+//                 console.log("tag list "  + data);
+//            	 that.application.tagList = data;
+//                if(callback) {
+//                    callback(that.application);
+//                }
+//            });
             
            
         });
@@ -216,9 +245,11 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         $http({
             method: 'GET',
             url: baseUrl+'applicationlog/'+id+'/'
-        }).success(function (data) {
+        }).success(function (response) {
+			var data = response.data;
+			var status = response.status;
             console.log('Got applicaton log', data);
-            that.application.applicationLog = JSON.stringify(data, null, 2);
+            that.application.applicationLog = JSON.stringify(data);
             if(callback) {
                  callback(that.application);
             }
@@ -239,14 +270,18 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                 method: 'POST',
                 url: baseUrl + 'application/',
                 data: postData
-            }).success(function (data) {
+            }).then(function (response) {
+    			var data = response.data;
+    			var status = response.status;
                 Messages.add('success', 'application "' + application.name + '" was added successfully.');
                 application.id = data.id;
                 that.search(that.searchQuery);
                 if (successCallback) {
                     successCallback();
                 }
-            }).error(function (data, status) {
+            }, function (response) {
+    			var data = response.data;
+    			var status = response.status;
                 console.log('application was not added', data);
                 switch (status) {
                     case 403:
@@ -277,14 +312,18 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                 method: 'PUT',
                 url: baseUrl + 'application/' + application.id + '/',
                 data: postData
-            }).success(function (data) {
+            }).then(function (response) {
+    			var data = response.data;
+    			var status = response.status;
                 Messages.add('success', 'application "' + application.name + '" was updated successfully.');
                 application.id = data.id;
                 that.search(that.searchQuery);
                 if (successCallback) {
                     successCallback();
                 }
-            }).error(function (data, status) {
+            }, function (response) {
+    			var data = response.data;
+    			var status = response.status;
                 console.log('application was not updated', data);
                 switch (status) {
                     case 400:
@@ -373,14 +412,18 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                     method: 'PUT',
                     url: baseUrl + 'application/' + application.id + '/',
                     data: postData
-                }).success(function (data) {
+                }).success(function (response) {
+        			var data = response.data;
+        			var status = response.status;
                     Messages.add('success', 'application "' + application.name + '" was updated successfully.');
                     application.id = data.id;
                     that.search(that.searchQuery);
                     if (successCallback) {
                         successCallback();
                     }
-                }).error(function (data, status) {
+                }).error(function (response) {
+        			var data = response.data;
+        			var status = response.status;
                     console.log('application was not updated', data);
                     switch (status) {
                         case 400:
@@ -422,14 +465,18 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             method: 'DELETE',
             url: baseUrl+'application/'+application.id +'/'
             //data: application
-        }).success(function (data) {
+        }).success(function (response) {
+			var data = response.data;
+			var status = response.status;
             Messages.add('success', 'application "'+application.name+'" was deleted.');
             application.id = data.id;
             that.search(that.searchQuery);
             if(successCallback){
                 successCallback();
             }
-        }).error(function(data,status){
+        }).error(function (response) {
+			var data = response.data;
+			var status = response.status;
             console.log('application was not deleted.', data, status);
             switch (status) {
                 case 403:
@@ -453,7 +500,9 @@ UseradminApp.service('Applications', function($http,Messages, $q){
 		$http({
 			method: 'GET',
 			url: baseUrl+'importApps/progress/' + fileName,
-		}).success(function (data) {
+		}).then(function (response) {
+			var data = response.data;
+			var status = response.status;
 			callback(data);
 		});
 		return this;

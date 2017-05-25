@@ -109,7 +109,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 
 	function init() {
 		Users.search();
-		Applications.search();
+		
 		//progress setup when importing users
 		
 		$scope.progressbar = ngProgressFactory.createInstance();

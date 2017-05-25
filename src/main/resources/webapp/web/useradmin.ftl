@@ -79,11 +79,11 @@
         </script>
 
         <!-- Framework and tools -->
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script src="js/lib/bootstrap-3.1.1.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-animate.min.js"></script>
+        <script src="https://code.angularjs.org/latest/angular.min.js"></script>
+        <script src="https://code.angularjs.org/latest/angular-route.min.js"></script>
+        <script src="https://code.angularjs.org/latest/angular-animate.min.js"></script>
 		
 
         <!-- Libs -->
@@ -97,6 +97,7 @@
         <script src="js/lib/FileSaver.js"></script>
         <script src="js/lib/ngprogress.js"></script>
         <script src="js/lib/md5.js"></script>
+        <script src="js/lib/angularjs-dropdown-multiselect.min.js"></script>
 
         <!-- Main application -->
         <script src="js/UseradminApp.js"></script>

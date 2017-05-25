@@ -29,20 +29,21 @@ UseradminApp.service('Users', function($http, Messages, $q){
 
 	this.search = function(searchQuery) {
 		console.log('Searching for users...');
-		this.searchQuery =  searchQuery || '*';
+		this.searchQuery = searchQuery || '*';
 		var that = this;
 		$http({
 			method: 'GET',
 			url: baseUrl+'users/find/'+this.searchQuery
 			//url: 'json/users.json',
-		}).success(function (data) {		
-			that.rows = data.rows;
-			that.list = JSON.parse(angular.toJson(data.result));
+		}).then(function (response) {		
+			that.rows = response.data.rows;
+			//that.list = JSON.parse(angular.toJson(response.data.result));
+			that.list = response.data.result;
 			
-			
-		}).error(function(data,status){
+		}, function(response){
 			// This is most likely due to usertoken timeout - TODO: Redirect to login webapp   
-			console.log('Unable to search', data);
+			console.log('Unable to search', response.data);
+			var status = response.status;
 			switch (status) {
 				case 403: /* Forbidden */
 					Messages.add('danger', 'Unable to seach! Forbidden...');
@@ -68,11 +69,11 @@ UseradminApp.service('Users', function($http, Messages, $q){
 		$http({
 			method: 'GET',
 			url: baseUrl+'user/'+uid+'/roles/'
-		}).success(function (data) {
-		    console.log('Got userroles', data);
-		    that.userRoles = data;
+		}).then(function (response) {
+		    console.log('Got userroles', response.data);
+		    that.userRoles = response.data;
 		    if(callback) {
-		        callback(data);
+		        callback(response.data);
 		    }
 		});
 		return this;
@@ -83,8 +84,8 @@ UseradminApp.service('Users', function($http, Messages, $q){
 		$http({
 				method: 'GET',
 				url: baseUrl+'user/'+u.uid+'/roles/'
-			}).success(function (data) {
-			    u.roles = data;
+			}).then(function (response) {
+			    u.roles = response.data;
 			    that.fullList.push(u);
 			    callback();
 			    
@@ -99,12 +100,10 @@ UseradminApp.service('Users', function($http, Messages, $q){
 		$http({
 			method: 'GET',
 			url: baseUrl+'user/'+uid+'/'
-		}).success(function (data) {
+		}).then(function (response) {
+			var data = response.data;
 		    console.log('Got user', data);
 		    that.user = data;
-		    that.user.userLog = new Object();
-		    that.user.userCrm = new Object();
-
 		    if(callback) {
 		        callback(data);
 		    }
@@ -153,13 +152,16 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			method: 'PUT',
 			url: baseUrl+'user/'+user.uid+'/',
 			data: user
-		}).success(function (data) {
+		}).then(function (response) {
+			var data = response.data;
 			Messages.add('success', 'User "'+user.username+'" was saved successfully.');
 		    that.search(that.searchQuery);
 		    if(successCallback){
 		        successCallback();
 		    }
-		}).error(function(data){
+		}, function (response) {
+			var data = response.data;
+			var status = response.status;
 			Messages.add('danger', 'Oops, something went wrong. User "'+user.username+'" was not saved successfully.');
 		});
 		return this;
@@ -172,14 +174,17 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			method: 'POST',
 			url: baseUrl+'user/',
 			data: user
-		}).success(function (data) {
+		}).then(function (response) {
+			var data = response.data;
 			Messages.add('success', 'User "'+user.username+'" was added successfully.');
 			that.user.uid = data.uid;
 			that.search(that.searchQuery);
 		    if(successCallback){
 		        successCallback();
 		    }
-		}).error(function(data,status){
+		}, function (response) {
+			var data = response.data;
+			var status = response.status;
 			console.log('User was not added', data);
 			switch (status) {
 				case 403:
@@ -206,7 +211,9 @@ UseradminApp.service('Users', function($http, Messages, $q){
 		$http({
 			method: 'DELETE',
 			url: baseUrl+'user/'+uid+'/'
-		}).success(function (data) {
+		}).then(function (response) {
+			var data = response.data;
+			var status = response.status;
 			Messages.add('success', 'User "'+user.username+'" was deleted successfully.');
 			that.search(that.searchQuery);
 		});
@@ -222,7 +229,9 @@ UseradminApp.service('Users', function($http, Messages, $q){
 		$http({
 			method: 'GET',
 			url: baseUrl+'user/'+uid+'/roles/'
-		}).success(function (data) {
+		}).then(function (response) {
+			var data = response.data;
+			var status = response.status;
 		    console.log('Got userroles', data);
 		    that.userRoles = data;
 		    if(callback) {
@@ -239,7 +248,9 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			method: 'POST',
 			url: baseUrl+'user/'+user.uid+'/role/',
 			data: role
-		}).success(function (data) {
+		}).then(function (response) {
+			var data = response.data;
+			var status = response.status;
 			Messages.add('success', 'Role for user "'+user.username+'" was added successfully.');
 			that.getRolesForCurrentUser();
 			that.search(that.searchQuery);
@@ -269,11 +280,15 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			method: 'DELETE',
 			url: baseUrl+'user/'+user.uid+'/role/'+role.roleId,
 			data: role
-		}).success(function (data) {
+		}).then(function (response) {
+			var data = response.data;
+			var status = response.status;
 			Messages.add('success', 'Role "'+roleName+'" for user "'+user.username+'" was deleted successfully.');
 			that.getRolesForCurrentUser();
 			that.search(that.searchQuery);
-		}).error(function (data) {
+		}, function (response) {
+			var data = response.data;
+			var status = response.status;
             Messages.add('warning', 'Role "'+roleName+'" for user "'+that.user.username+'" was not deleted.');
             that.getRolesForCurrentUser();
         });
@@ -292,11 +307,15 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			method: 'PUT',
 			url: baseUrl+'user/'+user.uid+'/role/'+role.roleId,
 			data: role
-		}).success(function (data) {
+		}).then(function (response) {
+			var data = response.data;
+			var status = response.status;
 			Messages.add('success', 'Role "'+roleName+'" for user "'+that.user.username+'" was saved successfully.');
 			that.getRolesForCurrentUser();
 			that.search(that.searchQuery);
-		}).error(function (data) {
+		}, function (response) {
+			var data = response.data;
+			var status = response.status;
 			Messages.add('warning', 'Role "'+roleName+'" for user "'+that.user.username+'" was not saved.');
 			that.getRolesForCurrentUser();
 		});
@@ -312,7 +331,9 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			$http({
 				method: 'GET',
 				url: baseUrl+'users/find/' + query,
-			}).success(function (data) {
+			}).then(function (response) {
+				var data = response.data;
+				var status = response.status;
 				callback(data);
 			});
 			return this;
@@ -326,9 +347,13 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			method: 'POST',
 //			url: baseUrl+'user/'+user.uid+'/resetpassword'
 			url: baseUrl+'auth/password/reset/username/'+user.username
-	}).success(function (data) {
+	}).then(function (response) {
+			var data = response.data;
+			var status = response.status;
 			Messages.add('success', 'Reset password mail sent to user "'+user.username+'".');
-		}).error(function (data) {
+		}, function (response) {
+			var data = response.data;
+			var status = response.status;
 			Messages.add('warning', 'Unable to reset password for user "'+user.username+'".');
 		});
 		return this;
@@ -345,9 +370,9 @@ UseradminApp.service('Users', function($http, Messages, $q){
             transformRequest: angular.identity,
             headers: {'Content-Type': undefined}
 
-        }).success(function (response) {
+        }).then(function (response) {
             deffered.resolve(response);
-        }).error(function (response) {
+        }, function (response) {
             deffered.reject(response);
         });
 
@@ -362,7 +387,9 @@ UseradminApp.service('Users', function($http, Messages, $q){
 		$http({
 			method: 'GET',
 			url: baseUrl+'importUsers/progress/' + fileName,
-		}).success(function (data) {
+		}).then(function (response) {
+			var data = response.data;
+			var status = response.status;
 			callback(data);
 		});
 		return this;

@@ -2,6 +2,8 @@ package net.whydah.identity.admin;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import net.whydah.identity.ServerRunner;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
@@ -16,6 +18,7 @@ import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.mappers.UserRoleMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
+
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.*;
@@ -37,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+
 import java.io.*;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -416,21 +420,26 @@ public class UserAdminUasController {
 	}
 
     // APPLICATIONTAGS
-    @GET
+	@GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @RequestMapping(value = "/applicationtags", method = RequestMethod.GET)
-    public String getApplicationTagss(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model) {
+    public String getApplicationTagss(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model) throws JsonProcessingException {
         log.trace("getApplications - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
         usertokenid = findValidUserTokenId(usertokenid, request);
 
         String jsonResult = getAllApplicationsJsonData(apptokenid, usertokenid,
                 response, model);
         List<Application> applicationList = ApplicationMapper.fromJsonList(jsonResult);
-        List<Tag> tagList = new LinkedList<>();
+        ObjectMapper om = new ObjectMapper();
+        HashMap<String, List<Tag>> tagList = new HashMap<String, List<Tag>>();
         for (Application application : applicationList) {
-            tagList.addAll(ApplicationTagMapper.getTagList(application.getTags()));
+        	if(application.getTags()!=null){
+        		//tagList.addAll(ApplicationTagMapper.getTagList(application.getTags()));
+        		tagList.put(application.getId(), ApplicationTagMapper.getTagList(application.getTags()));
+        	}
         }
-        String jsonData = ApplicationTagMapper.toJson(tagList);
+        //String jsonData = ApplicationTagMapper.toJson(tagList);
+        String jsonData = om.writeValueAsString(tagList);
         model.addAttribute(JSON_DATA_KEY, jsonData);
         log.trace("tags=" + jsonData);
         response.setContentType(CONTENTTYPE_JSON_UTF8);

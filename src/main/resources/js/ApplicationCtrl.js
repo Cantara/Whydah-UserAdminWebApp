@@ -1,96 +1,286 @@
 UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $routeParams, Users, Applications, ngProgressFactory, $interval) {
 
-  $scope.session.activeTab = 'application';
+	$scope.session.activeTab = 'application';
 
-  $scope.users = Users;
-  $scope.applications = Applications;
-  $scope.displayCollectionList = [];
-  
-  $scope.form = {};
-  $scope.items = ['item1', 'item2', 'item3'];
-  $scope.orderByColumn = 'name';
-  $scope.orderReverse = false;
+	$scope.users = Users;
+	$scope.applications = Applications;
+	$scope.displayCollectionList = [];
 
-  $scope.changeOrder = function(orderByColumn) {
-    $scope.orderByColumn = orderByColumn;
-    $scope.orderReverse = !$scope.orderReverse;
-  }
-
-  $scope.searchApps = function() {
-  	Applications.search($scope.searchQuery);
-  	
-  }
-
-  function init() {
+	$scope.form = {};
+	$scope.orderByColumn = 'name';
+	$scope.orderReverse = false;
 	
-    Applications.search();
-   
-    $scope.progressbar = ngProgressFactory.createInstance();
-	$scope.progressbar.setParent(document.getElementById('progress'));
+
+	$scope.changeOrder = function(orderByColumn) {
+		$scope.orderByColumn = orderByColumn;
+		$scope.orderReverse = !$scope.orderReverse;
+	}
+
+	$scope.searchApps = function() {
+		Applications.search($scope.searchQuery);
+
+	}
+
+	$('body').on('click', '.disabled', function(e) {
+		e.preventDefault();
+		return false;
+	});
 
 	
-  }
+	$scope.tagFilterSettings = { 
+			
+			scrollable: true,
+			enableSearch: true,
+			keyboardControls: true,
+			checkBoxes: false,
+			styleActive: true,
+			selectedToTop: true,
+			buttonClasses: 'btn btn-default btn-sm',
+			smartButtonTextProvider(selectionArray) { 
+				return "UNNAMED_" + (selectionArray.length) + " checked"; 
+			}
+			
+	};
+	
+	Array.prototype.contains = function(element){
+	    return this.indexOf(element) > -1;
+	};
+	
+	$scope.clearAllFilters = function(){
+		angular.forEach($scope.allSelectedItems, function(item, index){
+			$scope.allSelectedItems[index] = [];
+		});
+		$scope.onFiltersChanged();
+	}
+	
+	$scope.onFiltersChanged = function(){
+		
+		
+		
+		//reload the list
+		var filteredAppIds = [];
+		angular.forEach($scope.allSelectedItems, function(item, index){
+			if(item.length>0){
+				for (var i = 0, len = item.length; i < len; i++) {
+					
+					for (var j = 0, jlen = item[i].appids.length; j < jlen; j++) {
+						
+						if(!filteredAppIds.contains(item[i].appids[j])){
+							filteredAppIds.push(item[i].appids[j]);
+						}
+					}
+				}
+			}
+		});
+		
+		console.log("FILTERED APP_IDS: " + filteredAppIds);
+		
+		angular.forEach(Applications.list, function(item, index){
+			
+			if(filteredAppIds.contains(item.id)){
+				item.isFiltered = true;
+			} else {
+				item.isFiltered = false;
+			}
+		});
+		
+		if(filteredAppIds.length>0){
+		   $scope.$parent.tagFilterStatus = filteredAppIds.length + " app(s) filtered"
+		} else {
+		   $scope.$parent.tagFilterStatus = "No app filtered";
+		}
+		
+	
 
-  if(typeof(Applications.list) != 'undefined' && Applications.list.length<1) {
-    init();
-  }
+	}
+	
+	$scope.tagFilterStatus = "No app filtered";
+	
+	$scope.displayTagFilterModal = function(){
+		$('#applicationTagModal').modal('show');
+	
+	}
 
-  $scope.activateApplicationDetail = function(id) {
-    console.log('Activating application detail...', id);
-    Applications.get(id, function(){
-        //$scope.form.userDetail.$setPristine();
-        $('#applicationdetail').modal('show');
-    });
-  }
+	//tag menus initialization
+	$scope.allSelectedItems=[];
+	$scope.allMenuSettings=[];
+	$scope.allMenuDefaultTextSettings=[];
+	$scope.allMenus=[];
+	$scope.noTagAppIds=[];
+	var menuSettings = { 
+			title :'',
+			scrollable: true,
+			enableSearch: true,
+			keyboardControls: true,
+			checkBoxes: false,
+			styleActive: true,
+			selectedToTop: true,
+			buttonClasses: 'btn btn-default btn-sm',
+			smartButtonTextProvider(selectionArray) { 
+				return this.title + ' ' + (selectionArray.length) + " checked"; 
+			}	
+	};
+	
+	var menuDefaultTextSettings = {buttonDefaultText: 'Select'};
+	var initMenu = function(filterHistory){
+		
+		//initialize JSON data for each menu FOR DEMOING
+//		$scope.allMenus.push({"title":"UNNAMED", "menus":[ {id: 1, label: "David"}, {id: 2, label: "Jhon"}, {id: 3, label: "Danny"} ]});
+//		$scope.allMenus.push({"title":"JUSRIDICTION", "menus":[ {id: 1, label: "Leif"}, {id: 2, label: "Jack"}, {id: 3, label: "Doe"} ]});
+//		$scope.allMenus.push({"title":"OWNER", "menus":[ {id: 1, label: "Daniel"}, {id: 2, label: "Tom"}, {id: 3, label: "Ken"} ]});
+//		$scope.allMenus.push({"title":"COMPANY", "menus":[ {id: 1, label: "Joe"}, {id: 2, label: "Jewish"}, {id: 3, label: "Ben"} ]});
+		
+		
+		//initialize the menu with data
 
-  $scope.activateApplicationJson = function(id) {
-    console.log('Activating application json...', id);
-    Applications.get(id, function(){
-      //$scope.form.userDetail.$setPristine();
-      $('#applicationJson').modal('show');
-      //$scope.prettifyJson();
-    });
-  }
+		
+		angular.forEach(Applications.list, function(app, appIndex){
+			
+			//if this application has tag list
+			
+			if(Applications.allTags[app.id]){
+				
+				angular.forEach(Applications.allTags[app.id], function(item, index){
+					if($scope.allMenus.length ==0){
+						$scope.allMenus.push({title: item.name, menus: []});
+					}
+					
+					for (var mindex = 0, len = $scope.allMenus.length; mindex < len; mindex++) {
+						var mitem = $scope.allMenus[mindex];
+						var menuFound = false;
+						if(mitem["title"]===item.name){ //found the name in the main menu
+							
+							menuFound = true;
+							//check if the value existing inside the sub-menus
+							var found = false;
+							
+							for (var smindex = 0, slen = mitem.menus.length; smindex < slen; smindex++) {
+								var smitem = mitem.menus[smindex];
+								
+								if(smitem["label"]===item.value){
+									smitem.appids.push(app.id); //store appid
+									found = true;
+									break;
+								}	
+							}
+							
+							if(!found){
+								var miObj = {id: mitem.menus.length, label: item.value, appids:[]};
+								miObj.appids.push(app.id);
+								mitem.menus.push(miObj);
+							}
+							break;
+						}
+						
+					}
+					
+					if(!menuFound){
+						$scope.allMenus.push({title: item.name, menus: []});
+					}
+					
+				});
+				
+				
+			} else {
+				//no-tag applications 
+				$scope.noTagAppIds.push(app.id);
+			}
+		
+		});
+		
+		//apply settings
+		angular.forEach($scope.allMenus, function(item, index){
+			
+			$scope.allSelectedItems[index]=[];
+			$scope.allMenuSettings[index] = angular.copy(menuSettings);
+			$scope.allMenuSettings[index].title = item.title;
+			$scope.allMenuDefaultTextSettings[index] = angular.copy(menuDefaultTextSettings);
+			$scope.allMenuDefaultTextSettings[index].buttonDefaultText = item.title;
+		});
+		
+		if(filterHistory!=null){
+			//do something
+		}
+		
+		
+		
+		
+		
+		
+	};
+	
+	function init() {
 
-  $scope.activateApplicationLog = function(id) {
-	    console.log('Activating application log...', id);
-	    Applications.showMessage('info', "Loading application history. Please wait a moment.");
-	    Applications.get(id, function(){
-	       
-	    	  Applications.getLog(id, function(){
-	    	   
-	    	      $('#applicationLog').modal('show');
-	    	      
-	    	    });
-	    	  
-	      });
-	    
-	  
-  }
-  
-  $scope.exportSelectedApps=function(){
-	  var blob = new Blob([angular.toJson(Applications.getSelectedList(), true)], {type: "text/plain;charset=utf-8"});
-	  saveAs(blob, "applications.json");
-  }
-  
-  $scope.exportApps = function() {
-	  Applications.search(); //get the latest version
-	  var blob = new Blob([angular.toJson(Applications.list, true)], {type: "text/plain;charset=utf-8"});
-	  saveAs(blob, "applications.json");
-  }
-  
-  
-  
-  $scope.newApplicationDetail = function() {
-    Applications.application = {isNew: true};
-    Applications.application.tagList=[];
-    Applications.application.secret = getUUID();
-    $scope.application = {isNew: true};
-    $scope.application.secret = getUUID();
-    //Users.userRoles = {};
-    //$scope.form.applicationDetail.$setPristine();
-    $('#applicationdetail').modal('show');
-    /*
+		
+		
+		Applications.search('*', initMenu);
+		
+		
+
+		$scope.progressbar = ngProgressFactory.createInstance();
+		$scope.progressbar.setParent(document.getElementById('progress'));
+
+
+	}
+
+	if(typeof(Applications.list) != 'undefined' && Applications.list.length<1) {
+		init();
+	}
+
+	$scope.activateApplicationDetail = function(id) {
+		console.log('Activating application detail...', id);
+		Applications.get(id, function(){
+			//$scope.form.userDetail.$setPristine();
+			$('#applicationdetail').modal('show');
+		});
+	}
+
+	$scope.activateApplicationJson = function(id) {
+		console.log('Activating application json...', id);
+		Applications.get(id, function(){
+			//$scope.form.userDetail.$setPristine();
+			$('#applicationJson').modal('show');
+			//$scope.prettifyJson();
+		});
+	}
+
+	$scope.activateApplicationLog = function(id) {
+		console.log('Activating application log...', id);
+		Applications.showMessage('info', "Loading application history. Please wait a moment.");
+		Applications.get(id, function(){
+
+			Applications.getLog(id, function(){
+
+				$('#applicationLog').modal('show');
+
+			});
+
+		});
+
+
+	}
+
+	$scope.exportSelectedApps=function(){
+		var blob = new Blob([angular.toJson(Applications.getSelectedList(), true)], {type: "text/plain;charset=utf-8"});
+		saveAs(blob, "applications.json");
+	}
+
+	$scope.exportApps = function() {
+		Applications.search('*', initMenu); //get the latest version
+		var blob = new Blob([angular.toJson(Applications.list, true)], {type: "text/plain;charset=utf-8"});
+		saveAs(blob, "applications.json");
+	}
+
+
+
+	$scope.newApplicationDetail = function() {
+		Applications.application = {isNew: true};
+		Applications.application.tagList=[];
+		$scope.application = {isNew: true};
+		//Users.userRoles = {};
+		//$scope.form.applicationDetail.$setPristine();
+		$('#applicationdetail').modal('show');
+		/*
     var modalInstance = $uibModal.open({
       animation: $scope.animationsEnabled,
       templateUrl: 'template/applicationdetail.html',
@@ -103,162 +293,161 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
         }
       }
     });
-    */
-  }
+		 */
+	}
 
-   var getUUID = function(){
-          	 var d = new Date().getTime();
-               var uuid = 'xxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/[x]/g, function(c) {
-                   var r = (d + Math.random()*16)%16 | 0;
-                   d = Math.floor(d/16);
-                   return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-               });
-               return uuid;
-          }
+	// -- Should be in ApplicationdetailCtrl ---
+	$scope.applicationProperties = [
+	                                {value: 'id', readOnly: 'true'},
+	                                //{value: 'id',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+	                                {value: 'name',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+	                                {value: 'defaultOrganizationName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+	                                {value: 'defaultRoleName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
+	                                {value: 'description',    required: false, type: 'text'},
+	                                {value: 'applicationUrl',     required: false, type: 'url', validationMsg: 'Must be valid URL.'},
+	                                {value: 'logoUrl', required: false, type: 'url', validationMsg: 'Must be valid URL.'},
+	                                {value: 'fullTokenApplication',    required: false, type: 'text'},
+	                                {value: 'secret', minLength: 12, maxLength: 254, required: false, type: 'text', validationMsg:'Must be between 12-254 characters long. No spaces allowed.'},
+	                                {value: 'roleNames', required: false, type: 'text', validationMsg:'Comma separated list of available role names'},
+	                                {value: 'orgNames', required: false, type: 'text', validationMsg:'Comma separated list of available organization names'},
+	                                {value: 'tags', required: false, type: 'text'}
+	                                ];
+
+	$scope.applicationJsonProperties = [
+	                                    {value: 'applicationJson', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
+	                                    ];
+
+	$scope.applicationLogProperties = [
+	                                   {value: 'applicationLog', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
+	                                   ];
+
+	$scope.dict = {
+			en: {
+				name: 'Application Name (*)',
+				id: 'Application Id',
+				defaultOrganizationName: 'Default Organization Name (*)',
+				defaultRoleName: 'Default Role Name (*)',
+				applicationUrl: 'URL to Application',
+				description: 'Description of Application',
+				logoUrl: 'URL to Application Logo',
+				fullTokenApplication: 'Whydah Admin application',
+				secret: 'Application Secret',
+				applicationJson: 'Json override',
+				roleNames: 'Available role names',
+				orgNames: 'Available organization names',
+				tags: 'Tags',
+				applicationLog: 'Log',
+			}
+	}
+
+	$scope.save = function() {
+		// Make sure these $scope-values are properly connected to the view
+		if($scope.form.applicationDetail.$valid){
+			if(Applications.application.isNew) {
+				var newApplication = angular.copy(Applications.application);
+				delete newApplication.isNew;
+				Applications.add(newApplication, function(){
+					delete Applications.application.isNew;
+					$scope.form.applicationDetail.$setPristine();
+				});
+			} else {
+				Applications.save(Applications.application, function(){
+					$scope.form.applicationDetail.$setPristine();
+				});
+			}
+		} else {
+			console.log('Tried to save an invalid form.');
+		}
+	}
+
+	$scope.saveFromJson = function() {
+		// Make sure these $scope-values are properly connected to the view
+		if($scope.form.applicationJson.$valid){
+			if(Applications.application.isNew) {
+				var newApplication = angular.copy(Applications.application);
+				delete newApplication.isNew;
+				Applications.addFromJson(newApplication, function(){
+					delete Applications.application.isNew;
+					$scope.form.applicationJson.$setPristine();
+				});
+			} else {
+				Applications.saveFromJson(Applications.application, function(){
+					$scope.form.applicationJson.$setPristine();
+				});
+			}
+		} else {
+			console.log('Tried to save an invalid form.');
+		}
+	}
+
+//	$scope.prettifyJson = function() {
+//	try {
+//	var jsonObject = JSON.parse($scope.applications.application.applicationJson);
+//	var prettifiedJson = JSON.stringify(jsonObject, undefined, 2);
+//	$scope.applications.application.applicationJson = prettifiedJson;
+//	}catch (e) {
+//	Messages.add('danger', 'Could not prettify applicationJson. Error while parsing');
+//	}
+//	}
+	
+	  var getUUID = function(){
+       	 var d = new Date().getTime();
+            var uuid = 'xxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/[x]/g, function(c) {
+                var r = (d + Math.random()*16)%16 | 0;
+                d = Math.floor(d/16);
+                return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+            });
+            return uuid;
+       }
+
+	$scope.delete = function() {
+		var deleteUser = $window.confirm('Are you absolutely sure you want to delete '+ Applications.application.name +'?');
+
+		if (deleteUser) {
+			Applications.delete(Applications.application, function(){
+				$scope.form.applicationDetail.$setPristine();
+			});
+		}
+	}
+
+	var theInterval;
+	$scope.$on('$destroy', function () {
+		if(theInterval){
+			$interval.cancel(theInterval);
+		}
+	});
+
+	$scope.importApps = function(){
+		Applications.setDuplicateList(null);
+		$('#applicationImport').modal('show');
+		Applications.search('*', initMenu); //get the latest version
+	}
+
+	$scope.removeTag = function(index){
+		Applications.application.tagList.splice(index, 1);
+		console.log("INDEX " + index);
+		$scope.form.applicationDetail.$setDirty();
+	}
+
+	$scope.addANewTag = function(){
+		Applications.application.tagList.push({"name":"","value":""});
+		angular.forEach(Applications.application.tagList, function(i, k){
+			console.log(i.name + i.value);
+		});
+
+	}
 
 
-  // -- Should be in ApplicationdetailCtrl ---
-  $scope.applicationProperties = [
-    {value: 'id', readOnly: 'true'},
-    //{value: 'id',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
-    {value: 'name',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
-    {value: 'defaultOrganizationName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
-    {value: 'defaultRoleName',    minLength: 2, maxLength: 64, required: true, type: 'text', validationMsg:'Must be between 2-64 characters long.'},
-    {value: 'description',    required: false, type: 'text'},
-    {value: 'applicationUrl',     required: false, type: 'url', validationMsg: 'Must be valid URL.'},
-    {value: 'logoUrl', required: false, type: 'url', validationMsg: 'Must be valid URL.'},
-    {value: 'fullTokenApplication',    required: false, type: 'text'},
-    {value: 'secret', minLength: 12, maxLength: 254, required: false, type: 'text', validationMsg:'Must be between 12-254 characters long. No spaces allowed.'},
-    {value: 'roleNames', required: false, type: 'text', validationMsg:'Comma separated list of available role names'},
-    {value: 'orgNames', required: false, type: 'text', validationMsg:'Comma separated list of available organization names'},
-    {value: 'tags', required: false, type: 'text'}
-  ];
+	$scope.uploadFile = function () {
+		var file = $scope.myFile;
+		if(file){
 
-  $scope.applicationJsonProperties = [
-    {value: 'applicationJson', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
-  ];
 
-  $scope.applicationLogProperties = [
-    {value: 'applicationLog', required: false, type: 'json', validationMsg:'The input must be valid json. Recomend http://jsonlint.com for manual validation.'},
-  ];
 
-  $scope.dict = {
-    en: {
-      name: 'Application Name (*)',
-      id: 'Application Id',
-      defaultOrganizationName: 'Default Organization Name (*)',
-      defaultRoleName: 'Default Role Name (*)',
-      applicationUrl: 'URL to Application',
-      description: 'Description of Application',
-      logoUrl: 'URL to Application Logo',
-      fullTokenApplication: 'Whydah Admin application',
-      secret: 'Application Secret',
-      applicationJson: 'Json override',
-      roleNames: 'Available role names',
-      orgNames: 'Available organization names',
-      tags: 'Tags',
-      applicationLog: 'Log',
-    }
-  }
+			var uploadUrl = baseUrl + "importApps", //Url of web service
+			promise = Applications.importApps(file, uploadUrl);
 
-  $scope.save = function() {
-    // Make sure these $scope-values are properly connected to the view
-    if($scope.form.applicationDetail.$valid){
-      if(Applications.application.isNew) {
-        var newApplication = angular.copy(Applications.application);
-        delete newApplication.isNew;
-        Applications.add(newApplication, function(){
-          delete Applications.application.isNew;
-          $scope.form.applicationDetail.$setPristine();
-        });
-      } else {
-       Applications.save(Applications.application, function(){
-          $scope.form.applicationDetail.$setPristine();
-        });
-      }
-    } else {
-      console.log('Tried to save an invalid form.');
-    }
-  }
-
-  $scope.saveFromJson = function() {
-    // Make sure these $scope-values are properly connected to the view
-    if($scope.form.applicationJson.$valid){
-      if(Applications.application.isNew) {
-        var newApplication = angular.copy(Applications.application);
-        delete newApplication.isNew;
-        Applications.addFromJson(newApplication, function(){
-          delete Applications.application.isNew;
-          $scope.form.applicationJson.$setPristine();
-        });
-      } else {
-        Applications.saveFromJson(Applications.application, function(){
-          $scope.form.applicationJson.$setPristine();
-        });
-      }
-    } else {
-      console.log('Tried to save an invalid form.');
-    }
-  }
-
-//  $scope.prettifyJson = function() {
-//    try {
-//      var jsonObject = JSON.parse($scope.applications.application.applicationJson);
-//      var prettifiedJson = JSON.stringify(jsonObject, undefined, 2);
-//      $scope.applications.application.applicationJson = prettifiedJson;
-//    }catch (e) {
-//      Messages.add('danger', 'Could not prettify applicationJson. Error while parsing');
-//    }
-//  }
-
-  $scope.delete = function() {
-    var deleteUser = $window.confirm('Are you absolutely sure you want to delete '+ Applications.application.name +'?');
-
-    if (deleteUser) {
-      Applications.delete(Applications.application, function(){
-        $scope.form.applicationDetail.$setPristine();
-      });
-    }
-  }
-  
-  var theInterval;
-  $scope.$on('$destroy', function () {
-		 if(theInterval){
-			 $interval.cancel(theInterval);
-		 }
-   });
-  
-  $scope.importApps = function(){
-	  Applications.setDuplicateList(null);
-	  $('#applicationImport').modal('show');
-	  Applications.search();
-  }
-
-  $scope.removeTag = function(index){
-	  Applications.application.tagList.splice(index, 1);
-      console.log("INDEX " + index);
-      $scope.form.applicationDetail.$setDirty();
-  }
-
-  $scope.addANewTag = function(){
-	  Applications.application.tagList.push({"name":"","value":""});
-	  angular.forEach(Applications.application.tagList, function(i, k){
-          console.log(i.name + i.value);
-      });
-
-  }
-  
-  
-  $scope.uploadFile = function () {
-      var file = $scope.myFile;
-      if(file){
-    	  
-    	 
-    	  
-	      var uploadUrl = baseUrl + "importApps", //Url of web service
-	      promise = Applications.importApps(file, uploadUrl);
-	      
-	      if(Applications.duplicatelist && Applications.duplicatelist.length>0){
+			if(Applications.duplicatelist && Applications.duplicatelist.length>0){
 				$scope.$parent.importing = true;
 				console.log("Ready to import apps now.");
 				console.log("Timer has been started, to update import progress.");
@@ -277,31 +466,31 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 							}
 						} 
 					});
-	            }, 1000);
+				}, 1000);
 			}
-	      
-	      promise.then(function (response) {
-	    	  if(response){
-		    	  var pattern = /^error/i;
-		          var result =  /^error/i.test(response.result);
-		    	  if(/^error/i.test(response.result)===true){
-		    		  Applications.showMessage('danger','An error has occurred: ' + response.result);
-		    		  return;
-		    	  } else if(/^ok/i.test(response.result)===true){
-		    		  Applications.showMessage('success', "Imported successfully");
-		    		  $('#applicationImport').modal('hide');
-		    		  return;
-		    	  } else {
-		  
-		    		  Applications.setDuplicateList(response.result);
-		    		  return;
-		    	  }
-	    	  }
-	      }, function (response) {
-	    	  Applications.showMessage('danger','An error has occurred: ' + response.result);
-	      })
-	   }
-      
-  }
+
+			promise.then(function (response) {
+				if(response){
+					var pattern = /^error/i;
+					var result =  /^error/i.test(response.result);
+					if(/^error/i.test(response.result)===true){
+						Applications.showMessage('danger','An error has occurred: ' + response.result);
+						return;
+					} else if(/^ok/i.test(response.result)===true){
+						Applications.showMessage('success', "Imported successfully");
+						$('#applicationImport').modal('hide');
+						return;
+					} else {
+
+						Applications.setDuplicateList(response.result);
+						return;
+					}
+				}
+			}, function (response) {
+				Applications.showMessage('danger','An error has occurred: ' + response.result);
+			})
+		}
+
+	}
 
 });

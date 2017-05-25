@@ -16,9 +16,8 @@
         <button ng-disabled="!applications.selected" class="btn btn-default btn-sm" ng-click="exportSelectedApps()"><span class="glyphicon glyphicon-export"></span> Export Selected App(s)</button>
         <button class="btn btn-default btn-sm" ng-click="exportApps()"><span class="glyphicon glyphicon-export"></span> Export All Apps</button>
         <button class="btn btn-default btn-sm" ng-click="importApps()"><span class="glyphicon glyphicon-import"></span> Import App(s)</button>
+		<button class="btn btn-default btn-sm" ng-click="displayTagFilterModal()"><span class="glyphicon glyphicon-filter"></span>Tags filter: {{tagFilterStatus}} </button>
 		
-
-
 		<div class="table-responsive margin-top">
 
 			<table  st-table="displayCollectionList" st-safe-src="applications.list" class="table table-striped" >
@@ -65,7 +64,7 @@
                     <td><button type="button" class="btn btn-default btn-sm" ng-click="activateApplicationJson(app.id)">JSON</button></td>
                 </tr>
                 -->
-			    <tr ng-repeat="app in displayCollectionList" class="itemrow">
+			    <tr ng-repeat="app in displayCollectionList" class="itemrow" ng-hide="app.isFiltered">
 			        <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
                     <td ng-click="activateApplicationDetail(app.id)"><img src="{{app.logoUrl}}"
                                                                           style="max-height: 80px; max-width: 80px;"/>
@@ -349,6 +348,49 @@
     </div>
 </div>
 
+
+
+
+
+<!-- Tag filter functionality -->
+<div class="modal fade" id="applicationTagModal" tabindex="-1" role="dialog" aria-labelledby="applicationtaglabel" aria-hidden="true" ng-controller="ApplicationCtrl">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="applicationtaglabel">
+				    <span>Tags filter</span>
+                </h4>
+            </div>
+
+            
+
+                <div class="modal-body">
+					<button class="btn btn-default btn-sm" ng-click="clearAllFilters()"><span class="glyphicon glyphicon-trash"></span>Clear all filters</button>
+					<div class="margin-top tagList">
+				    	<div ng-repeat="menu in allMenus" class="inline tag-menuitem" ng-dropdown-multiselect="" options="menu.menus" selected-model="allSelectedItems[$index]" extra-settings="allMenuSettings[$index]" translation-texts="allMenuDefaultTextSettings[$index]" events="{ onSelectionChanged: onFiltersChanged }">
+        			</div>
+        			<br class="clearBoth"/>
+        			
+					
+				</div>
+
+				
+
+                <div class="modal-footer">
+             
+                    <button ng-show="applications.duplicatelist.length==0" type="button" class="btn btn-default" data-dismiss="modal">
+                        Close
+                    </button>
+                    
+                </div>
+
+         
+
+        </div>
+    </div>
+</div>
+</div>
 <!-- Import Progress -->
 
 

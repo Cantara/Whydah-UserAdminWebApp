@@ -134,3 +134,17 @@ fieldset{
     margin: 10px 0;
 }
 
+.tagList{
+    background: #FCFCFC;
+    padding: 16px;
+    border: 1px solid #D5D5D5;
+}
+
+.tag-menuitem{
+	
+	margin-right:2px;
+	margin-bottom: 2px;
+    
+}
+div.inline { float:left;}
+.clearBoth { clear:both; }
