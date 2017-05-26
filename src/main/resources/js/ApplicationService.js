@@ -40,8 +40,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     this.list = [];
     
     this.duplicatelist = [];
-    this.allTags =[];
-
+   
     this.selected = false;
 
     this.search2 = function() {
@@ -126,7 +125,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     	}
     }
     
-     this.search = function(searchQuery, initialiseFilter) {
+     this.search = function(searchQuery) {
         console.log('Searching for applications...');
         this.searchQuery = searchQuery || '*';
          var that = this;
@@ -143,12 +142,13 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                 method: 'GET',
                 url: baseUrl+'applicationtags'
              }).then(function(response){
-            	 that.allTags = response.data;
+            	 
             	
             	//TODO: receive filter history from server as well
                  var filterHistory = null;
+                 that.allTags = response.data;
                  //apply filter to the list
-                 initialiseFilter(filterHistory);
+                 that.initMenu(filterHistory);
                  
                  
              }, function(response){
@@ -510,5 +510,200 @@ UseradminApp.service('Applications', function($http,Messages, $q){
 		});
 		return this;
 	};
+	
+
+	//IMPLEMENTATION FOR TAG FILTERING
+	
+	this.tagFilterStatus = "No app filtered"; //status to show in UI
+	this.allSelectedItems=[]; //selected tag objects [{id:'', label:'', appids:''}]
+	this.allMenuSettings=[];  //settings for each menu
+	this.allMenuDefaultTextSettings=[]; //settings for each menu
+	this.filteredTagValues = []; //storage for filtered tags
+	this.filteredAppIds = []; //filtered appids
+	this.allTags =[]; //all tags for all applications
+	this.allMenus=[]; //menu has this format [{"title":"UNNAMED", "menus":[ {id: 1, label: "David"}, {id: 2, label: "Jhon"}, {id: 3, label: "Danny"} ]}, {"title":"JUSRIDICTION", "menus":[ {id: 1, label: "Leif"}, {id: 2, label: "Jack"}, {id: 3, label: "Doe"} ]}]
+
+	this.menuSettings = { 
+			title :'',
+			scrollable: true,
+			enableSearch: true,
+			keyboardControls: true,
+			checkBoxes: false,
+			styleActive: true,
+			selectedToTop: true,
+			buttonClasses: 'btn btn-default btn-sm',
+			smartButtonTextProvider(selectionArray) { 
+				return this.title + ' ' + (selectionArray.length) + " checked"; 
+			}	
+	};
+	
+	this.menuDefaultTextSettings = {buttonDefaultText: 'Select'};
+	this.initMenu = function(filterHistory){
+		
+//		initialize JSON data for each menu FOR DEMOING 	
+		
+//		Applications.allMenus.push({"title":"UNNAMED", "menus":[ {id: 1, label: "David"}, {id: 2, label: "Jhon"}, {id: 3, label: "Danny"} ]});
+//		Applications.allMenus.push({"title":"JUSRIDICTION", "menus":[ {id: 1, label: "Leif"}, {id: 2, label: "Jack"}, {id: 3, label: "Doe"} ]});
+//		Applications.allMenus.push({"title":"OWNER", "menus":[ {id: 1, label: "Daniel"}, {id: 2, label: "Tom"}, {id: 3, label: "Ken"} ]});
+//		Applications.allMenus.push({"title":"COMPANY", "menus":[ {id: 1, label: "Joe"}, {id: 2, label: "Jewish"}, {id: 3, label: "Ben"} ]});		
+		
+		
+		//initialize the menu with data
+		this.allMenus = [];
+		var that = this;
+		
+		angular.forEach(this.list, function(app, appIndex){
+			
+			
+			
+			if(that.allTags[app.id]){
+				
+			
+				angular.forEach(that.allTags[app.id], function(item, index){
+					if(that.allMenus.length ==0){
+						that.allMenus.push({title: item.name, menus: []});
+					}
+					
+					
+					
+					for (var mindex = 0, len = that.allMenus.length; mindex < len; mindex++) {
+						var mitem = that.allMenus[mindex];
+						var menuFound = false;
+						if(mitem["title"]===item.name){ //found the name in the main menu
+							
+							menuFound = true;
+							//check if the value existing inside the sub-menus
+							var found = false;
+							
+							for (var smindex = 0, slen = mitem.menus.length; smindex < slen; smindex++) {
+								var smitem = mitem.menus[smindex];
+								
+								if(smitem["label"]===item.value){
+									
+									smitem.appids.push(app.id); //store appid
+									found = true;
+									break;
+								}	
+							}
+							
+							if(!found){
+								var miObj = {id: mitem.menus.length, label: item.value, appids:[]};
+								miObj.appids.push(app.id);
+								mitem.menus.push(miObj);
+							}
+							break;
+						}
+						
+					}
+					
+					if(!menuFound){
+						var menu = {title: item.name, menus: []};
+						var miObj = {id: 0, label: item.value, appids:[]};
+						miObj.appids.push(app.id);
+						menu.menus.push(miObj);
+						that.allMenus.push(menu);
+					}
+					
+				});
+				
+				
+			}
+		
+		});
+		
+		//apply settings
+		
+		angular.forEach(this.allMenus, function(item, index){
+			
+			that.allSelectedItems[index]=[];
+			that.allMenuSettings[index] = angular.copy(that.menuSettings);
+			that.allMenuSettings[index].title = item.title;
+			that.allMenuDefaultTextSettings[index] = angular.copy(that.menuDefaultTextSettings);
+			that.allMenuDefaultTextSettings[index].buttonDefaultText = item.title;
+		});
+		
+		
+		//now apply tag filters from the history selection name-value format [{name:'name1', value:'value1'}, {name:'name2', value:'value2'}]
+		//from local we already have filteredAppIds
+		
+
+		this.readFilteredTags(this.filteredTagValues);
+
+		//from server (or local storage) we have filterHistory same above format
+		if(filterHistory!=null){
+			//do something
+			this.readFilteredTags(filterHistory);
+		}
+		
+		
+	};
+	
+	this.applyFilters = function(){
+		
+		this.filteredAppIds = [];
+		this.filteredTagValues =[];
+		var that = this;
+		//reload the list
+		angular.forEach(this.allSelectedItems, function(item, index){
+			if(item.length>0){
+				
+				
+				var name = that.allMenus[index].title;
+				
+				for (var i = 0, len = item.length; i < len; i++) {
+					
+					that.filteredTagValues.push({name: name, value: item[i].label});
+					
+					for (var j = 0, jlen = item[i].appids.length; j < jlen; j++) {
+						
+						if(!that.filteredAppIds.contains(item[i].appids[j])){
+							that.filteredAppIds.push(item[i].appids[j]);
+						}
+					}
+				}
+			}
+		});
+		
+		console.log("FILTERED APP_IDS: " + that.filteredAppIds);
+	
+		
+		angular.forEach(this.list, function(item, index){
+			
+			if(that.filteredAppIds.contains(item.id)){
+				item.isFiltered = true;
+			} else {
+				item.isFiltered = false;
+			}
+		});
+		
+		if(this.filteredAppIds.length>0){
+			this.tagFilterStatus = this.filteredAppIds.length + " app(s) filtered"
+		} else {
+			this.tagFilterStatus = "No app filtered";
+		}
+	}
+
+	this.readFilteredTags = function(arrayOfFilteredTags){
+		var array = angular.copy(arrayOfFilteredTags);
+		//read all filter history
+		var that = this;
+		angular.forEach(array, function(tag, i){
+			
+			var index = that.allMenus.map(function(e) { return e.title; }).indexOf(tag.name);
+			
+			//get the menu, now apply selection for the value tag.value
+			angular.forEach(that.allMenus[index].menus, function(menuitem, mi){
+				if(menuitem.label===tag.value){
+					
+					that.allSelectedItems[index].push(angular.copy(menuitem));
+				}
+			});
+			
+		});
+		
+
+		//affect filters to UI 
+		this.applyFilters();
+	}
 
 });

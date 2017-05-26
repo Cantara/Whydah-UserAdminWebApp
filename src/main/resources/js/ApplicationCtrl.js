@@ -47,230 +47,34 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	};
 	
 	$scope.clearAllFilters = function(){
-		angular.forEach($scope.allSelectedItems, function(item, index){
-			$scope.allSelectedItems[index] = [];
+		angular.forEach(Applications..allSelectedItems, function(item, index){
+			Applications.allSelectedItems[index] = [];
 		});
-		applyFilters();
+		Applications.applyFilters();
 	}
 	
 	$scope.onFiltersChanged = function(){
 		
 		
-		applyFilters();
+		Applications.applyFilters();
 		
 	}
 	
 	
-	var filteredTagValues = [];
-	
-	var filteredAppIds = [];
-	
-	var applyFilters = function(){
-		
-		filteredAppIds = [];
-		filteredTagValues =[];
-		
-		//reload the list
-		angular.forEach($scope.allSelectedItems, function(item, index){
-			if(item.length>0){
-				
-				
-				var name = $scope.allMenus[index].title;
-				
-				for (var i = 0, len = item.length; i < len; i++) {
-					
-					filteredTagValues.push({name: name, value: item[i].label});
-					
-					for (var j = 0, jlen = item[i].appids.length; j < jlen; j++) {
-						
-						if(!filteredAppIds.contains(item[i].appids[j])){
-							filteredAppIds.push(item[i].appids[j]);
-						}
-					}
-				}
-			}
-		});
-		
-		console.log("FILTERED APP_IDS: " + filteredAppIds);
-	
-		
-		angular.forEach(Applications.list, function(item, index){
-			
-			if(filteredAppIds.contains(item.id)){
-				item.isFiltered = true;
-			} else {
-				item.isFiltered = false;
-			}
-		});
-		
-		if(filteredAppIds.length>0){
-		   $scope.tagFilterStatus = filteredAppIds.length + " app(s) filtered"
-		} else {
-		   $scope.tagFilterStatus = "No app filtered";
-		}
-	}
-	
-	$scope.tagFilterStatus = "No app filtered";
 	
 	$scope.displayTagFilterModal = function(){
 		$('#applicationTagModal').modal('show');
 	
 	}
 
-	//tag menus initialization
-	$scope.allSelectedItems=[];
-	$scope.allMenuSettings=[];
-	$scope.allMenuDefaultTextSettings=[];
-	$scope.allMenus=[];
-	$scope.noTagAppIds=[];
-	var menuSettings = { 
-			title :'',
-			scrollable: true,
-			enableSearch: true,
-			keyboardControls: true,
-			checkBoxes: false,
-			styleActive: true,
-			selectedToTop: true,
-			buttonClasses: 'btn btn-default btn-sm',
-			smartButtonTextProvider(selectionArray) { 
-				return this.title + ' ' + (selectionArray.length) + " checked"; 
-			}	
-	};
 	
-	var menuDefaultTextSettings = {buttonDefaultText: 'Select'};
-	var initMenu = function(filterHistory){
-		
-		//initialize JSON data for each menu FOR DEMOING
-//		$scope.allMenus.push({"title":"UNNAMED", "menus":[ {id: 1, label: "David"}, {id: 2, label: "Jhon"}, {id: 3, label: "Danny"} ]});
-//		$scope.allMenus.push({"title":"JUSRIDICTION", "menus":[ {id: 1, label: "Leif"}, {id: 2, label: "Jack"}, {id: 3, label: "Doe"} ]});
-//		$scope.allMenus.push({"title":"OWNER", "menus":[ {id: 1, label: "Daniel"}, {id: 2, label: "Tom"}, {id: 3, label: "Ken"} ]});
-//		$scope.allMenus.push({"title":"COMPANY", "menus":[ {id: 1, label: "Joe"}, {id: 2, label: "Jewish"}, {id: 3, label: "Ben"} ]});		
-		
-		
-		//initialize the menu with data
-		$scope.allMenus = [];
-		angular.forEach(Applications.list, function(app, appIndex){
-			
-			//if this application has tag list
-			
-			if(Applications.allTags[app.id]){
-				
-				
-				angular.forEach(Applications.allTags[app.id], function(item, index){
-					if($scope.allMenus.length ==0){
-						$scope.allMenus.push({title: item.name, menus: []});
-					}
-					
-					
-					
-					for (var mindex = 0, len = $scope.allMenus.length; mindex < len; mindex++) {
-						var mitem = $scope.allMenus[mindex];
-						var menuFound = false;
-						if(mitem["title"]===item.name){ //found the name in the main menu
-							
-							menuFound = true;
-							//check if the value existing inside the sub-menus
-							var found = false;
-							
-							for (var smindex = 0, slen = mitem.menus.length; smindex < slen; smindex++) {
-								var smitem = mitem.menus[smindex];
-								
-								if(smitem["label"]===item.value){
-									
-									smitem.appids.push(app.id); //store appid
-									found = true;
-									break;
-								}	
-							}
-							
-							if(!found){
-								var miObj = {id: mitem.menus.length, label: item.value, appids:[]};
-								miObj.appids.push(app.id);
-								mitem.menus.push(miObj);
-							}
-							break;
-						}
-						
-					}
-					
-					if(!menuFound){
-						var menu = {title: item.name, menus: []};
-						var miObj = {id: 0, label: item.value, appids:[]};
-						miObj.appids.push(app.id);
-						menu.menus.push(miObj);
-						$scope.allMenus.push(menu);
-					}
-					
-				});
-				
-				
-			} else {
-				//no-tag applications 
-				$scope.noTagAppIds.push(app.id);
-			}
-		
-		});
-		
-		//apply settings
-		angular.forEach($scope.allMenus, function(item, index){
-			
-			$scope.allSelectedItems[index]=[];
-			$scope.allMenuSettings[index] = angular.copy(menuSettings);
-			$scope.allMenuSettings[index].title = item.title;
-			$scope.allMenuDefaultTextSettings[index] = angular.copy(menuDefaultTextSettings);
-			$scope.allMenuDefaultTextSettings[index].buttonDefaultText = item.title;
-		});
-		
-		
-		//now apply tag filters from the history selection name-value format [{name:'name1', value:'value1'}, {name:'name2', value:'value2'}]
-		//from local we already have filteredAppIds
-		
-
-		readFilteredTags(filteredTagValues);
-
-		//from server (or local storage) we have filterHistory same above format
-		if(filterHistory!=null){
-			//do something
-			readFilteredTags(filterHistory);
-		}
-		
-		
-	};
-	
-	
-	var readFilteredTags = function(arrayOfFilteredTags){
-		var array = angular.copy(arrayOfFilteredTags);
-		//read all filter history
-		angular.forEach(array, function(tag, i){
-			
-			var index = $scope.allMenus.map(function(e) { return e.title; }).indexOf(tag.name);
-			
-			//get the menu, now apply selection for the value tag.value
-			angular.forEach($scope.allMenus[index].menus, function(menuitem, mi){
-				if(menuitem.label===tag.value){
-					
-					$scope.allSelectedItems[index].push(angular.copy(menuitem));
-				}
-			});
-			
-		});
-		
-		angular.forEach($scope.allSelectedItems, function(tag, i){
-			
-			console.log(tag);
-			
-		});
-
-		//affect filters to UI 
-		applyFilters();
-	}
 	
 	function init() {
 
 		
 		
 		
-		Applications.search('*', initMenu);
+		Applications.search('*');
 		
 		
 		$scope.progressbar = ngProgressFactory.createInstance();

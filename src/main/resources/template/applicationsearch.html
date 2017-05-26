@@ -16,7 +16,7 @@
         <button ng-disabled="!applications.selected" class="btn btn-default btn-sm" ng-click="exportSelectedApps()"><span class="glyphicon glyphicon-export"></span> Export Selected App(s)</button>
         <button class="btn btn-default btn-sm" ng-click="exportApps()"><span class="glyphicon glyphicon-export"></span> Export All Apps</button>
         <button class="btn btn-default btn-sm" ng-click="importApps()"><span class="glyphicon glyphicon-import"></span> Import App(s)</button>
-		<button class="btn btn-default btn-sm" ng-click="displayTagFilterModal()"><span class="glyphicon glyphicon-filter"></span>Tags filter: {{tagFilterStatus}} </button>
+		<button class="btn btn-default btn-sm" ng-click="displayTagFilterModal()"><span class="glyphicon glyphicon-filter"></span>Tags filter: {{applications.tagFilterStatus}} </button>
 		
 		<div class="table-responsive margin-top">
 
@@ -368,7 +368,7 @@
                 <div class="modal-body">
 					<button class="btn btn-default btn-sm" ng-click="clearAllFilters()"><span class="glyphicon glyphicon-trash"></span>Clear all filters</button>
 					<div class="margin-top tagList">
-				    	<div ng-repeat="menu in allMenus" class="inline tag-menuitem" ng-dropdown-multiselect="" options="menu.menus" selected-model="allSelectedItems[$index]" extra-settings="allMenuSettings[$index]" translation-texts="allMenuDefaultTextSettings[$index]" events="{ onSelectionChanged: onFiltersChanged }">
+				    	<div ng-repeat="menu in applications.allMenus" class="inline tag-menuitem" ng-dropdown-multiselect="" options="menu.menus" selected-model="applications.allSelectedItems[$index]" extra-settings="applications.allMenuSettings[$index]" translation-texts="applications.allMenuDefaultTextSettings[$index]" events="{ onSelectionChanged: onFiltersChanged }">
         			</div>
         			<br class="clearBoth"/>
         			
