@@ -183,7 +183,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 			promise = Users.importUsers(file, uploadUrl);
 			
 			if(Users.duplicatelist&&Users.duplicatelist.length>0){
-				$scope.$parent.importing = true;
+				$scope.importing = true;
 				console.log("Ready to import users now.");
 				console.log("Timer has been started, to update import progress.");
 				//ask server for the progress each 2 secs
@@ -192,13 +192,13 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 						if(data>0){
 							//can close the modal now
 							$('#UserImport').modal('hide');
-							$scope.$parent.showProgress=true;
-							if($scope.$parent.progressbar){
-								$scope.$parent.progressbar.set(data);
+							$scope.showProgress=true;
+							if($scope.progressbar){
+								$scope.progressbar.set(data);
 							}
 							
 							if(data==100){
-								$scope.$parent.showProgress=false;
+								$scope.showProgress=false;
 							}
 						} 
 					});
@@ -209,29 +209,29 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 			promise.then(function (response) {
 				if(response){
 					var pattern = /^error/i;
-					var result =  /^error/i.test(response.result);
-					if(/^error/i.test(response.result)===true){
-						$scope.$parent.showProgress=false;
+					var result =  /^error/i.test(response.data.result);
+					if(/^error/i.test(response.data.result)===true){
+						$scope.showProgress=false;
 						$interval.cancel(theInterval);
-						$scope.$parent.importing = false;
-						Users.showMessage('danger','An error has occurred: ' + response.result);
+						$scope.importing = false;
+						Users.showMessage('danger','An error has occurred: ' + response.data.result);
 						return;
-					} else if(/^ok/i.test(response.result)===true){
-						$scope.$parent.showProgress=false;
+					} else if(/^ok/i.test(response.data.result)===true){
+						$scope.showProgress=false;
 						$interval.cancel(theInterval);
 						Users.showMessage('success', "Imported successfully");
 						$('#UserImport').modal('hide');
-						$scope.$parent.importing = false;
+						$scope.importing = false;
 						//refresh
 						Users.search();
 						return;
 					} else {
-			    		  Users.setDuplicateList(response.result);
+			    		  Users.setDuplicateList(response.data.result);
 			    		  return;
 			    	  }
 				}
 			}, function (response) {
-				Users.showMessage('danger','An error has occurred: ' + response.result);
+				Users.showMessage('danger','An error has occurred: ' + response.data.result);
 			})
 		}
 

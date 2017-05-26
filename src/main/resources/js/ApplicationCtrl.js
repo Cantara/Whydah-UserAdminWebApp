@@ -50,18 +50,36 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 		angular.forEach($scope.allSelectedItems, function(item, index){
 			$scope.allSelectedItems[index] = [];
 		});
-		$scope.onFiltersChanged();
+		applyFilters();
 	}
 	
 	$scope.onFiltersChanged = function(){
 		
 		
+		applyFilters();
+		
+	}
+	
+	
+	var filteredTagValues = [];
+	
+	var filteredAppIds = [];
+	
+	var applyFilters = function(){
+		
+		filteredAppIds = [];
+		filteredTagValues =[];
 		
 		//reload the list
-		var filteredAppIds = [];
 		angular.forEach($scope.allSelectedItems, function(item, index){
 			if(item.length>0){
+				
+				
+				var name = $scope.allMenus[index].title;
+				
 				for (var i = 0, len = item.length; i < len; i++) {
+					
+					filteredTagValues.push({name: name, value: item[i].label});
 					
 					for (var j = 0, jlen = item[i].appids.length; j < jlen; j++) {
 						
@@ -74,6 +92,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 		});
 		
 		console.log("FILTERED APP_IDS: " + filteredAppIds);
+	
 		
 		angular.forEach(Applications.list, function(item, index){
 			
@@ -85,13 +104,10 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 		});
 		
 		if(filteredAppIds.length>0){
-		   $scope.$parent.tagFilterStatus = filteredAppIds.length + " app(s) filtered"
+		   $scope.tagFilterStatus = filteredAppIds.length + " app(s) filtered"
 		} else {
-		   $scope.$parent.tagFilterStatus = "No app filtered";
+		   $scope.tagFilterStatus = "No app filtered";
 		}
-		
-	
-
 	}
 	
 	$scope.tagFilterStatus = "No app filtered";
@@ -128,22 +144,24 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 //		$scope.allMenus.push({"title":"UNNAMED", "menus":[ {id: 1, label: "David"}, {id: 2, label: "Jhon"}, {id: 3, label: "Danny"} ]});
 //		$scope.allMenus.push({"title":"JUSRIDICTION", "menus":[ {id: 1, label: "Leif"}, {id: 2, label: "Jack"}, {id: 3, label: "Doe"} ]});
 //		$scope.allMenus.push({"title":"OWNER", "menus":[ {id: 1, label: "Daniel"}, {id: 2, label: "Tom"}, {id: 3, label: "Ken"} ]});
-//		$scope.allMenus.push({"title":"COMPANY", "menus":[ {id: 1, label: "Joe"}, {id: 2, label: "Jewish"}, {id: 3, label: "Ben"} ]});
+//		$scope.allMenus.push({"title":"COMPANY", "menus":[ {id: 1, label: "Joe"}, {id: 2, label: "Jewish"}, {id: 3, label: "Ben"} ]});		
 		
 		
 		//initialize the menu with data
-
-		
+		$scope.allMenus = [];
 		angular.forEach(Applications.list, function(app, appIndex){
 			
 			//if this application has tag list
 			
 			if(Applications.allTags[app.id]){
 				
+				
 				angular.forEach(Applications.allTags[app.id], function(item, index){
 					if($scope.allMenus.length ==0){
 						$scope.allMenus.push({title: item.name, menus: []});
 					}
+					
+					
 					
 					for (var mindex = 0, len = $scope.allMenus.length; mindex < len; mindex++) {
 						var mitem = $scope.allMenus[mindex];
@@ -158,6 +176,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 								var smitem = mitem.menus[smindex];
 								
 								if(smitem["label"]===item.value){
+									
 									smitem.appids.push(app.id); //store appid
 									found = true;
 									break;
@@ -175,7 +194,11 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 					}
 					
 					if(!menuFound){
-						$scope.allMenus.push({title: item.name, menus: []});
+						var menu = {title: item.name, menus: []};
+						var miObj = {id: 0, label: item.value, appids:[]};
+						miObj.appids.push(app.id);
+						menu.menus.push(miObj);
+						$scope.allMenus.push(menu);
 					}
 					
 				});
@@ -198,25 +221,58 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 			$scope.allMenuDefaultTextSettings[index].buttonDefaultText = item.title;
 		});
 		
+		
+		//now apply tag filters from the history selection name-value format [{name:'name1', value:'value1'}, {name:'name2', value:'value2'}]
+		//from local we already have filteredAppIds
+		
+
+		readFilteredTags(filteredTagValues);
+
+		//from server (or local storage) we have filterHistory same above format
 		if(filterHistory!=null){
 			//do something
+			readFilteredTags(filterHistory);
 		}
 		
 		
-		
-		
-		
-		
 	};
+	
+	
+	var readFilteredTags = function(arrayOfFilteredTags){
+		var array = angular.copy(arrayOfFilteredTags);
+		//read all filter history
+		angular.forEach(array, function(tag, i){
+			
+			var index = $scope.allMenus.map(function(e) { return e.title; }).indexOf(tag.name);
+			
+			//get the menu, now apply selection for the value tag.value
+			angular.forEach($scope.allMenus[index].menus, function(menuitem, mi){
+				if(menuitem.label===tag.value){
+					
+					$scope.allSelectedItems[index].push(angular.copy(menuitem));
+				}
+			});
+			
+		});
+		
+		angular.forEach($scope.allSelectedItems, function(tag, i){
+			
+			console.log(tag);
+			
+		});
+
+		//affect filters to UI 
+		applyFilters();
+	}
 	
 	function init() {
 
 		
 		
+		
 		Applications.search('*', initMenu);
 		
 		
-
 		$scope.progressbar = ngProgressFactory.createInstance();
 		$scope.progressbar.setParent(document.getElementById('progress'));
 
@@ -266,7 +322,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	}
 
 	$scope.exportApps = function() {
-		Applications.search('*', initMenu); //get the latest version
+		init();
 		var blob = new Blob([angular.toJson(Applications.list, true)], {type: "text/plain;charset=utf-8"});
 		saveAs(blob, "applications.json");
 	}
@@ -341,18 +397,28 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	}
 
 	$scope.save = function() {
+		
+		
 		// Make sure these $scope-values are properly connected to the view
 		if($scope.form.applicationDetail.$valid){
 			if(Applications.application.isNew) {
 				var newApplication = angular.copy(Applications.application);
 				delete newApplication.isNew;
+				
+				
+				
 				Applications.add(newApplication, function(){
 					delete Applications.application.isNew;
 					$scope.form.applicationDetail.$setPristine();
+					init();
 				});
 			} else {
+				
+				
 				Applications.save(Applications.application, function(){
+		
 					$scope.form.applicationDetail.$setPristine();
+					init();
 				});
 			}
 		} else {
@@ -369,10 +435,12 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 				Applications.addFromJson(newApplication, function(){
 					delete Applications.application.isNew;
 					$scope.form.applicationJson.$setPristine();
+					init();
 				});
 			} else {
 				Applications.saveFromJson(Applications.application, function(){
 					$scope.form.applicationJson.$setPristine();
+					init();
 				});
 			}
 		} else {
@@ -406,6 +474,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 		if (deleteUser) {
 			Applications.delete(Applications.application, function(){
 				$scope.form.applicationDetail.$setPristine();
+				init();
 			});
 		}
 	}
@@ -420,20 +489,18 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	$scope.importApps = function(){
 		Applications.setDuplicateList(null);
 		$('#applicationImport').modal('show');
-		Applications.search('*', initMenu); //get the latest version
+		
 	}
 
 	$scope.removeTag = function(index){
 		Applications.application.tagList.splice(index, 1);
-		console.log("INDEX " + index);
+		
 		$scope.form.applicationDetail.$setDirty();
 	}
 
 	$scope.addANewTag = function(){
 		Applications.application.tagList.push({"name":"","value":""});
-		angular.forEach(Applications.application.tagList, function(i, k){
-			console.log(i.name + i.value);
-		});
+		
 
 	}
 
@@ -448,7 +515,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 			promise = Applications.importApps(file, uploadUrl);
 
 			if(Applications.duplicatelist && Applications.duplicatelist.length>0){
-				$scope.$parent.importing = true;
+				$scope.importing = true;
 				console.log("Ready to import apps now.");
 				console.log("Timer has been started, to update import progress.");
 				//ask server for the progress each 2 secs
@@ -457,12 +524,12 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 						if(data>0){
 							//can close the modal now
 							$('#applicationImport').modal('hide');
-							$scope.$parent.showProgress=true;
-							if($scope.$parent.progressbar){
-								$scope.$parent.progressbar.set(data);
+							$scope.showProgress=true;
+							if($scope.progressbar){
+								$scope.progressbar.set(data);
 							}
 							if(data==100){
-								$scope.$parent.showProgress=false;
+								$scope.showProgress=false;
 							}
 						} 
 					});
@@ -472,22 +539,24 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 			promise.then(function (response) {
 				if(response){
 					var pattern = /^error/i;
-					var result =  /^error/i.test(response.result);
-					if(/^error/i.test(response.result)===true){
-						Applications.showMessage('danger','An error has occurred: ' + response.result);
+					var result =  /^error/i.test(response.data.result);
+					if(/^error/i.test(response.data.result)===true){
+						Applications.showMessage('danger','An error has occurred: ' + response.data.result);
 						return;
-					} else if(/^ok/i.test(response.result)===true){
+					} else if(/^ok/i.test(response.data.result)===true){
 						Applications.showMessage('success', "Imported successfully");
 						$('#applicationImport').modal('hide');
+						//refresh the list
+						init();
 						return;
 					} else {
 
-						Applications.setDuplicateList(response.result);
+						Applications.setDuplicateList(response.data.result);
 						return;
 					}
 				}
 			}, function (response) {
-				Applications.showMessage('danger','An error has occurred: ' + response.result);
+				Applications.showMessage('danger','An error has occurred: ' + response.data.result);
 			})
 		}
 

@@ -117,9 +117,9 @@ UseradminApp.service('Users', function($http, Messages, $q){
         $http({
             method: 'GET',
             url: baseUrl+'userlog/'+id+'/'
-        }).then(function (data) {
-            console.log('Got user log', data);
-            that.user.userLog = JSON.stringify(data, null, 2);
+        }).then(function (response) {
+            console.log('Got user log', response.data);
+            that.user.userLog = JSON.stringify(response.data, null, 2);
             if(callback) {
                  callback(that.user);
             }
@@ -133,7 +133,8 @@ UseradminApp.service('Users', function($http, Messages, $q){
         $http({
             method: 'GET',
             url: baseUrl+'usercrm/'+personRef+'/'
-        }).then(function (data) {
+        }).then(function (response) {
+        	var data = response.data;
             console.log('Got user crm', data);
             that.user.userCrm = JSON.stringify(data, null, 2);
             if(callback) {

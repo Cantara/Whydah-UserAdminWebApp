@@ -69,8 +69,10 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             headers: {'Content-Type': undefined}
 
         }).then(function (response) {
+        	console.log(response);
             deffered.resolve(response);
         }, function (response) {
+        	console.log(response);
             deffered.reject(response);
         });
 
@@ -276,7 +278,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     			var status = response.status;
                 Messages.add('success', 'application "' + application.name + '" was added successfully.');
                 application.id = data.id;
-                that.search(that.searchQuery);
+                
                 if (successCallback) {
                     successCallback();
                 }
@@ -318,7 +320,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     			var status = response.status;
                 Messages.add('success', 'application "' + application.name + '" was updated successfully.');
                 application.id = data.id;
-                that.search(that.searchQuery);
+               
                 if (successCallback) {
                     successCallback();
                 }
@@ -418,7 +420,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         			var status = response.status;
                     Messages.add('success', 'application "' + application.name + '" was updated successfully.');
                     application.id = data.id;
-                    that.search(that.searchQuery);
+                    
                     if (successCallback) {
                         successCallback();
                     }
@@ -471,7 +473,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
 			var status = response.status;
             Messages.add('success', 'application "'+application.name+'" was deleted.');
             application.id = data.id;
-            that.search(that.searchQuery);
+            
             if(successCallback){
                 successCallback();
             }
