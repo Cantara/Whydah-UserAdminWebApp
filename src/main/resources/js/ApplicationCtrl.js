@@ -47,7 +47,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	};
 	
 	$scope.clearAllFilters = function(){
-		angular.forEach(Applications..allSelectedItems, function(item, index){
+		angular.forEach(Applications.allSelectedItems, function(item, index){
 			Applications.allSelectedItems[index] = [];
 		});
 		Applications.applyFilters();
