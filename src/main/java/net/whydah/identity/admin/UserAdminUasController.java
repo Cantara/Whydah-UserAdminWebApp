@@ -655,8 +655,10 @@ public class UserAdminUasController {
 		{  
 			List<UserAggregate> oldList = getAllUserAggregates(apptokenid, usertokenid, response, model);
 			Map<String, UserAggregate> oldListMap = new HashMap<String, UserAggregate>();
+			Map<String, UserAggregate> oldListMapByUserName = new HashMap<String, UserAggregate>();
 			for(UserAggregate ua: oldList){
 				oldListMap.put(ua.getUid(), ua);
+				oldListMapByUserName.put(ua.getUsername(), ua);
 			}
 
 			byte[] content = file.getBytes();
@@ -666,9 +668,13 @@ public class UserAdminUasController {
             List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);
             List<String> duplicates = new ArrayList<String>();
 			for(UserAggregate nua : importList){
-				if(oldListMap.containsKey(nua.getUid()) && !overridenIds.contains(nua.getUid()) && !skippedIds.contains(nua.getUid())){
+				if(nua.getUsername()==null){
+					setFailureMsg(model,"failed to parse the json file");
+					return JSON_KEY;
+				}
+				if(oldListMapByUserName.containsKey(nua.getUsername()) && !overridenIds.contains(nua.getUid()) && !skippedIds.contains(nua.getUid())){
 					//duplicates
-					duplicates.add(nua.getUid());
+					duplicates.add(oldListMapByUserName.get(nua.getUsername()).getUid());
 				}
 			}
 
@@ -683,7 +689,11 @@ public class UserAdminUasController {
 
 					currentPercent += workingPercentForEachRow;
 
-					if(oldListMap.containsKey(nua.getUid())){
+					if(nua.getUid()==null){
+						nua.setUid(UUID.randomUUID().toString());
+					}
+					
+					if(oldListMap.containsKey(nua.getUid())&&oldListMapByUserName.containsKey(nua.getUsername())){
 
 						if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, false)){
 							addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(oldListMap.get(nua.getUid())), model, response, false);
@@ -694,7 +704,11 @@ public class UserAdminUasController {
 
 					} else {
 
-
+						if(oldListMap.containsKey(nua.getUid())){
+							//set new id, cos this one is existing for another username
+							nua.setUid(UUID.randomUUID().toString());
+						}
+						
 						//add application as normal
 						if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, true)){
 							setFailureMsg(model,  "failed to add the new user " + nua.getUid() + "-" + nua.getUsername());

@@ -116,81 +116,31 @@ public class UserAdminController {
         		return SessionUserAdminDao.instance.MY_APP_TYPE;
         	}
         }
-
-//        String userTicket = request.getParameter(USERTICKET_KEY);
-//        if (userTokenId == null && userTicket != null && userTicket.length() > MIN_USERTICKET_LENGTH) {
-//            String userTokenXml;
-//            try {
-//                userTokenXml = tokenServiceClient.getUserTokenByUserTicket(userTicket);
-//                log.debug("Logon with userticket: userTokenXml={}", userTokenXml);
-//
-//                if (userTokenXml == null || userTokenXml.length() < MIN_USER_TOKEN_LENGTH) {
-//                    log.trace("UserTokenXML null or too short to be useful. Checking Cookie.");
-//                    String userTokenIdFromCookie = CookieManager.getUserTokenIdFromCookie(request);
-//                    if (userTokenIdFromCookie != null && tokenServiceClient.verifyUserTokenId(userTokenIdFromCookie)){
-//                        log.trace("Valid userTokenID found in Cookie.");
-//                        userTokenXml=tokenServiceClient.getUserTokenByUserTokenID(userTokenIdFromCookie);
-//                    }
-//                }
-//
-//
-//                userTokenId = UserTokenXpathHelper.getUserTokenIdFromUserTokenXML(userTokenXml);
-//
-//                if (!UserTokenXpathHelper.hasUserAdminRight(userTokenXml, UAWA_APPLICATION_ID)) {
-//                    log.trace("Got user from userTokenXml, but wrong access rights. Redirecting to logout.");
-//                    userTokenId = null;
-//                    return LOGOUT_SERVICE_REDIRECT;
-//                }
-//
-//                log.info("Logon OK. UserTokenXML obtained with user ticket contained a valid admin user. userTokenId={}", userTokenId);
-//                addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml));
-//                Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
-//                CookieManager.createAndSetUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, response);
-//                return MY_APP_TYPE;
-//            } catch (MissingResourceException mre) {
-//                log.trace("getUserTokenByUserTicket failed. The ticked might have already been used. Checking cookie. MissingResourceException=", mre.getMessage());
-//            }
-//        }
-//
-//
-//
-//        String userTokenIdFromCookie = CookieManager.getUserTokenIdFromCookie(request);
-//        if (userTokenIdFromCookie == null) {
-//            CookieManager.clearUserTokenCookie(request, response);
-//            userTokenId = null;
-//            return LOGIN_SERVICE_REDIRECT;
-//        }
-//
-//        String userTokenXml;
-//        try {
-//            userTokenXml = tokenServiceClient.getUserTokenFromUserTokenId(userTokenIdFromCookie);
-//            if (userTokenXml.length() < MIN_USER_TOKEN_LENGTH) {
-//                CookieManager.clearUserTokenCookie(request, response);
-//                log.trace("UserTokenXML null or too short to be useful. Redirecting to login.");
-//                userTokenId = null;
-//                return LOGIN_SERVICE_REDIRECT;
-//            }
-//        } catch (RuntimeException mre) {
-//            CookieManager.clearUserTokenCookie(request, response);
-//            log.trace("{}. Redirecting to login.", userTokenIdFromCookie, mre.getMessage());
-//            userTokenId = null;
-//            return LOGIN_SERVICE_REDIRECT;
-//        }
-//
-//        if (!UserTokenXpathHelper.hasUserAdminRight(userTokenXml, UAWA_APPLICATION_ID)) {
-//            log.trace("Got user from userTokenXml, but wrong access rights. Redirecting to logout.");
-//            CookieManager.clearUserTokenCookie(request, response);
-//            userTokenId = null;
-//            return LOGOUT_SERVICE_REDIRECT;
-//        }
-//
-//        userTokenId = UserTokenXpathHelper.getUserTokenIdFromUserTokenXML(userTokenXml);
-//        addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml));
-//        Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
-//        CookieManager.updateUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, request, response);
-//
-//        log.info("Logon OK. userTokenIdFromUserTokenXml={}", userTokenId);
-//        return SessionUserAdminDao.instance.MY_APP_TYPE;
+    }
+    
+    @Produces(MediaType.TEXT_HTML + ";charset=utf-8")
+    @RequestMapping("/myapptokenid")
+    public String getMyAppTokenIdForTesting(HttpServletRequest request, HttpServletResponse response, Model model) {
+        response.setContentType(ConstantValue.HTML_CONTENT_TYPE);
+        
+        String userTokenXml = SessionUserAdminDao.instance.findUserTokenXMLFromSession(request, response, model);
+        if(userTokenXml==null){
+        	log.trace("UserTokenXML null or too short to be useful. Redirecting to login.");
+        	return SessionUserAdminDao.instance.LOGIN_SERVICE_REDIRECT;
+           
+        } else {
+        	if (!UserTokenXpathHelper.hasUserAdminRight(userTokenXml, SessionUserAdminDao.instance.UAWA_APPLICATION_ID)) {
+        		log.trace("Got user from userTokenXml, but wrong access rights. Redirecting to logout.");
+        		CookieManager.clearUserTokenCookie(request, response);
+        		addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml)); 
+        		return "login_error";
+        	} else {
+        		
+        		model.addAttribute("jsondata", SessionUserAdminDao.instance.getServiceClient().getWAS().getActiveApplicationTokenId());
+				
+        		return "json";
+        	}
+        }
     }
 
     @RequestMapping("/logout")
