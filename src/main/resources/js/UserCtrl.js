@@ -22,10 +22,17 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		Users.requiredMessage = (Users.selected) ? '' : noUsersSelectedMessage;
 	});
 
+	$scope.onSearchBoxChange = function() {
+		if($scope.searchQuery==''){
+		  console.log("this is called");
+		  Users.search($scope.searchQuery);
+		}
+	}
+	
 	$scope.searchUsers = function() {
 		Users.search($scope.searchQuery);
 	}
-
+	
 	$scope.clearAllApps = function() {
 		console.log('Clear all');
 		angular.forEach( Users.applications, function(el, index) {

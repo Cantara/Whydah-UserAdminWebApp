@@ -12,6 +12,7 @@ import net.whydah.sso.application.mappers.ApplicationTokenMapper;
 import net.whydah.sso.application.types.ApplicationCredential;
 import net.whydah.sso.application.types.ApplicationToken;
 import net.whydah.sso.commands.appauth.CommandLogonApplication;
+import net.whydah.sso.commands.baseclasses.BaseHttpDeleteHystrixCommand;
 import net.whydah.sso.commands.baseclasses.BaseHttpGetHystrixCommand;
 import net.whydah.sso.commands.baseclasses.BaseHttpPostHystrixCommand;
 import net.whydah.sso.commands.userauth.CommandLogonUserByUserCredential;
@@ -48,7 +49,7 @@ public class UserStressTest {
 	public String myApplicationTokenID = "";
 	public String userTokenId="";
 	
-	
+	//TEST METHODS
 
 	public void setup() throws Exception {
 
@@ -83,38 +84,98 @@ public class UserStressTest {
 	
 	@Test
 	@Ignore
-	public void addUsersStressTest() throws Exception{
+	public void doUsersStressTestWith1000Users() throws Exception{
 		
 		setup();
+
+		int count = 1000;
 		
-		//add 10 million users
-		//now test 1000 first
-		int count = 1000;//10000000;
-		for(int i = 0; i < count ; i++){
+		addTestUsers(0, count); //add 1000 users
+		removeTestUsers(0, 100); //remove 100 users
+		removeTestUsers(100, 100); //remove next 100 users
+		removeTestUsers(200, 100); //remove next 100 users
+		
+		
+		//TODO: do the query and the returned result should show 700 users left
+	
+	}
+	
+	@Test
+	public void doUsersStressTestWith1000UsersAddAndDeleteAtTheSameTime() throws Exception{
+		
+		
+
+		//TODO: start a thread for adding 1000 users
+		//TODO: start a thread for deleting (delay about some seconds for each record to be inserted beforehand) 
+		//TODO: query and check the result
+		
+	}
+	
+	@Test
+	public void doUsersStressTestDoCleanUpAllTestUsers() throws Exception{
+		
+		//TODO: delete all test users
+		
+	}
+
+	
+	//END TEST METHODS
+	
+	
+	//PRIVATE FUNCTIONS
+	
+	private void addTestUsers(int startFrom, int countTo) throws InterruptedException {
+		
+		for(int i = startFrom; i < countTo ; i++){
 			
-			UserAggregate ua = new UserAggregate("username " + i, "firstName " + i, "lastName " + i, "personRef " +i, "tester" + i + "@whydah.com", String.valueOf(RandomUtils.nextInt(1000000000)));
-			ua.setRoleList(new ArrayList<UserApplicationRoleEntry>());
-			String json = UserAggregateMapper.toJson(ua);
-			String addCmd = new BaseHttpPostHystrixCommand<String>(URI.create(uawaURI), null, null, "STRESS_TEST", 2000) {
-				
-				@Override
-				protected String getTargetPath() {
-					return apptokenIdFromUASWA + "/" + userTokenId + "/user/";
-				}
-				
-				@Override
-				protected HttpRequest dealWithRequestBeforeSend(HttpRequest request) {
-					
-					return request.contentType("application/json").send(json);
-				}
-				
-			}.execute();
-			System.out.println(addCmd);
+			addATestUser(i);
 			
 		}
 		
 		Thread.sleep(3000);
-		
 	}
 
+	private void addATestUser(int i) {
+		UserAggregate ua = new UserAggregate("uid-" + i, "username " + i, "firstName " + i, "lastName " + i, "personRef " +i, "tester" + i + "@whydah.com", String.valueOf(RandomUtils.nextInt(1000000000)));
+		ua.setRoleList(new ArrayList<UserApplicationRoleEntry>());
+		String json = UserAggregateMapper.toJson(ua);
+		String addCmd = new BaseHttpPostHystrixCommand<String>(URI.create(uawaURI), null, null, "STRESS_TEST", 2000) {
+			
+			@Override
+			protected String getTargetPath() {
+				return apptokenIdFromUASWA + "/" + userTokenId + "/user/";
+			}
+			
+			@Override
+			protected HttpRequest dealWithRequestBeforeSend(HttpRequest request) {
+				
+				return request.contentType("application/json").send(json);
+			}
+			
+		}.execute();
+		System.out.println(addCmd);
+	}
+
+	private void removeATestUser(int id) throws InterruptedException {
+	
+		String delCmd = new BaseHttpDeleteHystrixCommand<String>(URI.create(uawaURI), null, null, "STRESS_TEST", 2000) {
+
+			@Override
+			protected String getTargetPath() {
+				return apptokenIdFromUASWA + "/" + userTokenId + "/user/" + "uid-" + id;
+			}
+		}.execute();
+		System.out.println(delCmd);
+
+	}
+	
+	private void removeTestUsers(int startFrom, int toCount) throws InterruptedException {
+		for(int i = startFrom; i < toCount ; i++){
+			removeATestUser(i);
+		}
+		
+		Thread.sleep(3000);
+	}
+
+	//END PRIVATE FUNCTIONS
 }
