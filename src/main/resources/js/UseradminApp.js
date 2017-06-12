@@ -1,4 +1,4 @@
-var UseradminApp = angular.module('UseradminApp', ['ngRoute', 'ngAnimate', 'ui.bootstrap.tooltip', 'autocomplete', 'smart-table', 'ngProgress', 'angularjs-dropdown-multiselect']);
+var UseradminApp = angular.module('UseradminApp', ['ngRoute', 'ngAnimate', 'ui.bootstrap.tooltip', 'autocomplete', 'smart-table', 'ngProgress', 'angularjs-dropdown-multiselect', 'angularUtils.directives.dirPagination']);
 
 UseradminApp.config(['$routeProvider',
   function($routeProvider) {

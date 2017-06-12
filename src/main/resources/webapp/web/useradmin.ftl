@@ -98,6 +98,7 @@
         <script src="js/lib/ngprogress.js"></script>
         <script src="js/lib/md5.js"></script>
         <script src="js/lib/angularjs-dropdown-multiselect.min.js"></script>
+        <script src="js/lib/dirPagination.js"></script>
 
         <!-- Main application -->
         <script src="js/UseradminApp.js"></script>

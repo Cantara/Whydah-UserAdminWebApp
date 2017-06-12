@@ -4,11 +4,14 @@ UseradminApp.service('Users', function($http, Messages, $q){
 	this.rows = "";
 	this.user = {};
 	this.userRoles = {};
-	this.searchQuery = '*';
+	this.searchQuery = '';
 	this.selected = false;
 	this.applications = [];
 	this.applicationFilter = [];
 	this.fullList=[]; //users with roles
+	this.currentPage = 1;
+	this.pageSize = 0;
+	this.totalItems = 0;
 
 	this.getSelectedUsers = function() {
 	    var selectedUsers = [];
@@ -27,13 +30,13 @@ UseradminApp.service('Users', function($http, Messages, $q){
 	    return selectedUsernames;
 	}
 
-	this.search = function(searchQuery) {
+	this.search = function() {
 		console.log('Searching for users...');
-		this.searchQuery = searchQuery || '*';
+		var query =  this.searchQuery || '*';
 		var that = this;
 		$http({
 			method: 'GET',
-			url: baseUrl+'users/find/'+this.searchQuery
+			url: baseUrl+'users/find/'+query
 			//url: 'json/users.json',
 		}).then(function (response) {		
 			that.rows = response.data.rows;
@@ -43,6 +46,47 @@ UseradminApp.service('Users', function($http, Messages, $q){
 		}, function(response){
 			// This is most likely due to usertoken timeout - TODO: Redirect to login webapp   
 			console.log('Unable to search', response.data);
+			var status = response.status;
+			switch (status) {
+				case 403: /* Forbidden */
+					Messages.add('danger', 'Unable to seach! Forbidden...');
+					break;
+				case 404:  /* 404 No access */
+					Messages.add('danger', 'Unable to search! No access...');
+					break;
+				case 409:  /* 409 Conflict - will prbably not occur here */
+					Messages.add('danger', 'Search already exists...');
+					break;
+				default:
+			    	Messages.add('danger', 'Search failed with error code: ' + status);
+			}
+
+		});
+		return this;
+	};
+	
+	
+	this.pagingQuery = function() {
+		
+		var query =  this.searchQuery || '*';
+		var that = this;
+		console.log('Searching for users on page ' + this.currentPage + ' with query value = ' + query );
+		$http({
+			method: 'GET',
+			url: baseUrl+'users/query/' + that.currentPage + "/" + query
+			//url: 'json/users.json',
+		}).then(function (response) {		
+			
+			console.log(response);
+			that.rows = response.data.rows;
+			that.pageSize = response.data.pageSize;
+			that.totalItems = response.data.totalItems;
+			that.currentPage = response.data.currentPage;
+			that.list = response.data.result;
+			
+		}, function(response){
+			// This is most likely due to usertoken timeout - TODO: Redirect to login webapp   
+			console.log('Unable to search', response);
 			var status = response.status;
 			switch (status) {
 				case 403: /* Forbidden */
@@ -402,7 +446,7 @@ UseradminApp.service('Users', function($http, Messages, $q){
     	if(this.duplicatelist.length!=0){
     		var selectedUserUids = [];
     		for(var i=0; i<this.duplicatelist.length; i++) {
-    			if(this.duplicatelist[i].isSelected)selectedUserUids.push(this.duplicatelist[i].uid);
+    			if(this.duplicatelist[i].isSelected)selectedUserUids.push(this.duplicatelist[i].username);
     		}
     		return selectedUserUids.toString();
     	} else {
@@ -414,7 +458,7 @@ UseradminApp.service('Users', function($http, Messages, $q){
     	if(this.duplicatelist.length!=0){
     		var skippedUserUids = [];
     		for(var i=0; i<this.duplicatelist.length; i++) {
-    			if(!this.duplicatelist[i].isSelected)skippedUserUids.push(this.duplicatelist[i].uid);
+    			if(!this.duplicatelist[i].isSelected)skippedUserUids.push(this.duplicatelist[i].username);
     		}
     		return skippedUserUids.toString();
     	} else {
@@ -422,19 +466,60 @@ UseradminApp.service('Users', function($http, Messages, $q){
     	}
     }
     
-    this.setDuplicateList=function(duplicateIds){
-    	if(duplicateIds){
-    		var that = this;
-    		that.duplicatelist=[];
-    		angular.forEach(this.list, function(i, k){
-    			var newCloneUser = angular.copy(i);
-    			if(duplicateIds.indexOf(newCloneUser.uid) !== -1){
-    				that.duplicatelist.push(newCloneUser); 
-    			}
-    		});
+    this.setDuplicateList=function(duplicate){
+    	if(duplicate){
+    		
+    		console.log(duplicate);
+    		this.duplicatelist=duplicate;
+    		
     	} else {
     		this.duplicatelist=[];
     	}
+    }
+    
+    this.exportAllUSers = function(callback){
+    	this.exportUsers(1, callback);
+		return this;
+    }
+    
+    this.exportUsers = function(page, callback){
+    	var that = this;
+    	$http({
+			method: 'GET',
+			url: baseUrl+'users/export/' + page
+			//url: 'json/users.json',
+		}).then(function (response) {		
+			
+			console.log("retreiving " + response.data.rows + " users from page number " + response.data.currentPage);
+			
+			callback(response.data.result, response.data.currentPage, response.data.pageSize, response.data.totalItems);
+			
+		
+			if((response.data.currentPage * response.data.pageSize) < response.data.totalItems){
+				
+				that.exportUsers(response.data.currentPage+1, callback);
+			}
+			
+		}, function(response){
+			// This is most likely due to usertoken timeout - TODO: Redirect to login webapp   
+			console.log('Unable to search', response);
+			var status = response.status;
+			switch (status) {
+				case 403: /* Forbidden */
+					Messages.add('danger', 'Unable to seach! Forbidden...');
+					break;
+				case 404:  /* 404 No access */
+					Messages.add('danger', 'Unable to search! No access...');
+					break;
+				case 409:  /* 409 Conflict - will prbably not occur here */
+					Messages.add('danger', 'Search already exists...');
+					break;
+				default:
+			    	Messages.add('danger', 'Search failed with error code: ' + status);
+			}
+
+		});
+		return this;
     }
 
 });

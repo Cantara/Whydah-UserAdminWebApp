@@ -83,17 +83,17 @@ public class UserStressTest {
 	}
 	
 	@Test
-	@Ignore
+	//@Ignore
 	public void doUsersStressTestWith1000Users() throws Exception{
 		
 		setup();
 
-		int count = 1000;
+		int count = 200;
 		
 		addTestUsers(0, count); //add 1000 users
-		removeTestUsers(0, 100); //remove 100 users
-		removeTestUsers(100, 100); //remove next 100 users
-		removeTestUsers(200, 100); //remove next 100 users
+		//removeTestUsers(0, 100); //remove 100 users
+		//removeTestUsers(100, 100); //remove next 100 users
+		//removeTestUsers(200, 100); //remove next 100 users
 		
 		
 		//TODO: do the query and the returned result should show 700 users left

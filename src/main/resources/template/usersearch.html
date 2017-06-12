@@ -1,7 +1,7 @@
 <div class="row margin-top">
 	<form class="col-xs-9 col-sm-5 col-md-9">
 		<div class="col-xs-9 col-sm-9 col-md-9">
-			<input type="search" id="searchfield" class="form-control" ng-model="searchQuery" placeholder="Search users" ng-change="onSearchBoxChange()"  autofocus> <span class="small">{{users.rows}} found</span>
+			<input type="search" id="searchfield" class="form-control" ng-model="users.searchQuery" placeholder="Search users" ng-change="onSearchBoxChange()"  autofocus> <span class="small">{{users.rows}} found</span>
 		</div>
 		<div class="col-xs-3 col-sm-3 col-md-3">
 		<button class="btn btn-default btn-sm" ng-click="searchUsers()" >
@@ -60,20 +60,27 @@
 				ng-click="resetPasswordForUsers()">
 				<span class="glyphicon glyphicon-lock"></span> Reset password
 			</button>
-			<button ng-disabled="!users.selected" class="btn btn-default btn-sm"
-				ng-click="exportSelectedUsers()">
+			<button class="btn btn-default btn-sm"
+				ng-click="exportSelectedUsers()" ng-disabled="!users.selected || importing || exporting">
 				<span class="glyphicon glyphicon-export"></span> Export Selected
 				User(s)
 			</button>
-			<button class="btn btn-default btn-sm" ng-click="exportUsers()">
+			<button class="btn btn-default btn-sm" ng-click="exportUsers()" ng-disabled="importing || exporting">
 				<span class="glyphicon glyphicon-export"></span> Export All Users
 			</button>
 			<button class="btn btn-default btn-sm" ng-click="importUsers()"
-				ng-disabled="importing">
+				ng-disabled="importing || exporting">
 				<span class="glyphicon glyphicon-import"></span> Import User(s)
 			</button>
 		</div>
 
+		
+	     <div class="paginator">
+	       <div  class="text-center">
+	       	<dir-pagination-controls template-url="template/dirPagination.tpl.html"  boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" ></dir-pagination-controls>
+	      </div>
+	      </div>
+      
 		<div class="table-responsive margin-top">
 
 			<table st-table="displayCollectionList" st-safe-src="users.list" class="table table-striped">
@@ -97,7 +104,7 @@
 				</thead>
 				<tbody>
 					<tr
-						ng-repeat="user in displayCollectionList | orderBy:orderByColumn:orderReverse"
+						dir-paginate="user in displayCollectionList | orderBy:orderByColumn:orderReverse | itemsPerPage: users.pageSize" current-page="users.currentPage" total-items="users.totalItems"
 						class="itemrow">
 						<td><label><input type="checkbox"
 								ng-model="user.isSelected"></label></td>
@@ -478,7 +485,6 @@
 
 <!-- Import Progress -->
 
-
 <div class="progress" ng-show="showProgress">
 	<div class="panel panel-info" style="padding: 0px; margin: 0px">
 		<div class="panel-heading">Importing Users {{progressbar.status()}} %</div>
@@ -487,5 +493,17 @@
 		</div>
 	</div>
 </div>
+
+<!-- Export Progress -->
+
+<div class="progress" ng-show="showExProgress">
+	<div class="panel panel-info" style="padding: 0px; margin: 0px">
+		<div class="panel-heading">Exporting Users {{exprogressbar.status()}} %</div>
+		<div class="panel-body">
+			<div id="exprogress"></div>
+		</div>
+	</div>
+</div>
+
 
 

@@ -13,7 +13,10 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 	$scope.addRoleForMultiple = false;
 	
 	$scope.importing=false;
+	$scope.exporting=false;
+	
 	$scope.showProgress = false;
+	$scope.showExProgress = false;
 
 	var noUsersSelectedMessage = 'Please select a user first!';
 	Users.requiredMessage = noUsersSelectedMessage;
@@ -23,14 +26,17 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 	});
 
 	$scope.onSearchBoxChange = function() {
-		if($scope.searchQuery==''){
+		if(Users.searchQuery===''){
 		  console.log("this is called");
-		  Users.search($scope.searchQuery);
+		  //Users.search($scope.searchQuery);
+		  Users.pagingQuery();
 		}
+		
 	}
 	
 	$scope.searchUsers = function() {
-		Users.search($scope.searchQuery);
+		
+		Users.pagingQuery();
 	}
 	
 	$scope.clearAllApps = function() {
@@ -115,12 +121,19 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 	}
 
 	function init() {
-		Users.search();
+		//Users.search();
+		Users.pagingQuery();
 		
 		//progress setup when importing users
 		
 		$scope.progressbar = ngProgressFactory.createInstance();
 		$scope.progressbar.setParent(document.getElementById('progress'));
+		
+		//for export
+		
+		$scope.exprogressbar = ngProgressFactory.createInstance();
+		$scope.exprogressbar.setParent(document.getElementById('exprogress'));
+
 
 		// Don't hide application-filter menu when clicking an option
 		$('.dropdown-menu').click(function(e) {
@@ -134,26 +147,60 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 
 	$scope.exportSelectedUsers=function(){
 		Users.fullList = []; //clear now
-		for(var i=0; i<Users.getSelectedUsers().length; i++) {
+		$scope.exporting=true;
+		$scope.exprogressbar.set(0);
+		for(var i=0; i<Users.getSelectedUsers().length; i++) {			
 			Users.getRolesForThisUser(Users.getSelectedUsers()[i], function(){
+				$scope.showExProgress=true;
+				
+				if($scope.exprogressbar){
+					$scope.exprogressbar.set(Users.fullList.length*100/Users.getSelectedUsers().length);
+				}
+				
 				if(Users.fullList.length === Users.getSelectedUsers().length){
+					$scope.exprogressbar.set(100);
+					$scope.showExProgress=false;
+					
 					var blob = new Blob([angular.toJson(Users.fullList, true)], {type: "text/plain;charset=utf-8"});
-					saveAs(blob, "users.json");
+					saveAs(blob, "users-selected-" + pad(Users.currentPage, 5) + ".json");
+					
+					$scope.exporting=false;
 				}
 			});
 		}
 	}
 
 	$scope.exportUsers = function() {
-		Users.fullList = []; //clear now
-		for(var i=0; i<Users.list.length; i++) {
-			Users.getRolesForThisUser(Users.list[i], function(){
-				if(Users.fullList.length === Users.list.length){
-					var blob = new Blob([angular.toJson(Users.fullList, true)], {type: "text/plain;charset=utf-8"});
-					saveAs(blob, "users.json");
-				}
-			});
+		$scope.exporting=true;
+		if($scope.exprogressbar){
+			$scope.exprogressbar.set(0);
 		}
+		
+		Users.exportAllUSers(function(data, pageNumber, pageSize, totalItems){
+			
+			var totalPages = Math.ceil(totalItems/pageSize);
+			//some export progress
+			$scope.showExProgress=true;
+			if($scope.exprogressbar){
+				$scope.exprogressbar.set(pageNumber*100/totalPages);
+			}
+			
+			
+			var blob = new Blob([angular.toJson(data)], {type: "text/plain;charset=utf-8"});
+			saveAs(blob, "users-" + pad(pageNumber, 5) +  ".json");
+			
+			if(pageNumber==totalPages){
+				$scope.exprogressbar.set(100);
+				$scope.showExProgress=false;
+				$scope.exporting=false;
+			}
+			
+			
+		});
+	}
+	
+	function pad(num, size) {
+		return ('000000000' + num).substr(-size);
 	}
 
   $scope.userLogProperties = [
@@ -168,7 +215,8 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 	$scope.importUsers = function(){	 
 		Users.setDuplicateList(null);
 		$('#UserImport').modal('show');
-		Users.search()
+		//Users.search()
+		Users.pagingQuery();
 	}
 
 	 $scope.$on('$destroy', function () {
@@ -214,6 +262,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 			
 
 			promise.then(function (response) {
+				
 				if(response){
 					var pattern = /^error/i;
 					var result =  /^error/i.test(response.data.result);
@@ -230,12 +279,13 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 						$('#UserImport').modal('hide');
 						$scope.importing = false;
 						//refresh
-						Users.search();
+						//Users.search();
+						Users.pagingQuery();
 						return;
 					} else {
-			    		  Users.setDuplicateList(response.data.result);
+			    		  Users.setDuplicateList(response.data);
 			    		  return;
-			    	  }
+			    	}
 				}
 			}, function (response) {
 				Users.showMessage('danger','An error has occurred: ' + response.data.result);
@@ -243,5 +293,9 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		}
 
 	}
+	
+	 $scope.pageChangeHandler = function(num) {
+		  Users.pagingQuery();
+	};
 
 });

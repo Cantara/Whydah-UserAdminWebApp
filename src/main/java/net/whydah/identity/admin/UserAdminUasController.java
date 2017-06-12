@@ -639,113 +639,113 @@ public class UserAdminUasController {
 	}
 
 
-	@POST
-	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@RequestMapping(value = "/importUsers", method = RequestMethod.POST)
-	public String importUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model,
-			@RequestParam CommonsMultipartFile file, @RequestParam String overridenIds, @RequestParam String skippedIds
-			) throws IOException, ServletException{
-
-		String filename=file.getOriginalFilename();  
-		String progressKey = usertokenid + SessionUserAdminDao.instance.getMD5Str(filename).toLowerCase();
-		importUsersProgress.put(progressKey, 0);
-
-		try
-		{  
-			List<UserAggregate> oldList = getAllUserAggregates(apptokenid, usertokenid, response, model);
-			Map<String, UserAggregate> oldListMap = new HashMap<String, UserAggregate>();
-			Map<String, UserAggregate> oldListMapByUserName = new HashMap<String, UserAggregate>();
-			for(UserAggregate ua: oldList){
-				oldListMap.put(ua.getUid(), ua);
-				oldListMapByUserName.put(ua.getUsername(), ua);
-			}
-
-			byte[] content = file.getBytes();
-			saveUploadedFile(content, filename);
-			String json = new String(content, "UTF-8");
-			json = json.replace("\uFEFF", "");
-            List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);
-            List<String> duplicates = new ArrayList<String>();
-			for(UserAggregate nua : importList){
-				if(nua.getUsername()==null){
-					setFailureMsg(model,"failed to parse the json file");
-					return JSON_KEY;
-				}
-				if(oldListMapByUserName.containsKey(nua.getUsername()) && !overridenIds.contains(nua.getUid()) && !skippedIds.contains(nua.getUid())){
-					//duplicates
-					duplicates.add(oldListMapByUserName.get(nua.getUsername()).getUid());
-				}
-			}
-
-			if(duplicates.size()>0){
-				setMsg(model, "[" + StringUtils.join(duplicates, ',') + "]");
-			} else {
-				Double lastPercentReported = (double) 0;
-				Double workingPercentForEachRow = (importList.size()>0? (double) 100/importList.size(): 0.0);
-				Double currentPercent = (double) 0;
-
-				for(UserAggregate nua : importList){
-
-					currentPercent += workingPercentForEachRow;
-
-					if(nua.getUid()==null){
-						nua.setUid(UUID.randomUUID().toString());
-					}
-					
-					if(oldListMap.containsKey(nua.getUid())&&oldListMapByUserName.containsKey(nua.getUsername())){
-
-						if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, false)){
-							addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(oldListMap.get(nua.getUid())), model, response, false);
-							setFailureMsg(model, "failed to override the user " + nua.getUid() + "-" + nua.getUsername() + ". This process has been rolled back");
-							importUsersProgress.remove(progressKey);
-							return "json";//give me a break now
-						}
-
-					} else {
-
-						if(oldListMap.containsKey(nua.getUid())){
-							//set new id, cos this one is existing for another username
-							nua.setUid(UUID.randomUUID().toString());
-						}
-						
-						//add application as normal
-						if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, true)){
-							setFailureMsg(model,  "failed to add the new user " + nua.getUid() + "-" + nua.getUsername());
-							importUsersProgress.remove(progressKey);
-							return "json";//give me a break now
-						}
-
-					}
-
-					if ((currentPercent >= 1 && lastPercentReported==0)|| (currentPercent - lastPercentReported >= 1)) {
-						lastPercentReported = currentPercent;
-
-						importUsersProgress.put(progressKey, currentPercent.intValue());
-
-					}
-
-				
-				}
-
-				importUsersProgress.put(progressKey, 100);
-
-
-				setOKMsg(model);
-			}
-
-
-		} catch(IllegalArgumentException ex){
-			System.out.println(ex);
-			setFailureMsg(model,"failed to parse the json file");
-		} catch(Exception e){
-			System.out.println(e);
-			setFailureMsg(model, e.getMessage());
-		}  
-
-		return JSON_KEY;
-
-	}
+//	@POST
+//	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+//	@Consumes(MediaType.MULTIPART_FORM_DATA)
+//	@RequestMapping(value = "/importUsers", method = RequestMethod.POST)
+//	public String importUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model,
+//			@RequestParam CommonsMultipartFile file, @RequestParam String overridenIds, @RequestParam String skippedIds
+//			) throws IOException, ServletException{
+//
+//		String filename=file.getOriginalFilename();  
+//		String progressKey = usertokenid + SessionUserAdminDao.instance.getMD5Str(filename).toLowerCase();
+//		importUsersProgress.put(progressKey, 0);
+//
+//		try
+//		{  
+//			List<UserAggregate> oldList = getAllUserAggregates(apptokenid, usertokenid, response, model);
+//			Map<String, UserAggregate> oldListMap = new HashMap<String, UserAggregate>();
+//			Map<String, UserAggregate> oldListMapByUserName = new HashMap<String, UserAggregate>();
+//			for(UserAggregate ua: oldList){
+//				oldListMap.put(ua.getUid(), ua);
+//				oldListMapByUserName.put(ua.getUsername(), ua);
+//			}
+//
+//			byte[] content = file.getBytes();
+//			saveUploadedFile(content, filename);
+//			String json = new String(content, "UTF-8");
+//			json = json.replace("\uFEFF", "");
+//            List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);
+//            List<String> duplicates = new ArrayList<String>();
+//			for(UserAggregate nua : importList){
+//				if(nua.getUsername()==null){
+//					setFailureMsg(model,"failed to parse the json file");
+//					return JSON_KEY;
+//				}
+//				if(oldListMapByUserName.containsKey(nua.getUsername()) && !overridenIds.contains(nua.getUid()) && !skippedIds.contains(nua.getUid())){
+//					//duplicates
+//					duplicates.add(oldListMapByUserName.get(nua.getUsername()).getUid());
+//				}
+//			}
+//
+//			if(duplicates.size()>0){
+//				setMsg(model, "[" + StringUtils.join(duplicates, ',') + "]");
+//			} else {
+//				Double lastPercentReported = (double) 0;
+//				Double workingPercentForEachRow = (importList.size()>0? (double) 100/importList.size(): 0.0);
+//				Double currentPercent = (double) 0;
+//
+//				for(UserAggregate nua : importList){
+//
+//					currentPercent += workingPercentForEachRow;
+//
+//					if(nua.getUid()==null){
+//						nua.setUid(UUID.randomUUID().toString());
+//					}
+//					
+//					if(oldListMap.containsKey(nua.getUid())&&oldListMapByUserName.containsKey(nua.getUsername())){
+//
+//						if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, false)){
+//							addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(oldListMap.get(nua.getUid())), model, response, false);
+//							setFailureMsg(model, "failed to override the user " + nua.getUid() + "-" + nua.getUsername() + ". This process has been rolled back");
+//							importUsersProgress.remove(progressKey);
+//							return "json";//give me a break now
+//						}
+//
+//					} else {
+//
+//						if(oldListMap.containsKey(nua.getUid())){
+//							//set new id, cos this one is existing for another username
+//							nua.setUid(UUID.randomUUID().toString());
+//						}
+//						
+//						//add application as normal
+//						if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, true)){
+//							setFailureMsg(model,  "failed to add the new user " + nua.getUid() + "-" + nua.getUsername());
+//							importUsersProgress.remove(progressKey);
+//							return "json";//give me a break now
+//						}
+//
+//					}
+//
+//					if ((currentPercent >= 1 && lastPercentReported==0)|| (currentPercent - lastPercentReported >= 1)) {
+//						lastPercentReported = currentPercent;
+//
+//						importUsersProgress.put(progressKey, currentPercent.intValue());
+//
+//					}
+//
+//				
+//				}
+//
+//				importUsersProgress.put(progressKey, 100);
+//
+//
+//				setOKMsg(model);
+//			}
+//
+//
+//		} catch(IllegalArgumentException ex){
+//			System.out.println(ex);
+//			setFailureMsg(model,"failed to parse the json file");
+//		} catch(Exception e){
+//			System.out.println(e);
+//			setFailureMsg(model, e.getMessage());
+//		}  
+//
+//		return JSON_KEY;
+//
+//	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -971,7 +971,187 @@ public class UserAdminUasController {
 
 	}
 
+	@GET
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@RequestMapping(value = "/exportAllUsers/{page}", method = RequestMethod.GET)
+	public String exportAllUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model) throws JsonProcessingException, IOException{
+		List<UserAggregate> list = getAllUserAggregates(apptokenid, usertokenid, response, model);
+		
+		List<UserAggregate> nlist = new ArrayList<UserAggregate>();
+		for(int i = 0; i < 100000; i++){
+			nlist.addAll(list);
+		}
+		ObjectMapper om = new ObjectMapper();
+		model.addAttribute(JSON_DATA_KEY, om.writeValueAsString(nlist));
+		return JSON_KEY;
+	}
+	
+	public void exportSelectedUsers(){
+		
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@RequestMapping(value = "/users/query/{page}/{query}", method = RequestMethod.GET)
+	public String queryUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, @PathVariable("page") String page, @PathVariable("query") String query, HttpServletRequest request, HttpServletResponse response, Model model) {
+		log.trace("queryUsers - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
+		if (usertokenid == null || usertokenid.length() < 7) {
+			usertokenid = CookieManager.getUserTokenIdFromCookie(request);
+			log.trace("findUsers - Override usertokenid={}", usertokenid);
+		}
+		String utf8query = query;
+		try {
+			utf8query = new String(query.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException uee) {
+
+		}
+        if (!utf8query.equalsIgnoreCase("*")) {
+            utf8query = "*" + utf8query;
+            utf8query = utf8query.replace("@", " ");
+        }
+
+        log.info("findUsers - Finding users with query: " + utf8query);
+        HttpMethod method = new GetMethod();
+		String url;
+		try {
+			url = buildUasUrl(apptokenid, usertokenid, "users/query/" + page + "/" + URIUtil.encodeAll(utf8query));
+		} catch (URIException urie) {
+			log.warn("Error in handling URIencoding", urie);
+			url = buildUasUrl(apptokenid, usertokenid, "users/query/" + page + "/" + query);
+		}
+		makeUasRequest(method, url, model, response);
+		return JSON_KEY;
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@RequestMapping(value = "/users/export/{page}", method = RequestMethod.GET)
+	public String exportUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, @PathVariable("page") String page, HttpServletRequest request, HttpServletResponse response, Model model) {
+		log.trace("exportUsers - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
+		if (usertokenid == null || usertokenid.length() < 7) {
+			usertokenid = CookieManager.getUserTokenIdFromCookie(request);
+			log.trace("findUsers - Override usertokenid={}", usertokenid);
+		}
+		
+        log.info("export uesers for page : " + page);
+        HttpMethod method = new GetMethod();
+		String url = buildUasUrl(apptokenid, usertokenid, "users/export/" + page);
+		makeUasRequest(method, url, model, response);
+		return JSON_KEY;
+	}
+
+	@POST
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@RequestMapping(value = "/importUsers", method = RequestMethod.POST)
+	public String importUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model,
+			@RequestParam CommonsMultipartFile file, @RequestParam String overridenIds, @RequestParam String skippedIds
+			) throws IOException, ServletException{
+
+		String filename=file.getOriginalFilename();  
+		String progressKey = usertokenid + SessionUserAdminDao.instance.getMD5Str(filename).toLowerCase();
+		importUsersProgress.put(progressKey, 0);
+
+		try
+		{  
+			
+			byte[] content = file.getBytes();
+			saveUploadedFile(content, filename);
+			String json = new String(content, "UTF-8");
+			json = json.replace("\uFEFF", "");
+            List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);
+            
+			if(overridenIds.equals("") && skippedIds.equals("")){
+				PostMethod method = new PostMethod();
+				StringRequestEntity jsonEntity = new StringRequestEntity(json, "application/json",  "UTF-8");
+				method.setRequestEntity(jsonEntity);
+				String url = buildUasUrl(apptokenid, usertokenid, "users/checkduplicates");
+				makeUasRequest(method, url, model, response);
+				String duplicates = (String) model.asMap().get(JSON_DATA_KEY);
+				if(!duplicates.equals("[]")){
+					
+					return JSON_KEY;
+				}
+				else {
+					return doImportUsers(apptokenid, usertokenid, response, model, progressKey, overridenIds, skippedIds, importList);
+				}
+			} else {
+				return doImportUsers(apptokenid, usertokenid, response, model, progressKey, overridenIds, skippedIds, importList);
+			}
 
 
+		} catch(IllegalArgumentException ex){
+			System.out.println(ex);
+			setFailureMsg(model,"failed to parse the json file");
+		} catch(Exception e){
+			System.out.println(e);
+			setFailureMsg(model, e.getMessage());
+		}  
+
+		return JSON_KEY;
+
+	}
+
+	private String doImportUsers(String apptokenid, String usertokenid,
+			HttpServletResponse response, Model model, String progressKey,
+			String overridenUserNames, String skippedUserNames,
+			List<UserAggregate> importList) throws UnsupportedEncodingException {
+		Double lastPercentReported = (double) 0;
+		Double workingPercentForEachRow = (importList.size()>0? (double) 100/importList.size(): 0.0);
+		Double currentPercent = (double) 0;
+
+		List<String> skippedItems = Arrays.asList(skippedUserNames.split("\\s*,\\s*"));
+		List<String> overridenItems = Arrays.asList(overridenUserNames.split("\\s*,\\s*"));
+		
+		for(UserAggregate nua : importList){
+
+			currentPercent += workingPercentForEachRow;
+
+			if(nua.getUid()==null){
+				nua.setUid(UUID.randomUUID().toString());
+			}
+			
+			if(skippedItems.contains(nua.getUsername())){
+				continue;
+			}
+			
+			if(overridenItems.contains(nua.getUsername())){
+
+				if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, false)){
+					setFailureMsg(model, "failed to override the user " + nua.getUsername() + "-" + nua.getUsername());
+					importUsersProgress.remove(progressKey);
+					return "json";//give me a break now
+				}
+
+			} else {
+
+				nua.setUid(UUID.randomUUID().toString()); //better create new, which will rule out the uid mess
+				//add application as normal
+				if(!addorUpdateUserAggregate(apptokenid, usertokenid, UserAggregateMapper.toJson(nua), model, response, true)){
+					setFailureMsg(model,  "failed to add the new user " + nua.getUid() + "-" + nua.getUsername());
+					importUsersProgress.remove(progressKey);
+					return "json";//give me a break now
+				}
+
+			}
+
+			if ((currentPercent >= 1 && lastPercentReported==0)|| (currentPercent - lastPercentReported >= 1)) {
+				lastPercentReported = currentPercent;
+
+				importUsersProgress.put(progressKey, currentPercent.intValue());
+
+			}
+
+		
+		}
+
+		importUsersProgress.put(progressKey, 100);
+
+
+		setOKMsg(model);
+		
+		return JSON_KEY;
+	}
 
 }
