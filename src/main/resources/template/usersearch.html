@@ -61,15 +61,15 @@
 				<span class="glyphicon glyphicon-lock"></span> Reset password
 			</button>
 			<button class="btn btn-default btn-sm"
-				ng-click="exportSelectedUsers()" ng-disabled="!users.selected || importing || exporting">
+				ng-click="exportSelectedUsers()" ng-disabled="!users.selected || users.importing || users.exporting">
 				<span class="glyphicon glyphicon-export"></span> Export Selected
 				User(s)
 			</button>
-			<button class="btn btn-default btn-sm" ng-click="exportUsers()" ng-disabled="importing || exporting">
+			<button class="btn btn-default btn-sm" ng-click="exportUsers()" ng-disabled="users.importing || users.exporting">
 				<span class="glyphicon glyphicon-export"></span> Export All Users
 			</button>
 			<button class="btn btn-default btn-sm" ng-click="importUsers()"
-				ng-disabled="importing || exporting">
+				ng-disabled="users.importing || users.exporting">
 				<span class="glyphicon glyphicon-import"></span> Import User(s)
 			</button>
 		</div>
@@ -164,16 +164,32 @@
 				<div class="modal-body">
 					<div class="form-group"
 						ng-show="users.duplicatelist.length==0">
-                        <label for="myFileField">Please choose file to improt [users.json]</label> <input
+                        <label for="myFileField">Please choose file *.json to import</label> <input
 							type="file" demo-file-model="myFile" class="form-control"
 							id="myFileField" />
 					</div>
 
+					<div ng-show="users.duplicatelist.length==0 && users.importing && users.uploadprogressbar.status()==0">File being uploaded...</div>
+
+					<div id="uploadprogress" ng-show="users.showUploadProgress" style="padding: 0px; margin: 0px">
+					
+					
+					<span ng-show="users.uploadprogressbar.status()>0">Checking for duplicates, estimated {{users.uploadprogressbar.status()}} % done</span>
+					
+					</div>
+					<br/>
 
 					<button ng-click="uploadFile()" class="btn btn-primary">
 						<span ng-show="users.duplicatelist.length!=0">Import</span> 
-						<span ng-show="users.duplicatelist.length==0">Upload</span>
+						<span ng-show="users.duplicatelist.length==0">Upload </span>
 					</button>
+					
+					
+					
+					
+							
+					
+			
 
 					<h4 ng-show="users.duplicatelist.length!=0">Existing
 						User(s) found as follows can be overriden if selected.
@@ -485,9 +501,9 @@
 
 <!-- Import Progress -->
 
-<div class="progress" ng-show="showProgress">
+<div class="progress" ng-show="users.showProgress">
 	<div class="panel panel-info" style="padding: 0px; margin: 0px">
-		<div class="panel-heading">Importing Users {{progressbar.status()}} %</div>
+		<div class="panel-heading">Importing Users {{users.progressbar.status()}} %</div>
 		<div class="panel-body">
 			<div id="progress"></div>
 		</div>
@@ -496,9 +512,9 @@
 
 <!-- Export Progress -->
 
-<div class="progress" ng-show="showExProgress">
+<div class="progress" ng-show="users.showExProgress">
 	<div class="panel panel-info" style="padding: 0px; margin: 0px">
-		<div class="panel-heading">Exporting Users {{exprogressbar.status()}} %</div>
+		<div class="panel-heading">Exporting Users {{users.exprogressbar.status()}} %</div>
 		<div class="panel-body">
 			<div id="exprogress"></div>
 		</div>

@@ -59,6 +59,7 @@ public class UserAdminUasController {
 	private final String userAdminServiceUrl;
 	private final HttpClient httpClient;
 	private WhydahServiceClient tokenServiceClient = new WhydahServiceClient();
+	private static Map<String, Integer> preImportUsersProgress=new HashMap<String, Integer>();
 	private static Map<String, Integer> importUsersProgress=new HashMap<String, Integer>();
 	private static Map<String, Integer> importAppsProgress=new HashMap<String, Integer>();
 
@@ -771,6 +772,34 @@ public class UserAdminUasController {
 
 	}
 	
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@RequestMapping(value = "/importUsers/preimportprogress/{fileNameMD5}", method = RequestMethod.GET)
+	public String getUsersPreImportProgress(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+			HttpServletRequest request, HttpServletResponse response, Model model, @PathVariable("fileNameMD5") String fileNameMD5) {
+		log.trace("getUsersPreImportProgress.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
+		if (usertokenid == null || usertokenid.length() < 7) {
+			model.addAttribute(JSON_DATA_KEY, "0");
+		} else {
+
+			if(preImportUsersProgress.containsKey(usertokenid + fileNameMD5.toLowerCase())){
+			
+				model.addAttribute(JSON_DATA_KEY, preImportUsersProgress.get(usertokenid + fileNameMD5.toLowerCase()));
+				
+				if(preImportUsersProgress.get(usertokenid + fileNameMD5.toLowerCase())==100){
+					preImportUsersProgress.remove(usertokenid + fileNameMD5.toLowerCase());
+				}
+			} else {
+				model.addAttribute(JSON_DATA_KEY, "0");
+			}
+		}
+
+		return JSON_KEY;
+
+	}
+	
+	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@RequestMapping(value = "/importApps/progress/{fileNameMD5}", method = RequestMethod.GET)
@@ -971,25 +1000,7 @@ public class UserAdminUasController {
 
 	}
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@RequestMapping(value = "/exportAllUsers/{page}", method = RequestMethod.GET)
-	public String exportAllUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model) throws JsonProcessingException, IOException{
-		List<UserAggregate> list = getAllUserAggregates(apptokenid, usertokenid, response, model);
-		
-		List<UserAggregate> nlist = new ArrayList<UserAggregate>();
-		for(int i = 0; i < 100000; i++){
-			nlist.addAll(list);
-		}
-		ObjectMapper om = new ObjectMapper();
-		model.addAttribute(JSON_DATA_KEY, om.writeValueAsString(nlist));
-		return JSON_KEY;
-	}
-	
-	public void exportSelectedUsers(){
-		
-	}
+
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -1038,6 +1049,7 @@ public class UserAdminUasController {
         HttpMethod method = new GetMethod();
 		String url = buildUasUrl(apptokenid, usertokenid, "users/export/" + page);
 		makeUasRequest(method, url, model, response);
+		
 		return JSON_KEY;
 	}
 
@@ -1052,7 +1064,8 @@ public class UserAdminUasController {
 		String filename=file.getOriginalFilename();  
 		String progressKey = usertokenid + SessionUserAdminDao.instance.getMD5Str(filename).toLowerCase();
 		importUsersProgress.put(progressKey, 0);
-
+		preImportUsersProgress.put(progressKey, 0);
+		
 		try
 		{  
 			
@@ -1060,17 +1073,24 @@ public class UserAdminUasController {
 			saveUploadedFile(content, filename);
 			String json = new String(content, "UTF-8");
 			json = json.replace("\uFEFF", "");
-            List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);
-            
+            List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);   
 			if(overridenIds.equals("") && skippedIds.equals("")){
 				PostMethod method = new PostMethod();
 				StringRequestEntity jsonEntity = new StringRequestEntity(json, "application/json",  "UTF-8");
 				method.setRequestEntity(jsonEntity);
 				String url = buildUasUrl(apptokenid, usertokenid, "users/checkduplicates");
+				
+				//we cannot know the exact progress of UIB for this request "users/checkduplicates" - it depends on number of imported users (or how big the file is)
+				//let's estimate it by looking at how big the list is
+				//tested locally at my local; the call "users/checkduplicates" with 2500 users take around 10 - 20 seconds  
+				//assume search time = 10 milliseconds/user  
+				estimatePreImportProgress(progressKey, importList);
+				
 				makeUasRequest(method, url, model, response);
+			
 				String duplicates = (String) model.asMap().get(JSON_DATA_KEY);
 				if(!duplicates.equals("[]")){
-					
+					preImportUsersProgress.put(progressKey, 100); //parsed file -> preImport process completed 100%
 					return JSON_KEY;
 				}
 				else {
@@ -1093,6 +1113,53 @@ public class UserAdminUasController {
 
 	}
 
+	private void estimatePreImportProgress(String progressKey, List<UserAggregate> importList) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				
+				int numberOfImportedUsers = importList.size();
+				
+				//assume UIB can search for 100 users in a row at one second interval
+				//hence it costs
+				int cost = Math.round(numberOfImportedUsers / 100);
+				
+				Double lastPercentReported = (double) 0;
+				Double workingPercentForASecond = (importList.size()>0? (double) 100/cost: 0.0);
+				Double currentPercent = (double) 0;
+
+				
+				while(cost>0){
+
+					cost = cost - 1;
+					currentPercent += workingPercentForASecond;
+					
+					if(!preImportUsersProgress.containsKey(progressKey) || preImportUsersProgress.get(progressKey)==100){
+						break;
+					} 
+					
+					if ((currentPercent >= 1 && lastPercentReported==0)|| (currentPercent - lastPercentReported >= 1)) {
+						lastPercentReported = currentPercent;
+						if(preImportUsersProgress.get(progressKey)==100){
+							break;
+						} else {
+							preImportUsersProgress.put(progressKey, currentPercent.intValue());
+						}
+					}
+					
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						break;
+					}
+				}
+				
+				
+				
+			}
+		}).start();
+	}
+
 	private String doImportUsers(String apptokenid, String usertokenid,
 			HttpServletResponse response, Model model, String progressKey,
 			String overridenUserNames, String skippedUserNames,
@@ -1105,6 +1172,7 @@ public class UserAdminUasController {
 		List<String> overridenItems = Arrays.asList(overridenUserNames.split("\\s*,\\s*"));
 		
 		for(UserAggregate nua : importList){
+			
 
 			currentPercent += workingPercentForEachRow;
 

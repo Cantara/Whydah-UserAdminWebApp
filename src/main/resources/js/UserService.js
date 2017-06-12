@@ -1,18 +1,33 @@
 UseradminApp.service('Users', function($http, Messages, $q){
 	
-	this.list = []; //users and no roles
-	this.rows = "";
-	this.user = {};
-	this.userRoles = {};
-	this.searchQuery = '';
-	this.selected = false;
-	this.applications = [];
-	this.applicationFilter = [];
-	this.fullList=[]; //users with roles
-	this.currentPage = 1;
-	this.pageSize = 0;
-	this.totalItems = 0;
+	this.list = []; //users to display
+	this.rows = ""; //how many rows there by list.length
+	this.user = {}; //current user object
+	this.userRoles = {}; //related roles
+	this.searchQuery = ''; //some query
+	this.selected = false; //if one particular user is selected
+	this.applications = []; //application list
+	this.applicationFilter = []; //????
+	this.fullList=[]; //it is actually a copy of this.list including full roles for each user
+	this.currentPage = 1; //current page number shown
+	this.pageSize = 0; //this is volatile as it is configured from the server side (each page should display a maximum number of items)
+	this.totalItems = 0; //this is volatile as it will get the total hits from the server side
 
+	//UI for import/export progress
+	this.importing=false; //being imported
+	this.exporting=false;//being exported
+	this.showProgress = false; //should show progress bar for import?
+	this.showExProgress = false; //should show progress bar for export?
+	this.showUploadProgress = false; //should show progress bar for upload?
+	this.uploadprogressbar; //the progress bar for upload
+	this.progressbar; //the progress bar for import
+	this.exprogressbar; //the progress bar for export
+	this.theInterval; //the interval to check import progress on server
+	this.theUploadInterval; //the interval to check upload progress on server
+
+
+	
+	
 	this.getSelectedUsers = function() {
 	    var selectedUsers = [];
 	    for(var i=0; i<this.list.length; i++) {
@@ -77,7 +92,7 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			//url: 'json/users.json',
 		}).then(function (response) {		
 			
-			console.log(response);
+			
 			that.rows = response.data.rows;
 			that.pageSize = response.data.pageSize;
 			that.totalItems = response.data.totalItems;
@@ -440,6 +455,19 @@ UseradminApp.service('Users', function($http, Messages, $q){
 		return this;
 	};
 	
+	 this.getUploadProgress = function(fileName, callback) {
+			$http({
+				method: 'GET',
+				url: baseUrl+'importUsers/preimportprogress/' + fileName,
+			}).then(function (response) {
+				var data = response.data;
+				var status = response.status;
+				callback(data);
+			});
+			return this;
+		};
+	
+	
 	this.duplicatelist = [];
 	
 	this.getSelectedOverridenUserUids = function(){
@@ -468,8 +496,6 @@ UseradminApp.service('Users', function($http, Messages, $q){
     
     this.setDuplicateList=function(duplicate){
     	if(duplicate){
-    		
-    		console.log(duplicate);
     		this.duplicatelist=duplicate;
     		
     	} else {

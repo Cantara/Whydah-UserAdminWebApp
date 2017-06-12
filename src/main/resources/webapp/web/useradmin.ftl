@@ -5,8 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <link rel="icon" type="image/png" href="img/favicon.ico" />
         <title>Whydah Useradmin</title>
-        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
-        <!--<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">-->
+        
+        <link href="css/bootstrap-glyphicons.css" rel="stylesheet">
         <link href="css/bootstrap-3.1.1.min.css" rel="stylesheet">
         <link href="css/main.css" rel="stylesheet">
         <link href="css/autocomplete.css" rel="stylesheet">
@@ -79,11 +79,11 @@
         </script>
 
         <!-- Framework and tools -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="js/lib/jquery/3.2.1/jquery.min.js"></script>
         <script src="js/lib/bootstrap-3.1.1.min.js"></script>
-        <script src="https://code.angularjs.org/latest/angular.min.js"></script>
-        <script src="https://code.angularjs.org/latest/angular-route.min.js"></script>
-        <script src="https://code.angularjs.org/latest/angular-animate.min.js"></script>
+        <script src="js/lib/angular/latest/angular.min.js"></script>
+        <script src="js/lib/angular/latest/angular-route.min.js"></script>
+        <script src="js/lib/angular/latest/angular-animate.min.js"></script>
 		
 
         <!-- Libs -->
