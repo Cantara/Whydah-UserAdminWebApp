@@ -1086,11 +1086,13 @@ public class UserAdminUasController {
 				//assume search time = 10 milliseconds/user  
 				estimatePreImportProgress(progressKey, importList);
 				
-				makeUasRequest(method, url, model, response);
+				String uasres = makeUasRequest(method, url, model, response);
 			
-				String duplicates = (String) model.asMap().get(JSON_DATA_KEY);
-				if(!duplicates.equals("[]")){
+				//String duplicates = (String) model.asMap().get(JSON_DATA_KEY);
+				if(!uasres.equals("[]")){
+					
 					preImportUsersProgress.put(progressKey, 100); //parsed file -> preImport process completed 100%
+					
 					return JSON_KEY;
 				}
 				else {
@@ -1120,9 +1122,9 @@ public class UserAdminUasController {
 				
 				int numberOfImportedUsers = importList.size();
 				
-				//assume UIB can search for 100 users in a row at one second interval
+				//expect that UIB can search for 50 users in a row at one second interval
 				//hence it costs
-				int cost = Math.round(numberOfImportedUsers / 100);
+				int cost = Math.round(numberOfImportedUsers / 50);
 				
 				Double lastPercentReported = (double) 0;
 				Double workingPercentForASecond = (importList.size()>0? (double) 100/cost: 0.0);
@@ -1140,10 +1142,15 @@ public class UserAdminUasController {
 					
 					if ((currentPercent >= 1 && lastPercentReported==0)|| (currentPercent - lastPercentReported >= 1)) {
 						lastPercentReported = currentPercent;
+						
 						if(preImportUsersProgress.get(progressKey)==100){
 							break;
 						} else {
 							preImportUsersProgress.put(progressKey, currentPercent.intValue());
+						}
+						
+						if(currentPercent.intValue() >= 90){
+							break; //around 90% almost done now. Wait for completion
 						}
 					}
 					

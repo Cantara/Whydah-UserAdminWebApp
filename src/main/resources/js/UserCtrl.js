@@ -242,15 +242,17 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 
 
 		var file = $scope.myFile;
-		if(file){
-
-			var uploadUrl = baseUrl + "importUsers", //Url of web service
-			promise = Users.importUsers(file, uploadUrl);
-
+		if(file && !Users.importing){
 
 			Users.importing = true;
 			Users.progressbar.set(0);
 			Users.uploadprogressbar.set(0);
+			
+			var uploadUrl = baseUrl + "importUsers", //Url of web service
+			promise = Users.importUsers(file, uploadUrl);
+
+
+			
 			
 			//ask server for the import progress. If there is a status, we just display it. Otherwise, we just hide the progress bar
 			Users.theInterval = $interval(function(){
@@ -297,14 +299,14 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 					var result =  /^error/i.test(response.data.result);
 					if(/^error/i.test(response.data.result)===true){
 						closeImportUploadProgress();
-						Users.importing = false;
+						
 						Users.showMessage('danger','An error has occurred: ' + response.data.result);
 						return;
 					} else if(/^ok/i.test(response.data.result)===true){
 						closeImportUploadProgress();
 						Users.showMessage('success', "Imported successfully");
 						$('#UserImport').modal('hide');
-						Users.importing = false;
+			
 						//refresh
 						Users.pagingQuery();
 						return;
@@ -335,6 +337,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 			Users.progressbar.set(100);
 		}
 		$interval.cancel(Users.theInterval);
+		Users.importing = false;
 	}
 
 	$scope.pageChangeHandler = function(num) {
