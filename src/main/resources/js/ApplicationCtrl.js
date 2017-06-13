@@ -83,9 +83,11 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 
 	}
 
-	if(typeof(Applications.list) != 'undefined' && Applications.list.length<1) {
-		init();
-	}
+//	if(typeof(Applications.list) != 'undefined' && Applications.list.length<1) {
+//		init();
+//	}
+	
+	init();
 
 	$scope.activateApplicationDetail = function(id) {
 		console.log('Activating application detail...', id);

@@ -43,12 +43,12 @@ UseradminApp.service('Applications', function($http,Messages, $q){
    
     this.selected = false;
 
-    this.search2 = function() {
+    this.searchAll = function() {
         console.log('Searching for applications...');
         var that = this;
         $http({
             method: 'GET',
-            url: baseUrl + 'applications'
+            url: baseUrl+'applications/find/*'
         }).then(function (response) {
 			var data = response.data;
 			var status = response.status;

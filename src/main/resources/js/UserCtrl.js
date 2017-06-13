@@ -119,7 +119,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 	function init() {
 		//Users.search();
 		Users.pagingQuery();
-
+		Applications.searchAll();
 		//progress setup for uploading
 		if(!Users.uploadprogressbar){
 			Users.uploadprogressbar = ngProgressFactory.createInstance();

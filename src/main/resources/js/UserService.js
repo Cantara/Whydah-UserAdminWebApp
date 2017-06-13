@@ -45,40 +45,40 @@ UseradminApp.service('Users', function($http, Messages, $q){
 	    return selectedUsernames;
 	}
 
-	this.search = function() {
-		console.log('Searching for users...');
-		var query =  this.searchQuery || '*';
-		var that = this;
-		$http({
-			method: 'GET',
-			url: baseUrl+'users/find/'+query
-			//url: 'json/users.json',
-		}).then(function (response) {		
-			that.rows = response.data.rows;
-			//that.list = JSON.parse(angular.toJson(response.data.result));
-			that.list = response.data.result;
-			
-		}, function(response){
-			// This is most likely due to usertoken timeout - TODO: Redirect to login webapp   
-			console.log('Unable to search', response.data);
-			var status = response.status;
-			switch (status) {
-				case 403: /* Forbidden */
-					Messages.add('danger', 'Unable to seach! Forbidden...');
-					break;
-				case 404:  /* 404 No access */
-					Messages.add('danger', 'Unable to search! No access...');
-					break;
-				case 409:  /* 409 Conflict - will prbably not occur here */
-					Messages.add('danger', 'Search already exists...');
-					break;
-				default:
-			    	Messages.add('danger', 'Search failed with error code: ' + status);
-			}
-
-		});
-		return this;
-	};
+//	this.search = function() {
+//		console.log('Searching for users...');
+//		var query =  this.searchQuery || '*';
+//		var that = this;
+//		$http({
+//			method: 'GET',
+//			url: baseUrl+'users/find/'+query
+//			//url: 'json/users.json',
+//		}).then(function (response) {		
+//			that.rows = response.data.rows;
+//			//that.list = JSON.parse(angular.toJson(response.data.result));
+//			that.list = response.data.result;
+//			
+//		}, function(response){
+//			// This is most likely due to usertoken timeout - TODO: Redirect to login webapp   
+//			console.log('Unable to search', response.data);
+//			var status = response.status;
+//			switch (status) {
+//				case 403: /* Forbidden */
+//					Messages.add('danger', 'Unable to seach! Forbidden...');
+//					break;
+//				case 404:  /* 404 No access */
+//					Messages.add('danger', 'Unable to search! No access...');
+//					break;
+//				case 409:  /* 409 Conflict - will prbably not occur here */
+//					Messages.add('danger', 'Search already exists...');
+//					break;
+//				default:
+//			    	Messages.add('danger', 'Search failed with error code: ' + status);
+//			}
+//
+//		});
+//		return this;
+//	};
 	
 	
 	this.pagingQuery = function() {
@@ -215,7 +215,8 @@ UseradminApp.service('Users', function($http, Messages, $q){
 		}).then(function (response) {
 			var data = response.data;
 			Messages.add('success', 'User "'+user.username+'" was saved successfully.');
-		    that.search(that.searchQuery);
+		    //that.search(that.searchQuery);
+			that.pagingQuery();
 		    if(successCallback){
 		        successCallback();
 		    }
@@ -238,7 +239,8 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			var data = response.data;
 			Messages.add('success', 'User "'+user.username+'" was added successfully.');
 			that.user.uid = data.uid;
-			that.search(that.searchQuery);
+			//that.search(that.searchQuery);
+			that.pagingQuery();
 		    if(successCallback){
 		        successCallback();
 		    }
@@ -275,7 +277,8 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			var data = response.data;
 			var status = response.status;
 			Messages.add('success', 'User "'+user.username+'" was deleted successfully.');
-			that.search(that.searchQuery);
+			//that.search(that.searchQuery);
+			that.pagingQuery();
 		});
 		return this;
 	};
@@ -313,7 +316,8 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			var status = response.status;
 			Messages.add('success', 'Role for user "'+user.username+'" was added successfully.');
 			that.getRolesForCurrentUser();
-			that.search(that.searchQuery);
+			//that.search(that.searchQuery);
+			that.pagingQuery();
 			if(successCallback){
 			    successCallback();
 			}
@@ -345,7 +349,8 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			var status = response.status;
 			Messages.add('success', 'Role "'+roleName+'" for user "'+user.username+'" was deleted successfully.');
 			that.getRolesForCurrentUser();
-			that.search(that.searchQuery);
+			//that.search(that.searchQuery);
+			that.pagingQuery();
 		}, function (response) {
 			var data = response.data;
 			var status = response.status;
@@ -372,7 +377,8 @@ UseradminApp.service('Users', function($http, Messages, $q){
 			var status = response.status;
 			Messages.add('success', 'Role "'+roleName+'" for user "'+that.user.username+'" was saved successfully.');
 			that.getRolesForCurrentUser();
-			that.search(that.searchQuery);
+			//that.search(that.searchQuery);
+			that.pagingQuery();
 		}, function (response) {
 			var data = response.data;
 			var status = response.status;
