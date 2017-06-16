@@ -339,6 +339,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		}
 		$interval.cancel(Users.theInterval);
 		Users.importing = false;
+		$('#myFileField').val('');
 	}
 	
 	$scope.closeImport = function() {
@@ -347,7 +348,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		if(file){
 
 			var promise = Users.removeUploadedFile(file);
-			$('#myFileField').val('');
+			
 		}
 		closeImportUploadProgress();
 		

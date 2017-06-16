@@ -2,8 +2,10 @@ package net.whydah.identity.admin;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import net.minidev.json.JSONArray;
 import net.whydah.identity.ServerRunner;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
@@ -15,6 +17,7 @@ import net.whydah.sso.commands.extensions.crmapi.CommandGetCRMCustomer;
 import net.whydah.sso.commands.extensions.statistics.CommandListUserActivities;
 import net.whydah.sso.extensions.useractivity.helpers.UserActivityHelper;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.mappers.UserIdentityMapper;
 import net.whydah.sso.user.mappers.UserRoleMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
@@ -41,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -836,6 +840,10 @@ public class UserAdminUasController {
 
 	}
 
+	public boolean isUASRequestOK(String response){
+		return !response.startsWith("{\"error\"");
+	}
+	
 
 	private boolean addorUpdateUserAggregate(String apptokenid, String usertokenid, String content, Model model,  HttpServletResponse response, boolean createNew) throws UnsupportedEncodingException{
 
@@ -845,12 +853,12 @@ public class UserAdminUasController {
 			PostMethod method = new PostMethod();
 			method.setRequestEntity(json);
 			String url = buildUasUrl(apptokenid, usertokenid, "useraggregate/");
-			return !makeUasRequest(method, url, model, response).startsWith("{\"error\"");
+			return isUASRequestOK(makeUasRequest(method, url, model, response));
 		} else {
 			PutMethod method = new PutMethod();
 			method.setRequestEntity(json);
 			String url = buildUasUrl(apptokenid, usertokenid, "useraggregate/");
-			return !makeUasRequest(method, url, model, response).startsWith("{\"error\"");
+			return isUASRequestOK(makeUasRequest(method, url, model, response));
 		}
 
 		
@@ -1147,8 +1155,14 @@ public class UserAdminUasController {
 			json = json.replace("\uFEFF", "");
             List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);   
 			if(overridenIds.equals("") && skippedIds.equals("")){
+				//don't post the whole json, content with usernames is ok
+				List<String> allUserNames = new ArrayList<String>();
+				for(UserAggregate ua : importList){
+					allUserNames.add("\"" + ua.getUsername() + "\"");
+				}
+				
 				PostMethod method = new PostMethod();
-				StringRequestEntity jsonEntity = new StringRequestEntity(json, "application/json",  "UTF-8");
+				StringRequestEntity jsonEntity = new StringRequestEntity("[" + (allUserNames.size()>0 ? StringUtils.join(allUserNames, ','):"") + "]", "application/json",  "UTF-8");
 				method.setRequestEntity(jsonEntity);
 				String url = buildUasUrl(apptokenid, usertokenid, "users/checkduplicates");
 				
@@ -1160,8 +1174,27 @@ public class UserAdminUasController {
 				
 				String uasres = makeUasRequest(method, url, model, response);
 			
+				if(!isUASRequestOK(uasres)){
+					setFailureMsg(model,"Error when validating users");
+					return JSON_KEY;
+				}
+
+				
 				//String duplicates = (String) model.asMap().get(JSON_DATA_KEY);
 				if(!uasres.equals("[]")){
+					
+					ObjectMapper mapper = new ObjectMapper();
+					List<String> list = mapper.readValue(uasres, new TypeReference<ArrayList<String>>() {});
+					List<String> duplicateJsons = new ArrayList<String>();
+					for(UserAggregate ua : importList){
+						if(list.contains(ua.getUsername())){
+							duplicateJsons.add(UserIdentityMapper.toJson(ua));
+						}
+					}			
+					
+					model.addAttribute(JSON_DATA_KEY, "[" + (duplicateJsons.size()>0 ? StringUtils.join(duplicateJsons, ','):"") + "]");
+					
+					response.setContentType(CONTENTTYPE_JSON_UTF8);
 					
 					preImportUsersProgress.put(progressKey, 100); //parsed file -> preImport process completed 100%
 					
