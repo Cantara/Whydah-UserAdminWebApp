@@ -314,7 +314,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 						
 						closeImportUploadProgress();
 						Users.setDuplicateList(response.data);
-						console.log(Users.duplicatelist);
+						console.log("Duplicates found " + Users.duplicatelist.length + " items");
 						return;
 					}
 				}
