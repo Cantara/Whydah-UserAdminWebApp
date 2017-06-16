@@ -146,13 +146,13 @@
 
 <!-- User import functionality -->
 <div class="modal fade" id="UserImport" tabindex="-1" role="dialog"
-	aria-labelledby="userimportlabel" aria-hidden="true"
+	aria-labelledby="userimportlabel" aria-hidden="true" data-keyboard="false" data-backdrop="static"
 	>
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"
-					aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" ng-click="closeImport()"
+					aria-hidden="true" ng-disabled="users.importing || users.exporting" >&times;</button>
 				<h4 class="modal-title" id="userimportlabel">
 					<span>Import Users</span>
 				</h4>
@@ -180,8 +180,8 @@
 					<br/>
 
 					<button ng-click="uploadFile()" class="btn btn-primary">
-						<span ng-show="users.duplicatelist.length!=0">Import</span> 
-						<span ng-show="users.duplicatelist.length==0">Upload </span>
+						<span ng-show="users.duplicatelist.length!=0" ng-disabled="users.importing || users.exporting" >Import</span> 
+						<span ng-show="users.duplicatelist.length==0" ng-disabled="users.importing || users.exporting" >Upload </span>
 					</button>
 					
 					
@@ -208,7 +208,7 @@
 								<th st-sort="cellPhone">Phone <span class="glyphicon glyphicon-sort"></span></th>
 								<th st-sort="email">E-mail <span class="glyphicon glyphicon-sort"></span></th>
 								<th st-sort="personRef">Customer Reference <span class="glyphicon glyphicon-sort"></span></th>
-                                <th st-sort="personRef">Log <span class="glyphicon glyphicon-sort"></span></th>
+                         
 
 
 							</tr>
@@ -239,8 +239,8 @@
 
 				<div class="modal-footer">
 
-					<button ng-show="users.duplicatelist.length==0"
-						type="button" class="btn btn-default" data-dismiss="modal">
+					<button
+						type="button" class="btn btn-default" data-dismiss="modal" ng-disabled="users.importing || users.exporting" ng-click="closeImport()">
 						Close</button>
 
 				</div>

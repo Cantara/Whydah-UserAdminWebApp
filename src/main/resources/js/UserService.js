@@ -1,4 +1,4 @@
-UseradminApp.service('Users', function($http, Messages, $q){
+UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 	
 	this.list = []; //users to display
 	this.rows = ""; //how many rows there by list.length
@@ -19,9 +19,9 @@ UseradminApp.service('Users', function($http, Messages, $q){
 	this.showProgress = false; //should show progress bar for import?
 	this.showExProgress = false; //should show progress bar for export?
 	this.showUploadProgress = false; //should show progress bar for upload?
-	this.uploadprogressbar; //the progress bar for upload
-	this.progressbar; //the progress bar for import
-	this.exprogressbar; //the progress bar for export
+	this.uploadprogressbar = ngProgressFactory.createInstance();; //the progress bar for upload
+	this.progressbar = ngProgressFactory.createInstance();; //the progress bar for import
+	this.exprogressbar= ngProgressFactory.createInstance();; //the progress bar for export
 	this.theInterval; //the interval to check import progress on server
 	this.theUploadInterval; //the interval to check upload progress on server
 
@@ -426,8 +426,14 @@ UseradminApp.service('Users', function($http, Messages, $q){
     };
     
     this.importUsers = function (file, uploadUrl) {
+    	var uploadUrl = baseUrl + "importUsers";
         var fileFormData = new FormData();
-        fileFormData.append('file', file);
+        if(this.duplicatelist.length==0) {
+        	fileFormData.append('file', file);
+        } else {
+        	uploadUrl = baseUrl + "importUsersAfterCheckingDuplicates";
+        }
+        fileFormData.append('encryptedFileName', hex_md5(file.name));
         fileFormData.append('overridenIds', this.getSelectedOverridenUserUids());
         fileFormData.append('skippedIds', this.getSkippedUserUids());
  
@@ -444,6 +450,26 @@ UseradminApp.service('Users', function($http, Messages, $q){
 
         return deffered.promise;
     };
+    
+    this.removeUploadedFile =function(file){
+    	 var removeUploadedFileUrl = baseUrl + "removeUploadedFile";
+    	 var fileFormData = new FormData();
+    	 fileFormData.append('encryptedFileName', hex_md5(file.name));
+    	 var deffered = $q.defer();
+         $http.post(removeUploadedFileUrl, fileFormData, {
+             transformRequest: angular.identity,
+             headers: {'Content-Type': undefined}
+
+         }).then(function (response) {
+             deffered.resolve(response);
+         }, function (response) {
+             deffered.reject(response);
+         });
+
+         return deffered.promise;
+		
+	}
+    
     
     this.showMessage = function(tag, msg){
     	Messages.add(tag, msg);

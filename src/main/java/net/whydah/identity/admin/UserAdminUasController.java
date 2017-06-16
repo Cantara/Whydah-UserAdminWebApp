@@ -24,6 +24,7 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.util.URIUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,11 +63,16 @@ public class UserAdminUasController {
 	private static Map<String, Integer> preImportUsersProgress=new HashMap<String, Integer>();
 	private static Map<String, Integer> importUsersProgress=new HashMap<String, Integer>();
 	private static Map<String, Integer> importAppsProgress=new HashMap<String, Integer>();
-
+	private static Map<String, String> map_importedFileNames = new HashMap<String, String>();
+	private static Path currentDir = ServerRunner.getCurrentPath();
+	private static Path tempUploadDir = currentDir.resolve("data_import_dir");
+    
+    
 	public UserAdminUasController() throws IOException {
 		Properties properties = AppConfig.readProperties();
 		userAdminServiceUrl = properties.getProperty("useradminservice");
 		httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
+		ServerRunner.createDirectories(tempUploadDir);
 	}
 
 	@GET
@@ -600,6 +606,7 @@ public class UserAdminUasController {
 				response.setStatus(200);
 				model.addAttribute(JSON_DATA_KEY, "");
 				response.setContentType(CONTENTTYPE_JSON_UTF8);
+				return "";
 			} else {
 				InputStream responseBodyStream = method.getResponseBodyAsStream();
 				BufferedReader in = new BufferedReader(new InputStreamReader(responseBodyStream));
@@ -608,15 +615,19 @@ public class UserAdminUasController {
 				while ((line = in.readLine()) !=null) {
 					responseBody.append(line);
 				}
-				if (rescode == 500) {
-					log.warn("Failed connection to UAS. Reason {}", responseBody.toString() );
-					String msg = "{\"error\":\"Failed connection to backend. Please investigate the logs for reason.\"}";
-					model.addAttribute(JSON_DATA_KEY,msg);
-				} else {
+				if (rescode == 200) {
 
 					model.addAttribute(JSON_DATA_KEY, responseBody.toString());
 					response.setContentType(CONTENTTYPE_JSON_UTF8);
+					return responseBody.toString();
+					
+				} else {
 
+					log.warn("Failed connection to UAS. Reason {}", responseBody.toString() );
+					String msg = "{\"error\":\"Failed connection to backend. Please investigate the logs for reason.\"}";
+					model.addAttribute(JSON_DATA_KEY,msg);
+					return msg;
+					
 				}
 			}
 
@@ -629,10 +640,11 @@ public class UserAdminUasController {
 		} finally {
 			method.releaseConnection();
 		}
-		if (!model.containsAttribute(JSON_DATA_KEY)) {
-			log.error("jsondata attribute not set when fetching data from URL: {}", url);
-		}
-		return responseBody.toString();
+		
+		
+		String msg = "{\"error\":\"Server error exception.\"}";
+		model.addAttribute(JSON_DATA_KEY,msg);		
+		return msg;
 	}
 
 	private String getUAWAApplicationId() {
@@ -833,15 +845,15 @@ public class UserAdminUasController {
 			PostMethod method = new PostMethod();
 			method.setRequestEntity(json);
 			String url = buildUasUrl(apptokenid, usertokenid, "useraggregate/");
-			makeUasRequest(method, url, model, response);
+			return !makeUasRequest(method, url, model, response).startsWith("{\"error\"");
 		} else {
 			PutMethod method = new PutMethod();
 			method.setRequestEntity(json);
 			String url = buildUasUrl(apptokenid, usertokenid, "useraggregate/");
-			makeUasRequest(method, url, model, response);
+			return !makeUasRequest(method, url, model, response).startsWith("{\"error\"");
 		}
 
-		return response.getStatus()==200;
+		
 
 	}
 
@@ -979,14 +991,11 @@ public class UserAdminUasController {
 
 	}
 
-	private void saveUploadedFile(byte[] fContent, String filename)
+	private String saveUploadedFile(byte[] fContent, String filename)
 			throws FileNotFoundException, IOException {
 
 		filename = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss.SSS").format(new Date()) + "-" + filename;
 
-        Path currentDir = ServerRunner.getCurrentPath();
-        Path tempUploadDir = currentDir.resolve("data_import_dir");
-        ServerRunner.createDirectories(tempUploadDir);
 
         if (new File(tempUploadDir + filename).exists()) {
             new File(tempUploadDir + filename).delete();
@@ -996,7 +1005,7 @@ public class UserAdminUasController {
         bout.write(fContent);
 		bout.flush();
 		bout.close();
-
+		return filename;
 
 	}
 
@@ -1056,21 +1065,84 @@ public class UserAdminUasController {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@RequestMapping(value = "/importUsers", method = RequestMethod.POST)
-	public String importUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model,
-			@RequestParam CommonsMultipartFile file, @RequestParam String overridenIds, @RequestParam String skippedIds
+	@RequestMapping(value = "/importUsersAfterCheckingDuplicates", method = RequestMethod.POST)
+	public String importUsersAfterCheckingDuplicates(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model,
+			 @RequestParam String overridenIds, @RequestParam String skippedIds, @RequestParam String encryptedFileName
 			) throws IOException, ServletException{
 
-		String filename=file.getOriginalFilename();  
-		String progressKey = usertokenid + SessionUserAdminDao.instance.getMD5Str(filename).toLowerCase();
+		String filename = "";
+		byte[] content = null;
+		String progressKey = "";
+		
+
+		progressKey = usertokenid + encryptedFileName.toLowerCase();
+		//load content from the map
+		filename = map_importedFileNames.get(encryptedFileName);
+
+		if(filename!=null){
+			content = FileUtils.readFileToByteArray(new File(tempUploadDir + File.separator + filename));
+		}
+
 		importUsersProgress.put(progressKey, 0);
 		preImportUsersProgress.put(progressKey, 0);
 		
+		if(content==null){
+			setFailureMsg(model,"The content of uploaded file not found. Please try again.");
+			return JSON_KEY;
+		}
+		
 		try
 		{  
+			//save the content
+			String json = new String(content, "UTF-8");
+			json = json.replace("\uFEFF", "");
+            List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);   
+			return doImportUsers(apptokenid, usertokenid, response, model, progressKey, overridenIds, skippedIds, importList, encryptedFileName);
 			
-			byte[] content = file.getBytes();
-			saveUploadedFile(content, filename);
+
+		} catch(IllegalArgumentException ex){
+			System.out.println(ex);
+			setFailureMsg(model,"failed to parse the json file");
+		} catch(Exception e){
+			System.out.println(e);
+			setFailureMsg(model, e.getMessage());
+		}  
+
+		return JSON_KEY;
+
+	}
+	
+	@POST
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@RequestMapping(value = "/importUsers", method = RequestMethod.POST)
+	public String importUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model,
+			@RequestParam CommonsMultipartFile file, @RequestParam String overridenIds, @RequestParam String skippedIds, @RequestParam String encryptedFileName
+			) throws IOException, ServletException{
+
+		String filename = "";
+		byte[] content = null;
+		String progressKey = "";
+		
+
+		filename=file.getOriginalFilename();  
+		content = file.getBytes();
+		progressKey = usertokenid + SessionUserAdminDao.instance.getMD5Str(filename).toLowerCase();
+		map_importedFileNames.put(encryptedFileName, saveUploadedFile(content, filename)); //save and add to the map
+			
+	
+		
+		importUsersProgress.put(progressKey, 0);
+		preImportUsersProgress.put(progressKey, 0);
+		
+		if(content==null){
+			setFailureMsg(model,"The content of uploaded file not found. Please try again.");
+			return JSON_KEY;
+		}
+		
+		try
+		{  
+			//save the content
 			String json = new String(content, "UTF-8");
 			json = json.replace("\uFEFF", "");
             List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);   
@@ -1096,10 +1168,10 @@ public class UserAdminUasController {
 					return JSON_KEY;
 				}
 				else {
-					return doImportUsers(apptokenid, usertokenid, response, model, progressKey, overridenIds, skippedIds, importList);
+					return doImportUsers(apptokenid, usertokenid, response, model, progressKey, overridenIds, skippedIds, importList, encryptedFileName);
 				}
 			} else {
-				return doImportUsers(apptokenid, usertokenid, response, model, progressKey, overridenIds, skippedIds, importList);
+				return doImportUsers(apptokenid, usertokenid, response, model, progressKey, overridenIds, skippedIds, importList, encryptedFileName);
 			}
 
 
@@ -1122,9 +1194,9 @@ public class UserAdminUasController {
 				
 				int numberOfImportedUsers = importList.size();
 				
-				//expect that UIB can search for 50 users in a row at one second interval
+				//expect that UIB can search for 20 users in a row at one second interval
 				//hence it costs
-				int cost = Math.round(numberOfImportedUsers / 50);
+				int cost = Math.round(numberOfImportedUsers / 20);
 				
 				Double lastPercentReported = (double) 0;
 				Double workingPercentForASecond = (importList.size()>0? (double) 100/cost: 0.0);
@@ -1170,7 +1242,7 @@ public class UserAdminUasController {
 	private String doImportUsers(String apptokenid, String usertokenid,
 			HttpServletResponse response, Model model, String progressKey,
 			String overridenUserNames, String skippedUserNames,
-			List<UserAggregate> importList) throws UnsupportedEncodingException {
+			List<UserAggregate> importList, String encryptedFileName) throws UnsupportedEncodingException {
 		Double lastPercentReported = (double) 0;
 		Double workingPercentForEachRow = (importList.size()>0? (double) 100/importList.size(): 0.0);
 		Double currentPercent = (double) 0;
@@ -1222,11 +1294,47 @@ public class UserAdminUasController {
 		}
 
 		importUsersProgress.put(progressKey, 100);
-
-
+		String fileName = map_importedFileNames.get(encryptedFileName);
+		//change the filename to "imported_" + filename after importing
+		if(fileName!=null){
+			new File(tempUploadDir + File.separator + fileName).renameTo(new File(tempUploadDir + File.separator + "imported_" + fileName));
+		}
+		map_importedFileNames.remove(encryptedFileName); //ok, delete this out of the map
 		setOKMsg(model);
 		
 		return JSON_KEY;
 	}
 
+	@POST
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@RequestMapping(value = "/removeUploadedFile", method = RequestMethod.POST)
+	public String removeUploadedFile(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response, Model model,
+			@RequestParam String encryptedFileName
+			) throws IOException, ServletException{
+
+		String filename = "";
+	
+		String progressKey = "";
+		
+
+		progressKey = usertokenid + encryptedFileName.toLowerCase();
+		//load content from the map
+		filename = map_importedFileNames.get(encryptedFileName);
+
+		if(filename!=null){
+			new File(tempUploadDir + File.separator + filename).delete();
+		
+		}
+
+	
+		preImportUsersProgress.remove(progressKey);
+		
+		setOKMsg(model);
+
+		return JSON_KEY;
+
+	}
+	
+	
 }

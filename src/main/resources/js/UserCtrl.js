@@ -1,4 +1,4 @@
-UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users, Applications, ngProgressFactory, $interval) {
+UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users, Applications, $interval) {
 
 	$scope.session.activeTab = 'user';
 
@@ -117,36 +117,36 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 	}
 
 	function init() {
-		//Users.search();
-		Users.pagingQuery();
-		Applications.searchAll();
+		if(Users.list.length<1) {
+			Users.pagingQuery();
+			Applications.searchAll();
+		}
+		
 		//progress setup for uploading
-		if(!Users.uploadprogressbar){
-			Users.uploadprogressbar = ngProgressFactory.createInstance();
+		if(Users.uploadprogressbar){
 			Users.uploadprogressbar.setParent(document.getElementById('uploadprogress'));
 		}
+		
 
 		//progress setup when importing users
 
-		if(!Users.progressbar) {
-			Users.progressbar = ngProgressFactory.createInstance();
+		if(Users.progressbar) {			
 			Users.progressbar.setParent(document.getElementById('progress'));
 		}
+		
 
 		//for export
-		if(!Users.exprogressbar) {
-			Users.exprogressbar = ngProgressFactory.createInstance();
+		if(Users.exprogressbar) {
 			Users.exprogressbar.setParent(document.getElementById('exprogress'));
 		}
+		
 		// Don't hide application-filter menu when clicking an option
 		$('.dropdown-menu').click(function(e) {
 			e.stopPropagation();
 		});
 	}
 
-	if(Users.list.length<1) {
-		init();
-	}
+	init();
 
 	$scope.exportSelectedUsers=function(){
 		Users.fullList = []; //clear now
@@ -248,8 +248,8 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 			Users.progressbar.set(0);
 			Users.uploadprogressbar.set(0);
 			
-			var uploadUrl = baseUrl + "importUsers", //Url of web service
-			promise = Users.importUsers(file, uploadUrl);
+			
+			var promise = Users.importUsers(file);
 
 
 			
@@ -314,6 +314,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 						
 						closeImportUploadProgress();
 						Users.setDuplicateList(response.data);
+						console.log(Users.duplicatelist);
 						return;
 					}
 				}
@@ -338,6 +339,19 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		}
 		$interval.cancel(Users.theInterval);
 		Users.importing = false;
+	}
+	
+	$scope.closeImport = function() {
+		var file = $scope.myFile;
+		
+		if(file){
+
+			var promise = Users.removeUploadedFile(file);
+			$('#myFileField').val('');
+		}
+		closeImportUploadProgress();
+		
+	
 	}
 
 	$scope.pageChangeHandler = function(num) {
