@@ -24,9 +24,9 @@ UseradminApp.controller('UserdetailCtrl', function($scope, Users) {
 
   $scope.visibleRoleProperties = [
     {name: 'applicationName',       label: 'Application',   editable: false},
-    {name: 'organizationName',      label: 'Organization',  editable: false},
-    {name: 'applicationRoleName',   label: 'Role',          editable: false},
-    {name: 'applicationRoleValue',  label: 'Value',         editable: true}
+    {name: 'orgName',      label: 'Organization',  editable: false},
+    {name: 'roleName',   label: 'Role',          editable: false},
+    {name: 'roleValue',  label: 'Value',         editable: true}
   ];
 
   $scope.userLogProperties = [
