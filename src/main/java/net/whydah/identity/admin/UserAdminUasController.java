@@ -4,8 +4,6 @@ package net.whydah.identity.admin;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import net.minidev.json.JSONArray;
 import net.whydah.identity.ServerRunner;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
@@ -21,7 +19,6 @@ import net.whydah.sso.user.mappers.UserIdentityMapper;
 import net.whydah.sso.user.mappers.UserRoleMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
-
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.*;
@@ -44,8 +41,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import java.io.*;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -489,21 +484,21 @@ public class UserAdminUasController {
     // USERLOG
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @RequestMapping(value = "userlog/{uid}", method = RequestMethod.GET)
-    public String getUserLog(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
-                             @PathVariable("uid") String uid, HttpServletRequest request,
-                             HttpServletResponse response, Model model) {
-        log.info("getUserLog - entry.  applicationtokenid={},  applicationId={}, uid={}", apptokenid, usertokenid, uid);
-        usertokenid = findValidUserTokenId(usertokenid, request);
+	@RequestMapping(value = "userlog/{username}", method = RequestMethod.GET)
+	public String getUserLog(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
+							 @PathVariable("username") String username, HttpServletRequest request,
+							 HttpServletResponse response, Model model) {
+		log.info("getUserLog - entry.  applicationtokenid={},  applicationId={}, username={}", apptokenid, usertokenid, username);
+		usertokenid = findValidUserTokenId(usertokenid, request);
 
         String jsonresult = "{}";
         try {
             Properties properties = AppConfig.readProperties();
 
-            jsonresult = new CommandListUserActivities(java.net.URI.create(properties.getProperty("statisticsservice")), apptokenid, usertokenid, uid.trim()).execute();
-            if (jsonresult != null) {
+			jsonresult = new CommandListUserActivities(java.net.URI.create(properties.getProperty("statisticsservice")), apptokenid, usertokenid, username.trim()).execute();
+			if (jsonresult != null) {
                 //we should filter activities for this particular application
-                jsonresult = UserActivityHelper.getUserSessionsJsonFromUserActivityJson(jsonresult, uid);
+				jsonresult = UserActivityHelper.getUserSessionsJsonFromUserActivityJson(jsonresult, username);
 
             }
         } catch (Exception e) {
