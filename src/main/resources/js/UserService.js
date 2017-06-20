@@ -170,12 +170,12 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 		return this;
 	};
 
-    this.getLog = function(username, callback) {
-        console.log('Getting User log for username=', username);
+    this.getLog = function(userid, callback) {
+        console.log('Getting User log for userid=', userid);
         var that = this;
         $http({
             method: 'GET',
-            url: baseUrl+'userlog/'+username+'/'
+            url: baseUrl+'userlog/'+userid+'/'
         }).then(function (response) {
             console.log('Got user log', response.data);
             that.user.userLog = JSON.stringify(response.data, null, 2);
