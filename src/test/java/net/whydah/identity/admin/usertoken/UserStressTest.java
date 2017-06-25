@@ -17,18 +17,15 @@ import net.whydah.sso.util.SSLTool;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.UUID;
+import java.util.*;
 
 public class UserStressTest {
 
-	//	public String uawaURI = "http://localhost:9996/useradmin/";
-	public static String uawaURI = "https://inn-qa-uaswa.opplysningen.no/useradmin/";
-
-	//	public String stsURI = "http://localhost:9998/tokenservice/";
-	public String stsURI = "https://inn-qa-sts.opplysningen.no/tokenservice/";
-	public static String apptokenIdFromUASWA = "";
+    public String uawaURI = "http://localhost:9996/useradmin/";
+    public String stsURI = "http://localhost:9998/tokenservice/";
+    public static String apptokenIdFromUASWA = "";
 
 
 	//NEEDED WHEN ASKING UAWA FOR THE CURRENT APPTOKENID
@@ -48,6 +45,10 @@ public class UserStressTest {
 		//initialize the testing service
 		ApplicationCredential appCredential = new ApplicationCredential(TEMPORARY_APPLICATION_ID, TEMPORARY_APPLICATION_NAME, TEMPORARY_APPLICATION_SECRET);
 		UserCredential userCredential = new UserCredential(userName, password);
+
+        Map<String, String> addToEnv = new HashMap<>();
+        addToEnv.put("IAM_MODE", "TEST");
+        setEnv(addToEnv);
         SSLTool.disableCertificateValidation();
         
         String myApplicationTokenID = "";
@@ -80,10 +81,10 @@ public class UserStressTest {
 		
 		setup();
 
-		int count = 10200;
-		
-		addTestUsers(0, count); //add 1000 users
-		//removeTestUsers(0, 100); //remove 100 users
+        int count = 10;
+
+        addTestUsers(0, count); //add 1000 users
+        //removeTestUsers(0, 100); //remove 100 users
 		//removeTestUsers(100, 100); //remove next 100 users
 		//removeTestUsers(200, 100); //remove next 100 users
 		
@@ -128,9 +129,10 @@ public class UserStressTest {
 	}
 
 	private void addATestUser(int i) {
-		UserAggregate ua = new UserAggregate("a_uid-" + i, "a_username " + i, "firstName " + i, "lastName " + i, "personRef " + i, "tester" + i + "@whydah.com", String.valueOf(RandomUtils.nextInt(1000000000)));
-		ua.setRoleList(new ArrayList<UserApplicationRoleEntry>());
-		String json = UserAggregateMapper.toJson(ua);
+        UserAggregate ua = new UserAggregate("j" +
+                "m_uid-" + i, "m_username " + i, "firstName " + i, "lastName " + i, "personRef " + i, "tester" + i + "@whydah.com", String.valueOf(RandomUtils.nextInt(1000000000)));
+        ua.setRoleList(new ArrayList<UserApplicationRoleEntry>());
+        String json = UserAggregateMapper.toJson(ua);
 		String addCmd = new BaseHttpPostHystrixCommand<String>(URI.create(uawaURI), null, null, "STRESS_TEST", 2000) {
 			
 			@Override
@@ -170,4 +172,37 @@ public class UserStressTest {
 	}
 
 	//END PRIVATE FUNCTIONS
+
+    protected static void setEnv(Map<String, String> newenv) {
+        try {
+            Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
+            Field theEnvironmentField = processEnvironmentClass.getDeclaredField("theEnvironment");
+            theEnvironmentField.setAccessible(true);
+            Map<String, String> env = (Map<String, String>) theEnvironmentField.get(null);
+            env.putAll(newenv);
+            Field theCaseInsensitiveEnvironmentField = processEnvironmentClass.getDeclaredField("theCaseInsensitiveEnvironment");
+            theCaseInsensitiveEnvironmentField.setAccessible(true);
+            Map<String, String> cienv = (Map<String, String>) theCaseInsensitiveEnvironmentField.get(null);
+            cienv.putAll(newenv);
+        } catch (NoSuchFieldException e) {
+            try {
+                Class[] classes = Collections.class.getDeclaredClasses();
+                Map<String, String> env = System.getenv();
+                for (Class cl : classes) {
+                    if ("java.util.Collections$UnmodifiableMap".equals(cl.getName())) {
+                        Field field = cl.getDeclaredField("m");
+                        field.setAccessible(true);
+                        Object obj = field.get(env);
+                        Map<String, String> map = (Map<String, String>) obj;
+                        map.clear();
+                        map.putAll(newenv);
+                    }
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+    }
 }
