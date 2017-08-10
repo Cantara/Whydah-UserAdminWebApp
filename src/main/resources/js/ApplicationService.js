@@ -215,11 +215,19 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             console.log('Got applicaton', data);
             that.application = data;
             that.application.secret = data.security.secret;
+            that.application.whydahAdmin = data.security.whydahAdmin;
+            that.application.whydahUASAccess = data.security.whydahUASAccess;
+            that.application.userTokenFilter = data.security.userTokenFilter;
+            that.application.minimumDEFCONLevel = data.security.minimumDEFCONLevel;
+            
+          
             that.application.applicationJson = JSON.stringify(data);
             that.application.applicationLog = new Object();
-            that.application.roleNames = buildRoleNames(that.application);
-            that.application.orgNames = buildOrgNames(that.application);
+            that.application.roleNames = buildRoleNames(that.application);//will be removed
+            that.application.orgNames = buildOrgNames(that.application); //will be removed
+            
            
+            //console.log(that.allTags[id]);
             that.application.tagList = that.allTags[id]? that.allTags[id]:[];
             callback(that.application);
             
@@ -277,6 +285,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     			var data = response.data;
     			var status = response.status;
                 Messages.add('success', 'application "' + application.name + '" was added successfully.');
+                console.log(data);
                 application.id = data.id;
                 
                 if (successCallback) {
@@ -299,7 +308,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                     default:
                         Messages.add('danger', 'application was not added and! Try again later...');
                 }
-                $scope.activateTimeoutModal();
+             
             });
         }
         return this;
@@ -309,6 +318,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         console.log('Updating application', JSON.stringify(application));
         var that = this;
         var postData = buildApplicationUpdate(application);
+        console.log(application);
         if (postData.hasOwnProperty('name')) {
             console.log("Save this json: " + JSON.stringify(postData));
             $http({
@@ -319,11 +329,12 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     			var data = response.data;
     			var status = response.status;
                 Messages.add('success', 'application "' + application.name + '" was updated successfully.');
-                application.id = data.id;
-               
+                
                 if (successCallback) {
                     successCallback();
                 }
+             
+                
             }, function (response) {
     			var data = response.data;
     			var status = response.status;
@@ -344,49 +355,76 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                     default:
                         Messages.add('danger', 'application was not updated and! Try again later...');
                 }
-                $scope.activateTimeoutModal();
+               
             });
+            
+            
+            
+           
         }
         return this;
     };
 
     function buildApplicationUpdate(application) {
         var postData = {};
+        if (!application.hasOwnProperty('security')) {
+        	application.security = {};  
+        }
         if (application.hasOwnProperty('secret')) {
-            if (application.hasOwnProperty('security')) {
-                application.security.secret = application.secret;
-            } else {
-                application.security = {};
-                application.security.secret = application.secret;
-            }
-            delete application.secret;
+        	application.security.secret = application.secret;
         }
-        if (application.hasOwnProperty('roleNames')) {
-            if (typeof application.roleNames === 'string') {
-                application.roles = [];
-                var roleSplit = application.roleNames.split(",");
-                for (i = 0; i < roleSplit.length; i++) {
-                     var role = {};
-                     var item = roleSplit[i];
-                     role.id = item.trim();
-                     role.name = item.trim();
-                     application.roles.push(role);
-                }
-            }
+        if (application.hasOwnProperty('whydahAdmin')) {
+        	application.security.whydahAdmin = application.whydahAdmin;
         }
-        if (application.hasOwnProperty('orgNames')) {
-            if (typeof application.orgNames === 'string') {
-                application.organizationNames = [];
-                var nameSplit = application.orgNames.split(",");
-                for (i = 0; i < nameSplit.length; i++) {
-                    var name = {};
-                    var item = nameSplit[i];
-                    name.id = item.trim();
-                    name.name = item.trim();
-                    application.organizationNames.push(name);
-                }
-            }
+        if (application.hasOwnProperty('whydahUASAccess')) {
+        	application.security.whydahUASAccess = application.whydahUASAccess;
         }
+        if (application.hasOwnProperty('userTokenFilter')) {
+        	application.security.userTokenFilter = application.userTokenFilter;
+        }
+        if (application.hasOwnProperty('minimumDEFCONLevel')) {
+        	application.security.minimumDEFCONLevel = application.minimumDEFCONLevel;
+        }
+        
+      
+        if (application.hasOwnProperty('acl')) {
+        	 angular.forEach(application.acl, function(i, k){
+        		  
+        		  if (typeof i.accessRights === 'string') {
+        			  var array = i.accessRights.split(',');
+        			  i.accessRights = array;
+                  }
+        		  
+             });
+        	 console.log(application);
+        }
+     
+//        if (application.hasOwnProperty('roleNames')) {
+//            if (typeof application.roleNames === 'string') {
+//                application.roles = [];
+//                var roleSplit = application.roleNames.split(",");
+//                for (i = 0; i < roleSplit.length; i++) {
+//                     var role = {};
+//                     var item = roleSplit[i];
+//                     role.id = item.trim();
+//                     role.name = item.trim();
+//                     application.roles.push(role);
+//                }
+//            }
+//        }
+//        if (application.hasOwnProperty('orgNames')) {
+//            if (typeof application.orgNames === 'string') {
+//                application.organizationNames = [];
+//                var nameSplit = application.orgNames.split(",");
+//                for (i = 0; i < nameSplit.length; i++) {
+//                    var name = {};
+//                    var item = nameSplit[i];
+//                    name.id = item.trim();
+//                    name.name = item.trim();
+//                    application.organizationNames.push(name);
+//                }
+//            }
+//        }
         if(application.hasOwnProperty('tagList')){
             application.tags ='';
             angular.forEach(application.tagList, function(i, k){
@@ -444,7 +482,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                         default:
                             Messages.add('danger', 'application was not updated and! Try again later...');
                     }
-                    $scope.activateTimeoutModal();
+                   
                 });
             } catch (e) {
                 Messages.add('danger', 'Could not parse applicationJson to JSON object.');
@@ -494,7 +532,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                 default:
                     Messages.add('danger', 'application was not deleted and! Try again later...');
             }
-            $scope.activateTimeoutModal();
+           
         });
         return this;
     };

@@ -6,12 +6,12 @@
     </div>
 </div>
  -->
- 
+
 <!--Applications List-->
 <div class="row margin-top">
-   
-    <div class="col-sm-12">
-       <!-- 
+
+	<div class="col-sm-12">
+		<!-- 
 	   <form class="col-xs-12 col-sm-12 col-md-12">
 			<div class="col-xs-9 col-sm-9 col-md-9">
 				<input type="search" id="searchfield" class="form-control" ng-model="searchQuery" placeholder="Search applications" ng-change="onSearchBoxChange()"  autofocus> <span class="small">{{applications.rows}} found</span>
@@ -24,18 +24,34 @@
 			
 		</form>
 		 -->
-        <button class="btn btn-default btn-sm" ng-click="newApplicationDetail()"><span class="glyphicon glyphicon-plus"></span> Add application</button>
-        <button ng-disabled="!applications.selected" class="btn btn-default btn-sm" ng-click="exportSelectedApps()"><span class="glyphicon glyphicon-export"></span> Export Selected App(s)</button>
-        <button class="btn btn-default btn-sm" ng-click="exportApps()"><span class="glyphicon glyphicon-export"></span> Export All Apps</button>
-        <button class="btn btn-default btn-sm" ng-click="importApps()"><span class="glyphicon glyphicon-import"></span> Import App(s)</button>
-		<button class="btn btn-default btn-sm" ng-click="displayTagFilterModal()"><span class="glyphicon glyphicon-filter"></span>Tags filter: {{applications.tagFilterStatus}} </button>
-		
+		<button class="btn btn-default btn-sm"
+			ng-click="newApplicationDetail()">
+			<span class="glyphicon glyphicon-plus"></span> Add application
+		</button>
+		<button ng-disabled="!applications.selected"
+			class="btn btn-default btn-sm" ng-click="exportSelectedApps()">
+			<span class="glyphicon glyphicon-export"></span> Export Selected
+			App(s)
+		</button>
+		<button class="btn btn-default btn-sm" ng-click="exportApps()">
+			<span class="glyphicon glyphicon-export"></span> Export All Apps
+		</button>
+		<button class="btn btn-default btn-sm" ng-click="importApps()">
+			<span class="glyphicon glyphicon-import"></span> Import App(s)
+		</button>
+		<button class="btn btn-default btn-sm"
+			ng-click="displayTagFilterModal()">
+			<span class="glyphicon glyphicon-filter"></span>Tags filter:
+			{{applications.tagFilterStatus}}
+		</button>
+
 		<div class="table-responsive margin-top">
 
-			<table  st-table="displayCollectionList" st-safe-src="applications.list" class="table table-striped" >
-                <thead>
-                <tr>
-                   <!-- OLD VERSION
+			<table st-table="displayCollectionList"
+				st-safe-src="applications.list" class="table table-striped">
+				<thead>
+					<tr>
+						<!-- OLD VERSION
                     <th><label><input tri-state-checkbox elements="applications.list" elements-selected="applications.selected"></label></th>
                     <th ng-click="changeOrder('name')">Application name <span class="glyphicon glyphicon-sort"></span></th>
                     <th ng-click="changeOrder('company')">Company <span class="glyphicon glyphicon-sort"></span></th>
@@ -44,26 +60,31 @@
                     <th ng-click="changeOrder('applicationUrl')">Application URL <span class="glyphicon glyphicon-sort"></span></th>
                     <th ng-click="changeOrder('logoUrl')">Logo <span class="glyphicon glyphicon-sort"></span></th>
                      -->
-                     
-                     <th class="td-checkbox"><label><input tri-state-checkbox elements="applications.list" elements-selected="applications.selected" /></label></th>
-                     <th>Logo</th>
-			         <th st-sort="name">Application ID and Name <span class="glyphicon glyphicon-sort"></span></th>
-			         <th st-sort="company">Company <span class="glyphicon glyphicon-sort"></span></th>
-			         <th st-sort="description">Description <span class="glyphicon glyphicon-sort"></span></th>
-			         <th st-sort="tags">Tags <span class="glyphicon glyphicon-sort"></span></th>
-			         <th>Application URL</th>
 
-                    
-                </tr>
-                <tr>
-			        <th colspan="8">
-			            <input st-search="" placeholder="search" class="input-sm form-control" type="text"/>
-			        </th>
+						<th class="td-checkbox"><label><input
+								tri-state-checkbox elements="applications.list"
+								elements-selected="applications.selected" /></label></th>
+						<th>Logo</th>
+						<th st-sort="name">Application ID and Name <span
+							class="glyphicon glyphicon-sort"></span></th>
+						<th st-sort="company">Company <span
+							class="glyphicon glyphicon-sort"></span></th>
+						<th st-sort="description">Description <span
+							class="glyphicon glyphicon-sort"></span></th>
+						<th st-sort="tags">Tags <span
+							class="glyphicon glyphicon-sort"></span></th>
+						<th>Application URL</th>
 
-   			 	</tr>
-                </thead>
-                <tbody>
-                <!-- OLD VERSION
+
+					</tr>
+					<tr>
+						<th colspan="8"><input st-search="" placeholder="search"
+							class="input-sm form-control" type="text" /></th>
+
+					</tr>
+				</thead>
+				<tbody>
+					<!-- OLD VERSION
                 <tr ng-repeat="app in applications.list | orderBy:orderByColumn:orderReverse" class="itemrow">
                     <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
                     <td ng-click="activateApplicationDetail(app.id)">{{app.id}} {{app.name}}</td>
@@ -76,163 +97,211 @@
                     <td><button type="button" class="btn btn-default btn-sm" ng-click="activateApplicationJson(app.id)">JSON</button></td>
                 </tr>
                 -->
-			    <tr ng-repeat="app in displayCollectionList" class="itemrow" ng-hide="app.isFiltered">
-			        <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
-                    <td ng-click="activateApplicationDetail(app.id)"><img src="{{app.logoUrl}}"
-                                                                          style="max-height: 80px; max-width: 80px;"/>
-                    </td>
-                    <td ng-click="activateApplicationDetail(app.id)">{{app.id}} <br/><b>{{app.name}}</b></td>
-			        <td ng-click="activateApplicationDetail(app.id)">{{app.company}}</td>
-			        <td ng-click="activateApplicationDetail(app.id)">{{app.description}}</td>
-			        <td ng-click="activateApplicationDetail(app.id)">{{app.tags| limitTo:20}}</td>
-			        <td ng-click="activateApplicationDetail(app.id)">{{app.applicationUrl}}</td>
+					<tr ng-repeat="app in displayCollectionList" class="itemrow"
+						ng-hide="app.isFiltered">
+						<td><label><input type="checkbox"
+								ng-model="app.isSelected"></label></td>
+						<td ng-click="activateApplicationDetail(app.id)"><img
+							src="{{app.logoUrl}}" style="max-height: 80px; max-width: 80px;" />
+						</td>
+						<td ng-click="activateApplicationDetail2(app.id)">{{app.id}} <br />
+						<b>{{app.name}}</b></td>
+						<td ng-click="activateApplicationDetail2(app.id)">{{app.company}}</td>
+						<td ng-click="activateApplicationDetail2(app.id)">{{app.description}}</td>
+						<td ng-click="activateApplicationDetail2(app.id)">{{app.tags|
+							limitTo:20}}</td>
+						<td ng-click="activateApplicationDetail2(app.id)">{{app.applicationUrl}}</td>
 
-                    <td>&nbsp;	&nbsp;<button type="button" class="btn btn-default btn-sm" ng-click="activateApplicationDetail(app.id)">EDIT</button>
-                        &nbsp;	&nbsp;<button type="button" class="btn btn-default btn-sm" ng-click="activateApplicationJson(app.id)">JSON</button>
-                        &nbsp;	&nbsp;<button type="button" class="btn btn-default btn-sm" ng-click="activateApplicationLog(app.id)">Activity</button></td>
-			    </tr>
-			    <!-- 
+						<td>
+						<!-- OLD EDIT
+						&nbsp; &nbsp;
+							<button type="button" class="btn btn-default btn-sm"
+								ng-click="activateApplicationDetail(app.id)">EDIT</button> 
+							&nbsp; &nbsp; -->
+							<button type="button" class="btn btn-default btn-sm"
+								ng-click="activateApplicationJson(app.id)">JSON edit</button> &nbsp;
+							&nbsp;
+							<button type="button" class="btn btn-default btn-sm"
+								ng-click="activateApplicationLog(app.id)">Activity</button>
+						</td>
+					</tr>
+					<!-- 
                 <tr ng-if="!applications.list.length && searchQuery">
                     <td colspan="4">No results for search "{{searchQuery}}".</td>
                 </tr> -->
-                </tbody>
-            </table>
+				</tbody>
+			</table>
 
-        </div>
+		</div>
 
-    </div>
+	</div>
 
 </div>
 
 <!-- Application import functionality -->
-<div class="modal fade" id="applicationImport" tabindex="-1" role="dialog" aria-labelledby="applicationimportlabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="applicationimportlabel">
-                    
-                    <span ng-show="applications.duplicatelist.length!=0">One more step to go</span>
-				    <span ng-show="applications.duplicatelist.length==0">Import applications</span>
-                </h4>
-            </div>
+<div class="modal fade" id="applicationImport" tabindex="-1"
+	role="dialog" aria-labelledby="applicationimportlabel"
+	aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="applicationimportlabel">
 
-            <form name="form.applicationImport" class="validate-form"  enctype="multipart/form-data">
+					<span ng-show="applications.duplicatelist.length!=0">One
+						more step to go</span> <span
+						ng-show="applications.duplicatelist.length==0">Import
+						applications</span>
+				</h4>
+			</div>
 
-                <div class="modal-body">
-					<div class="form-group" ng-show="applications.duplicatelist.length==0">
-						<label for="myFileField">Please choose the file applications.js and check it carefully again before uploading. The process will be rolled back if the configuration is invalid.</label> 
-						<input type="file" demo-file-model="myFile" class="form-control" id="myFileField" />
+			<form name="form.applicationImport" class="validate-form"
+				enctype="multipart/form-data">
+
+				<div class="modal-body">
+					<div class="form-group"
+						ng-show="applications.duplicatelist.length==0">
+						<label for="myFileField">Please choose the file
+							applications.js and check it carefully again before uploading.
+							The process will be rolled back if the configuration is invalid.</label>
+						<input type="file" demo-file-model="myFile" class="form-control"
+							id="myFileField" />
 					</div>
-					
-					
+
+
 					<button ng-click="uploadFile()" class="btn btn-primary">
 						<span ng-show="applications.duplicatelist.length!=0">Import</span>
 						<span ng-show="applications.duplicatelist.length==0">Upload</span>
 					</button>
-					<h4 ng-show="applications.duplicatelist.length!=0">
-						Existing application(s) found as follows can be overriden if selected. Leave them intact if you would like to keep the existing ones. Click the Import button to proceed.
-					</h4>
-			        <table ng-show="applications.duplicatelist.length>0" st-table="duplicateList" st-safe-src="applications.duplicatelist" class="table table-striped" >
-                <thead>
-                <tr>   
-                     <th class="td-checkbox"><label><input tri-state-checkbox elements="applications.duplicatelist"  /></label></th>
-			         <th st-sort="name">Application name <span class="glyphicon glyphicon-sort"></span></th>
-			         <th st-sort="company">Company <span class="glyphicon glyphicon-sort"></span></th>
-			         <th st-sort="description">Description <span class="glyphicon glyphicon-sort"></span></th>
-			         <th st-sort="tags">Tags <span class="glyphicon glyphicon-sort"></span></th>
-                </tr>
-                <tr>
-			        <th colspan="5">
-			            <input st-search="" placeholder="search" class="input-sm form-control" type="text"/>
-			        </th>
+					<h4 ng-show="applications.duplicatelist.length!=0">Existing
+						application(s) found as follows can be overriden if selected.
+						Leave them intact if you would like to keep the existing ones.
+						Click the Import button to proceed.</h4>
+					<table ng-show="applications.duplicatelist.length>0"
+						st-table="duplicateList" st-safe-src="applications.duplicatelist"
+						class="table table-striped">
+						<thead>
+							<tr>
+								<th class="td-checkbox"><label><input
+										tri-state-checkbox elements="applications.duplicatelist" /></label></th>
+								<th st-sort="name">Application name <span
+									class="glyphicon glyphicon-sort"></span></th>
+								<th st-sort="company">Company <span
+									class="glyphicon glyphicon-sort"></span></th>
+								<th st-sort="description">Description <span
+									class="glyphicon glyphicon-sort"></span></th>
+								<th st-sort="tags">Tags <span
+									class="glyphicon glyphicon-sort"></span></th>
+							</tr>
+							<tr>
+								<th colspan="5"><input st-search="" placeholder="search"
+									class="input-sm form-control" type="text" /></th>
 
-   			 	</tr>
-                </thead>
-                <tbody>
-			    <tr ng-repeat="app in duplicateList" class="itemrow">
-			        <td><label><input type="checkbox" ng-model="app.isSelected"></label></td>
-			        <td >{{app.id}} {{app.name}}</td>
-			        <td >{{app.company}}</td>
-			        <td >{{app.description| limitTo:20}}</td>
-			        <td >{{app.tags| limitTo:20}}</td>
-			    </tr>
-                </tbody>
-            </table>
-            
-				
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="app in duplicateList" class="itemrow">
+								<td><label><input type="checkbox"
+										ng-model="app.isSelected"></label></td>
+								<td>{{app.id}} {{app.name}}</td>
+								<td>{{app.company}}</td>
+								<td>{{app.description| limitTo:20}}</td>
+								<td>{{app.tags| limitTo:20}}</td>
+							</tr>
+						</tbody>
+					</table>
+
+
 				</div>
 
-				
 
-                <div class="modal-footer">
-             
-                    <button ng-show="applications.duplicatelist.length==0" type="button" class="btn btn-default" data-dismiss="modal">
-                        Close
-                    </button>
-                    
-                </div>
 
-            </form>
+				<div class="modal-footer">
 
-        </div>
-    </div>
+					<button ng-show="applications.duplicatelist.length==0"
+						type="button" class="btn btn-default" data-dismiss="modal">
+						Close</button>
+
+				</div>
+
+			</form>
+
+		</div>
+	</div>
 </div>
 
 
 <!-- Applicationdetail Modal -->
-<div class="modal fade" id="applicationdetail" tabindex="-1" role="dialog" aria-labelledby="applicationdetaillabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="applicationdetaillabel">
-                    {{applications.application.name || 'New application'}}
-                </h4>
-            </div>
 
-            <form name="form.applicationDetail" class="validate-form" novalidate> <!-- novalidate prevents HTML5 validation, as we will validate using Angular -->
+<div class="modal fade" id="applicationdetail" tabindex="-1"
+	role="dialog" aria-labelledby="applicationdetaillabel"
+	aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="applicationdetaillabel">
+					{{applications.application.name || 'New application'}}</h4>
+			</div>
 
-                <div class="modal-body">
-                    <div class="form-horizontal">
-                        <!--<pre>Applications: {{applications|json}}</pre>-->
-                        <!--Application: <pre>{{applications.application|json}}</pre>-->
-                        <!--Application properties:<pre>{{applicationProperties|json}}</pre>-->
-                        <!--<div class="form-group" ng-if="applications.application.isNew" ng-class="">-->
-                        <!--<label for="name" class="col-sm-2 control-label">Application name</label>-->
-                        <!--<div class="col-sm-10"><input type="text" class="form-control" id="name" name="name" ng-model="application.application.name"></div>-->
-                        <!--</div>-->
-                        
-                        <div class="form-group"
-                             ng-form="formPart"
-                             ng-class="getValidationClass(formPart)"
-                             ng-repeat="property in applicationProperties">
-                           <div ng-show="property.value!='tags'">
-	                            <label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
-	
-	                            <div class="col-sm-10">
-	                                <input type="{{property.type}}" class="form-control" id="{{property.value}}" name="{{property.value}}" ng-readonly="{{property.readOnly}}" ng-model="applications.application[property.value]" ng-minlength="{{property.minLength}}" ng-maxlength="{{property.maxLength}}" ng-required="{{property.required}}">
-	                                <span class="help-block" ng-show="formPart.$dirty || formPart.$invalid">{{property.validationMsg}}</span>
-	                            </div>
-                            </div>
-                            
-                            <div ng-show="property.value==='tags'">
+			<form name="form.applicationDetail" class="validate-form" novalidate>
+				<!-- novalidate prevents HTML5 validation, as we will validate using Angular -->
+
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<!--<pre>Applications: {{applications|json}}</pre>-->
+						<!--Application: <pre>{{applications.application|json}}</pre>-->
+						<!--Application properties:<pre>{{applicationProperties|json}}</pre>-->
+						<!--<div class="form-group" ng-if="applications.application.isNew" ng-class="">-->
+						<!--<label for="name" class="col-sm-2 control-label">Application name</label>-->
+						<!--<div class="col-sm-10"><input type="text" class="form-control" id="name" name="name" ng-model="application.application.name"></div>-->
+						<!--</div>-->
+
+
+
+						<div class="form-group" ng-form="formPart"
+							ng-class="getValidationClass(formPart)"
+							ng-repeat="property in applicationProperties">
+							<div ng-show="property.value!='tags'">
+								<label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
+
+								<div class="col-sm-10">
+									<input type="{{property.type}}" class="form-control"
+										id="{{property.value}}" name="{{property.value}}"
+										ng-readonly="{{property.readOnly}}"
+										ng-model="applications.application[property.value]"
+										ng-minlength="{{property.minLength}}"
+										ng-maxlength="{{property.maxLength}}"
+										ng-required="{{property.required}}"> <span
+										class="help-block"
+										ng-show="formPart.$dirty || formPart.$invalid">{{property.validationMsg}}</span>
+								</div>
+							</div>
+
+							<div ng-show="property.value==='tags'">
 								<label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
 								<div class="col-sm-10">
-								    
-								    <div>
-									<fieldset data-ng-repeat="tag in applications.application.tagList">
-										<input type="text" ng-model="tag.name" name="tagname" placeholder="Please enter a tag name">
-										<input type="text" ng-model="tag.value" name="tagvalue"  placeholder="Please enter the tag's value" ng-required="true">
-										<button class="remove" ng-click="removeTag($index)">-</button>
-									</fieldset>
+
+									<div>
+										<fieldset
+											data-ng-repeat="tag in applications.application.tagList">
+											<input type="text" ng-model="tag.name" name="tagname"
+												placeholder="Please enter a tag name"> <input
+												type="text" ng-model="tag.value" name="tagvalue"
+												placeholder="Please enter the tag's value"
+												ng-required="true">
+											<button class="remove" ng-click="removeTag($index)">-</button>
+										</fieldset>
 									</div>
-									<button class="addtags" ng-click="addANewTag()">Add Tags</button>
+									<button class="addtags" ng-click="addANewTag()">Add
+										Tags</button>
 								</div>
 							</div>
 						</div>
-							
-                        <!--
+
+						<!--
                         <label class="col-sm-2 control-label">{{dict[conf.lang][roleNames]||'Available Role Names'}}</label>
                         <div class="col-sm-10">
                             <textarea class="form-control" ng-model="applications.application.roleNames" ng-list="&#10;" ng-trim="false">{{ appliactions.application.roleNames | json }}</textarea>
@@ -242,122 +311,351 @@
                             <textarea class="form-control" ng-model="applications.application.orgNames" ng-list="&#10;" ng-trim="false">{{ appliactions.application.orgNames | json }}</textarea>
                         </div>
                         -->
-                    </div>
-                </div>
+					</div>
+				</div>
 
 
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        Close
-                        <span ng-if="form.applicationDetail.$dirty">and discard changes</span>
-                    </button>
-                    <button type="button" class="btn btn-primary" ng-disabled="form.applicationDetail.$invalid || form.applicationDetail.$pristine" ng-click="save()">Save changes</button>
-                    <button type="button" class="btn btn-xs btn-danger pull-left" data-dismiss="modal" ng-click="delete()" ng-if="!applications.application.isNew"><span class="glyphicon glyphicon-trash"></span> Delete {{applications.application.name}}</button>
-                </div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						Close <span ng-if="form.applicationDetail.$dirty">and
+							discard changes</span>
+					</button>
+					<button type="button" class="btn btn-primary"
+						ng-disabled="form.applicationDetail.$invalid || form.applicationDetail.$pristine"
+						ng-click="save()">Save changes</button>
+					<button type="button" class="btn btn-xs btn-danger pull-left"
+						data-dismiss="modal" ng-click="delete()"
+						ng-if="!applications.application.isNew">
+						<span class="glyphicon glyphicon-trash"></span> Delete
+						{{applications.application.name}}
+					</button>
+				</div>
 
-            </form>
+			</form>
 
-        </div>
-    </div>
-</div>
-<!-- ApplicationJson Modal -->
-<div class="modal fade" id="applicationJson" tabindex="-1" role="dialog" aria-labelledby="applicationdetaillabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="applicationdetaillabel">
-                    {{applications.application.name || 'New application'}}
-                </h4>
-            </div>
-
-            <form name="form.applicationJson" class="validate-form" novalidate> <!-- novalidate prevents HTML5 validation, as we will validate using Angular -->
-
-                <div class="modal-body">
-                    <div class="form-horizontal">
-                        <!--<pre>Applications: {{applications|json}}</pre>-->
-                        <!--Application: <pre>{{applications.application|json}}</pre>-->
-                        <!--Application properties:<pre>{{applicationProperties|json}}</pre>-->
-                        <!--<div class="form-group" ng-if="applications.application.isNew" ng-class="">-->
-                        <!--<label for="name" class="col-sm-2 control-label">Application name</label>-->
-                        <!--<div class="col-sm-10"><input type="text" class="form-control" id="name" name="name" ng-model="application.application.name"></div>-->
-                        <!--</div>-->
-                        <div class="form-group"
-                             ng-form="formPart"
-                             ng-class="getValidationClass(formPart)"
-                             ng-repeat="property in applicationJsonProperties">
-                            <label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
-
-                            <div class="col-sm-10">
-                                <textarea rows="30" type="{{property.type}}" class="form-control" id="{{property.value}}" name="{{property.value}}" ng-readonly="{{property.readOnly}}" ng-model="applications.application[property.value]" ng-minlength="{{property.minLength}}" ng-maxlength="{{property.maxLength}}" ng-required="{{property.required}}"/>
-                                <span class="help-block" ng-show="formPart.$dirty && formPart.$invalid">{{property.validationMsg}}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        Close
-                        <span ng-if="form.applicationJson.$dirty">and discard changes</span>
-                    </button>
-                    <button type="button" class="btn btn-primary" ng-disabled="form.applicationJson.$invalid || form.applicationJson.$pristine" ng-click="saveFromJson()">Save changes</button>
-                    <button type="button" class="btn btn-xs btn-danger pull-left" data-dismiss="modal" ng-click="delete()" ng-if="!applications.application.isNew"><span class="glyphicon glyphicon-trash"></span> Delete {{applications.application.name}}</button>
-                </div>
-
-            </form>
-
-        </div>
-    </div>
+		</div>
+	</div>
 </div>
 
+<!-- Applicationdetail Modal 2 -->
+<div class="modal fade" id="applicationdetail2" tabindex="-1"
+	role="dialog" aria-labelledby="applicationdetaillabel"
+	aria-hidden="false">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="applicationdetaillabel">Edit
+					application - {{applications.application.id || 'New application'}}
+				</h4>
+			</div>
+
+			<form editable-form  name="form.applicationDetail" novalidate onaftersave="save()">
+				<!-- novalidate prevents HTML5 validation, as we will validate using Angular -->
+				<div class="modal-body">
+					<div class="form-horizontal">
+
+						<div class="form-group">
+						<div class="col-sm-6">
+							<div class="col-sm-6">
+								<div class="fileinput-button">
+								
+									<img ng-show="image==null && applications.application.logoUrl!=null" src="{{applications.application.logoUrl}}" 
+										style="width: 150px; " /> 
+									<img ng-show="image==null && applications.application.logoUrl==null" src="img/blank.png" 
+										style="width: 150px; " /> 
+									<img
+										ng-show="image!=null" ng-src="{{image.resized.dataURL}}"
+										type="{{image.file.type}}" style="width: 150px; " />
+										
+									<input type="file" name="form.file" accept="image/*" ng-disabled="!form.applicationDetail.$visible"
+										image="image" resize-max-height="150" resize-max-width="150"
+										resize-quality="0.7">
+								</div>
+								
+							</div>
+	
+							<div class="col-sm-6" style="padding-left: 18px">
+								
+									 <div app-edit-field label="Application Name (*)" property-name="name" app-properties="applicationProperties"  ng-model="applications.application"  />
+		         				  	 <div app-edit-field label="Application Secret" property-name="secret" app-properties="applicationProperties"  ng-model="applications.application" />
+		         				  	 <div app-edit-field label="Application URL" property-name="applicationUrl" app-properties="applicationProperties"  ng-model="applications.application" />
+								
+		
+								
+								
+							</div>
+							
+							
+							
+							
+							 <div app-edit-field label="Application Description" property-name="description" app-properties="applicationProperties"  ng-model="applications.application"  />
+						
+							
+						</div>
+						
+						<div class="col-sm-6">
+						
+						
+						   <div class="col-sm-6" style="padding-left: 10px">
+							   <div app-edit-field label="Default Org." property-name="defaultOrganizationName" app-properties="applicationProperties"  ng-model="applications.application" options="applications.application.organizationNames" option-value="name" option-display="name" />
+							   <div app-edit-field label="Default Role" property-name="defaultRoleName" app-properties="applicationProperties"  ng-model="applications.application" options="applications.application.roles" option-value="name" option-display="name"/>
+							    
+							</div>
+							
+							
+							<div class="col-sm-6" style="padding-left: 10px">
+							    <b>Security</b>
+								<div app-edit-field label="isWhydahAdmin" property-name="whydahAdmin" app-properties="applicationProperties"  ng-model="applications.application"/>
+      							<div app-edit-field label="hasUASaccess" property-name="whydahUASAccess" app-properties="applicationProperties"  ng-model="applications.application"/>
+      							<div app-edit-field label="userTokenFilter" property-name="userTokenFilter" app-properties="applicationProperties"  ng-model="applications.application" />
+							    <div app-edit-field label="DEFCON min" property-name="minimumDEFCONLevel" app-properties="applicationProperties"  ng-model="applications.application" options="DEFCONS" />
+							</div> 
+							
+							
+							<div class="col-sm-12">
+							 
+							 
+							 <!-- -ADD PROGRESS BARS FOR COMPLETION HERE -->
+	
+							
+							</div>
+							
+						
+						</div>
+						
+						<div class="col-sm-12" style="margin-top: 15px;">
+							   <my-tabs>
+			                        <my-pane title="organizations">
+			                             <div>
+											<fieldset
+												data-ng-repeat="org in applications.application.organizationNames">
+												<input type="text" ng-model="org.id" placeholder="Enter an id" ng-required> 
+												<input type="text" ng-model="org.name" placeholder="Enter a name" ng-required="true">
+												<button type="button" ng-show="form.applicationDetail.$visible" class="remove" ng-click="removeAnOrg($index)">-</button>
+											</fieldset>
+										</div>
+										<button type="button" class="btn btn-default" ng-click="addANewOrg()" ng-show="form.applicationDetail.$visible">New row</button>
+										
+			                        </my-pane>
+			                        <my-pane title="roles">
+											<div>
+											<fieldset
+												data-ng-repeat="role in applications.application.roles">
+												<input type="text" ng-model="role.id" placeholder="Enter an id" ng-required> 
+												<input type="text" ng-model="role.name" placeholder="Enter a name" ng-required="true">
+												<button  type="button" ng-show="form.applicationDetail.$visible" class="remove" ng-click="removeARole($index)">-</button>
+											</fieldset>
+										</div>
+										<button type="button" class="btn btn-default" ng-click="addANewRole()" ng-show="form.applicationDetail.$visible">New row</button>
+			                        </my-pane>
+			                        
+			                        <my-pane title="acls">
+										<div class="col-sm-12">
+											<fieldset
+												data-ng-repeat="a in applications.application.acl">
+												<input type="text" ng-model="a.applicationId" placeholder="Enter an id" ng-required> 
+												<input type="text" ng-model="a.applicationACLPath" placeholder="Enter an ACL's Path" ng-required>
+												<input type="text" ng-model="a.accessRights" placeholder="Enter access rights">
+												
+												<button  type="button" ng-show="form.applicationDetail.$visible" class="remove" ng-click="removeAnAcl($index)">-</button>
+											</fieldset>
+										</div>
+										<button type="button" class="btn btn-default" ng-click="addANewAcl()" ng-show="form.applicationDetail.$visible">New row</button>
+			                        </my-pane>
+			                        <my-pane title="tags">
+			                          <div>
+											<fieldset
+												data-ng-repeat="tag in applications.application.tagList">
+												<input type="text" ng-model="tag.name" name="tagname"
+													placeholder="Enter a tag name"> 
+												<input
+													type="text" ng-model="tag.value" name="tagvalue"
+													placeholder="Enter the tag's value"
+													ng-required="true">
+												<button  type="button" class="remove" ng-click="removeTag($index)" ng-show="form.applicationDetail.$visible">-</button>
+											</fieldset>
+										</div>
+										<button type="button" class="btn btn-default" ng-click="addANewTag()" ng-show="form.applicationDetail.$visible">New row</button>
+			
+			                        </my-pane>
+			                        <my-pane title="users">
+			
+			                        </my-pane>
+			                        <my-pane title="access log">
+										<div class="col-sm-12">
+											<textarea rows="10" cols="60" ng-model="applications.application.applicationLog"/>
+										</div>
+			                        </my-pane>
+			                </my-tabs>
+						</div>
+						
+						</div>
+
+						
+						<ul>
+						  <li ng-repeat="(key, errors) in form.applicationDetail.$error track by $index"> <strong>{{ key }}</strong> errors
+						    <ul>
+						      <li ng-repeat="e in errors">{{ e.$name }} has an error: <strong>{{ key }}</strong>.</li>
+						    </ul>
+						  </li>
+						</ul>
+
+					</div>
+				</div>
+
+				<div class="modal-footer">
+					<div class="buttons">
+					
+						<button type="button" class="btn btn-default" ng-click="form.applicationDetail.$show()" ng-show="!form.applicationDetail.$visible">
+      						  Edit
+      					</button>
+      
+      
+      					<span ng-show="form.applicationDetail.$visible">
+							<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="form.applicationDetail.$cancel()">
+								Close <span ng-if="form.applicationDetail.$dirty">and
+									discard changes</span>
+							</button>
+							<button type="submit" class="btn btn-primary"
+								ng-disabled="form.applicationDetail.$invalid || form.applicationDetail.$pristine">Save changes</button>
+					   </span>
+					   
+					   
+      
+					  
+							
+						<button type="button" class="btn btn-xs btn-danger pull-left"
+							data-dismiss="modal" ng-click="delete()"
+							ng-if="!applications.application.isNew">
+							<span class="glyphicon glyphicon-trash"></span> Delete
+							{{applications.application.name}}
+						</button>
+					</div>
+				</div>
+
+			</form>
+
+		</div>
+	</div>
+</div>
+
 <!-- ApplicationJson Modal -->
-<div class="modal fade" id="applicationLog" tabindex="-1" role="dialog" aria-labelledby="applicationdetaillabel"
-     aria-hidden="true" >
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            </div>
+<div class="modal fade" id="applicationJson" tabindex="-1" role="dialog"
+	aria-labelledby="applicationdetaillabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="applicationdetaillabel">
+					{{applications.application.name || 'New application'}}</h4>
+			</div>
 
-            <form name="form.applicationLog" class="validate-form" novalidate>
-                <!-- novalidate prevents HTML5 validation, as we will validate using Angular -->
+			<form name="form.applicationJson" class="validate-form" novalidate>
+				<!-- novalidate prevents HTML5 validation, as we will validate using Angular -->
 
-                <div class="modal-body">
-                    <div class="form-horizontal">
-                        <!--<pre>Applications: {{applications|json}}</pre>-->
-                        <!--Application: <pre>{{applications.application|json}}</pre>-->
-                        <!--Application properties:<pre>{{applicationProperties|json}}</pre>-->
-                        <!--<div class="form-group" ng-if="applications.application.isNew" ng-class="">-->
-                        <!--<label for="name" class="col-sm-2 control-label">Application name</label>-->
-                        <!--<div class="col-sm-10"><input type="text" class="form-control" id="name" name="name" ng-model="application.application.name"></div>-->
-                        <!--</div>-->
-                        <div class="form-group"
-                             ng-form="formPart"
-                             ng-class="getValidationClass(formPart)"
-                             ng-repeat="property in applicationLogProperties">
-                            <label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<!--<pre>Applications: {{applications|json}}</pre>-->
+						<!--Application: <pre>{{applications.application|json}}</pre>-->
+						<!--Application properties:<pre>{{applicationProperties|json}}</pre>-->
+						<!--<div class="form-group" ng-if="applications.application.isNew" ng-class="">-->
+						<!--<label for="name" class="col-sm-2 control-label">Application name</label>-->
+						<!--<div class="col-sm-10"><input type="text" class="form-control" id="name" name="name" ng-model="application.application.name"></div>-->
+						<!--</div>-->
+						<div class="form-group" ng-form="formPart"
+							ng-class="getValidationClass(formPart)"
+							ng-repeat="property in applicationJsonProperties">
+							<label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
 
-                            <div class="col-sm-10">
-                                <textarea rows="30" type="{{property.type}}" class="form-control"
-                                          id="{{property.value}}" name="{{property.value}}"
-                                          ng-readonly="{{property.readOnly}}" ng-model="applications.application[property.value]"
-                                          ng-minlength="{{property.minLength}}" ng-maxlength="{{property.maxLength}}"
-                                          ng-required="{{property.required}}"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+							<div class="col-sm-10">
+								<textarea rows="30" type="{{property.type}}"
+									class="form-control" id="{{property.value}}"
+									name="{{property.value}}" ng-readonly="{{property.readOnly}}"
+									ng-model="applications.application[property.value]"
+									ng-minlength="{{property.minLength}}"
+									ng-maxlength="{{property.maxLength}}"
+									ng-required="{{property.required}}" />
+								<span class="help-block"
+									ng-show="formPart.$dirty && formPart.$invalid">{{property.validationMsg}}</span>
+							</div>
+						</div>
+					</div>
+				</div>
 
 
 
-            </form>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						Close <span ng-if="form.applicationJson.$dirty">and discard
+							changes</span>
+					</button>
+					<button type="button" class="btn btn-primary"
+						ng-disabled="form.applicationJson.$invalid || form.applicationJson.$pristine"
+						ng-click="saveFromJson()">Save changes</button>
+					<button type="button" class="btn btn-xs btn-danger pull-left"
+						data-dismiss="modal" ng-click="delete()"
+						ng-if="!applications.application.isNew">
+						<span class="glyphicon glyphicon-trash"></span> Delete
+						{{applications.application.name}}
+					</button>
+				</div>
 
-        </div>
-    </div>
+			</form>
+
+		</div>
+	</div>
+</div>
+
+<!-- ApplicationJson Modal -->
+<div class="modal fade" id="applicationLog" tabindex="-1" role="dialog"
+	aria-labelledby="applicationdetaillabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+			</div>
+
+			<form name="form.applicationLog" class="validate-form" novalidate>
+				<!-- novalidate prevents HTML5 validation, as we will validate using Angular -->
+
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<!--<pre>Applications: {{applications|json}}</pre>-->
+						<!--Application: <pre>{{applications.application|json}}</pre>-->
+						<!--Application properties:<pre>{{applicationProperties|json}}</pre>-->
+						<!--<div class="form-group" ng-if="applications.application.isNew" ng-class="">-->
+						<!--<label for="name" class="col-sm-2 control-label">Application name</label>-->
+						<!--<div class="col-sm-10"><input type="text" class="form-control" id="name" name="name" ng-model="application.application.name"></div>-->
+						<!--</div>-->
+						<div class="form-group" ng-form="formPart"
+							ng-class="getValidationClass(formPart)"
+							ng-repeat="property in applicationLogProperties">
+							<label for="{{property.value}}" class="col-sm-2 control-label">{{dict[conf.lang][property.value]}}</label>
+
+							<div class="col-sm-10">
+								<textarea rows="30" type="{{property.type}}"
+									class="form-control" id="{{property.value}}"
+									name="{{property.value}}" ng-readonly="{{property.readOnly}}"
+									ng-model="applications.application[property.value]"
+									ng-minlength="{{property.minLength}}"
+									ng-maxlength="{{property.maxLength}}"
+									ng-required="{{property.required}}" />
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+
+			</form>
+
+		</div>
+	</div>
 </div>
 
 
@@ -365,50 +663,60 @@
 
 
 <!-- Tag filter functionality -->
-<div class="modal fade" id="applicationTagModal" tabindex="-1" role="dialog" aria-labelledby="applicationtaglabel" aria-hidden="true" >
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="applicationtaglabel">
-                    <span>Tags excluse filter</span>
-                </h4>
-            </div>
+<div class="modal fade" id="applicationTagModal" tabindex="-1"
+	role="dialog" aria-labelledby="applicationtaglabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="applicationtaglabel">
+					<span>Tags excluse filter</span>
+				</h4>
+			</div>
 
-            
 
-                <div class="modal-body">
-					<button class="btn btn-default btn-sm" ng-click="clearAllFilters()"><span class="glyphicon glyphicon-trash"></span>Clear all filters</button>
-					<div class="margin-top tagList">
-				    	<div ng-repeat="menu in applications.allMenus" class="inline tag-menuitem" ng-dropdown-multiselect="" options="menu.menus" selected-model="applications.allSelectedItems[$index]" extra-settings="applications.allMenuSettings[$index]" translation-texts="applications.allMenuDefaultTextSettings[$index]" events="{ onSelectionChanged: onFiltersChanged }">
-        			</div>
-        			<br class="clearBoth"/>
-        			
-					
+
+			<div class="modal-body">
+				<button class="btn btn-default btn-sm" ng-click="clearAllFilters()">
+					<span class="glyphicon glyphicon-trash"></span>Clear all filters
+				</button>
+				<div class="margin-top tagList">
+					<div ng-repeat="menu in applications.allMenus"
+						class="inline tag-menuitem" ng-dropdown-multiselect=""
+						options="menu.menus"
+						selected-model="applications.allSelectedItems[$index]"
+						extra-settings="applications.allMenuSettings[$index]"
+						translation-texts="applications.allMenuDefaultTextSettings[$index]"
+						events="{ onSelectionChanged: onFiltersChanged }"></div>
+					<br class="clearBoth" />
+
+
 				</div>
 
-				
 
-                <div class="modal-footer">
-             
-                    <button ng-show="applications.duplicatelist.length==0" type="button" class="btn btn-default" data-dismiss="modal">
-                        Close
-                    </button>
-                    
-                </div>
 
-         
+				<div class="modal-footer">
 
-        </div>
-    </div>
-</div>
+					<button ng-show="applications.duplicatelist.length==0"
+						type="button" class="btn btn-default" data-dismiss="modal">
+						Close</button>
+
+				</div>
+
+
+
+			</div>
+		</div>
+	</div>
 </div>
 <!-- Import Progress -->
 
 
 <div class="progress" ng-show="showProgress">
 	<div class="panel panel-info" style="padding: 0px; margin: 0px">
-		<div class="panel-heading">Importing Apps {{progressbar.status()}} %</div>
+		<div class="panel-heading">Importing Apps
+			{{progressbar.status()}} %</div>
 		<div class="panel-body">
 			<div id="progress"></div>
 		</div>

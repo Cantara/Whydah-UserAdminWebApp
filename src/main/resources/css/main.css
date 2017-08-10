@@ -12,14 +12,14 @@ body {
 }
 
 #messageContainer {
-    position: absolute;
+    position: fixed;
     width: 30%;
     bottom: 0;
     right: 0;
     z-index: 1070;
 }
 .progress {
-    position: absolute;
+    position: fixed;
     width: 40%;
     bottom: 0;
     right: 5px;
@@ -148,3 +148,52 @@ fieldset{
 }
 div.inline { float:left;}
 .clearBoth { clear:both; }
+
+
+/*Copied from bootstrap */
+ .btn {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+/*Also */
+ .btn-success {
+    color: #fff;
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+}
+/* This is copied from https://github.com/blueimp/jQuery-File-Upload/blob/master/css/jquery.fileupload.css */
+ .fileinput-button {
+    position: relative;
+    overflow: hidden;
+}
+/*Also*/
+ .fileinput-button input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    opacity: 0;
+    -ms-filter:'alpha(opacity=0)';
+    font-size: 200px;
+    direction: ltr;
+    cursor: pointer;
+}
+.form-horizontal .control-label{
+    text-align: left;
+    font-weight: bold;
+}

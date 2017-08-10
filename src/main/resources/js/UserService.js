@@ -261,7 +261,7 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 				default:
 			    	Messages.add('danger', 'User was not added and! Try again later...');
 			}
-			$scope.activateTimeoutModal();
+			
 		});
 		return this;
 	};

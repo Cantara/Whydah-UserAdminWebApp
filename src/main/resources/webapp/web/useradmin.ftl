@@ -11,6 +11,7 @@
         <link href="css/main.css" rel="stylesheet">
         <link href="css/autocomplete.css" rel="stylesheet">
         <link href="css/nprogress.css" rel="stylesheet">
+        <link href="css/xeditable.min.css" rel="stylesheet">
     </head>
     <body ng-controller="MainCtrl">
 
@@ -81,6 +82,8 @@
         <!-- Framework and tools -->
         <script src="js/lib/jquery/3.2.1/jquery.min.js"></script>
         <script src="js/lib/bootstrap-3.1.1.min.js"></script>
+        <!--<script src="js/lib/angular/latest/angular.min.js"></script> !-->
+        
         <script src="js/lib/angular/latest/angular.min.js"></script>
         <script src="js/lib/angular/latest/angular-route.min.js"></script>
         <script src="js/lib/angular/latest/angular-animate.min.js"></script>
@@ -99,6 +102,7 @@
         <script src="js/lib/md5.js"></script>
         <script src="js/lib/angularjs-dropdown-multiselect.min.js"></script>
         <script src="js/lib/dirPagination.js"></script>
+		<script src="js/lib/xeditable.min.js"></script>
 
         <!-- Main application -->
         <script src="js/UseradminApp.js"></script>
@@ -114,11 +118,13 @@
         <script src="js/RoleCtrl.js"></script>
 
         <!-- Directives -->
-        <script src="js/triStateCheckbox.js"></script>
-        <script src="js/editTable.js"></script>
-        <script src="js/modal.js"></script>
-        <script src="js/directives.js"></script>
-       
+        <script src="js/directives/triStateCheckbox.js"></script>
+        <script src="js/directives/editTable.js"></script>
+        <script src="js/directives/modal.js"></script>
+        <script src="js/directives/imageupload-directives.js"></script>
+        <script src="js/directives/demoFileModel.js"></script>
+		<script src="js/directives/appEditField.js"></script>
+		<script src="js/directives/mytabs.js"></script>
 
     </body>
 </html>

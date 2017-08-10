@@ -330,7 +330,7 @@ public class UserAdminUasController {
 		
 		Application app = ApplicationMapper.fromJson(jsonResult);
 		List<Tag> tagList = new ArrayList<Tag>();
-		if(app.getTags()!=null){
+		if(app.getTags()!=null && !app.getTags().isEmpty()){
 			tagList = ApplicationTagMapper.getTagList(app.getTags());
 		}
 		
@@ -439,7 +439,7 @@ public class UserAdminUasController {
         ObjectMapper om = new ObjectMapper();
         HashMap<String, List<Tag>> tagList = new HashMap<String, List<Tag>>();
         for (Application application : applicationList) {
-        	if(application.getTags()!=null){
+        	if(application.getTags()!=null && !application.getTags().isEmpty()){
         		//tagList.addAll(ApplicationTagMapper.getTagList(application.getTags()));
         		tagList.put(application.getId(), ApplicationTagMapper.getTagList(application.getTags()));
         	}
@@ -614,6 +614,7 @@ public class UserAdminUasController {
 				while ((line = in.readLine()) !=null) {
 					responseBody.append(line);
 				}
+				response.setStatus(rescode);
 				if (rescode == 200) {
 
 					model.addAttribute(JSON_DATA_KEY, responseBody.toString());

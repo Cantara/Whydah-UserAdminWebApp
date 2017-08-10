@@ -1,0 +1,52 @@
+
+		
+	<div ng-switch="property.type">
+	    <div ng-switch-when="textarea">
+	        <label for="{{property.value}}" class="control-label">{{label}}</label><br/>
+	        <span e-ng-model="value" editable-textarea="value[propertyName]" e-rows="4" e-cols="40"
+				e-name="{{property.value}}" e-ng-readonly="{{property.readOnly}}"
+				e-ng-minlength="{{property.minLength || 0}}"
+				e-ng-maxlength="{{property.maxLength || 524288}}"
+				e-ng-required="{{property.required}}" e-ng-change="checkValidation();">{{value[propertyName] || 'empty' }}</span>
+	    </div>
+	    
+	    <div ng-switch-when="select">
+	       <label for="{{property.value}}" class="control-label">{{label}}</label><br/>
+	     	<span  e-class="input-small" e-ng-model="value" editable-select="value[propertyName]" e-name="{{property.value}}" e-ng-options="{{expression}}" >{{value[propertyName] || 'empty'}}</span>
+	    </div>
+	    
+	    <div ng-switch-when="checkbox">
+	     	<span e-type="checkbox" e-ng-model="value" editable-checkbox="value[propertyName]" e-title="{{label}}" e-name="{{property.value}}">
+        		  <span class="glyphicon glyphicon-check" ng-show="value[propertyName]">{{label}}</span>
+        		  <span class="glyphicon glyphicon-unchecked" ng-show="!value[propertyName]">{{label}}</span>
+      		</span>
+      		
+	    </div> 
+	    <div ng-switch-when="url">
+	      <label for="{{property.value}}" class="control-label">{{label}}</label><br/>
+	       <span editable-text="value[propertyName]" e-ng-model="value" e-type="url"
+				e-name="{{property.value}}" e-ng-readonly="{{property.readOnly}}"
+				e-ng-minlength="{{property.minLength || 0}}"
+				e-ng-maxlength="{{property.maxLength || 524288}}"
+				e-ng-required="{{property.required}}" e-ng-change="checkValidation();">{{value[propertyName] || 'empty' }}</span>
+	    </div>
+	    
+	    <div ng-switch-when="text">
+	      <label for="{{property.value}}" class="control-label">{{label}}</label><br/>
+	       <span editable-text="value[propertyName]" e-ng-model="value" e-type="text"
+				e-name="{{property.value}}" e-ng-readonly="{{property.readOnly}}"
+				e-ng-minlength="{{property.minLength || 0}}"
+				e-ng-maxlength="{{property.maxLength || 524288}}"
+				e-ng-required="{{property.required}}" e-ng-change="checkValidation();">{{value[propertyName] || 'empty' }}</span>
+	    </div>
+	    
+	    <div ng-switch-default>
+	    <label for="{{property.value}}" class="control-label">{{label}}</label><br/>
+	       <span editable-text="value[propertyName]" e-ng-model="value"
+				e-name="{{property.value}}" e-ng-readonly="{{property.readOnly}}"
+				e-ng-minlength="{{property.minLength || 0}}"
+				e-ng-maxlength="{{property.maxLength || 524288}}"
+				e-ng-required="{{property.required}}" e-ng-change="checkValidation();">{{value[propertyName] || 'empty' }}</span>
+	    </div>
+	</div>
+	

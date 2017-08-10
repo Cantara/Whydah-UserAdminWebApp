@@ -3,7 +3,7 @@ UseradminApp.directive('editTable', function() {
     restrict: 'A',
     replace: true,
     scope: { elements: '=', visibleFields: '=', elementsSelected: '=', editAction: '&' },
-    templateUrl: 'template/editTable.html',
+    templateUrl: 'template/directives/editTable.html',
     controller: function($scope, $element) {
     }
   };

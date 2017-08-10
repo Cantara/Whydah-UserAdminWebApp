@@ -1,4 +1,11 @@
-var UseradminApp = angular.module('UseradminApp', ['ngRoute', 'ngAnimate', 'ui.bootstrap.tooltip', 'autocomplete', 'smart-table', 'ngProgress', 'angularjs-dropdown-multiselect', 'angularUtils.directives.dirPagination']);
+var UseradminApp = angular.module('UseradminApp', ['ngRoute', 'ngAnimate', 'ui.bootstrap.tooltip', 'autocomplete', 'smart-table', 'ngProgress', 'angularjs-dropdown-multiselect', 'angularUtils.directives.dirPagination', 'imageupload', 'xeditable']);
+
+UseradminApp.constant('ConstantValues', {
+
+    
+	clientsAutoUpdateLogInterval: 1*60*1000 //clear cache and auto fetch occurs each 1 minute
+
+});
 
 UseradminApp.config(['$routeProvider',
   function($routeProvider) {
@@ -67,4 +74,9 @@ UseradminApp.filter('wrap', function () {
 
     return value + (tail || ' …');
   };
+});
+
+
+UseradminApp.run(function(editableOptions) {
+	  editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
 });
