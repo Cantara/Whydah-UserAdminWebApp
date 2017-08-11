@@ -339,10 +339,10 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
     this.deleteRoleForUser = function(role, user) {
 	    console.log('Deleting role for user', user, role);
 	    var that = this;
-	    var roleName = role.applicationRoleName;
+	    var roleName = role.roleName;
 		$http({
 			method: 'DELETE',
-			url: baseUrl+'user/'+user.uid+'/role/'+role.roleId,
+			url: baseUrl+'user/'+user.uid+'/role/'+role.id,
 			data: role
 		}).then(function (response) {
 			var data = response.data;
@@ -367,10 +367,10 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
     this.saveRoleForUser = function(role, user) {
 	    console.log('saveRoleForUser ', user, role);
 	    var that = this;
-	    var roleName = role.applicationRoleName;
+	    var roleName = role.roleName;
 		$http({
 			method: 'PUT',
-			url: baseUrl+'user/'+user.uid+'/role/'+role.roleId,
+			url: baseUrl+'user/'+user.uid+'/role/'+role.id,
 			data: role
 		}).then(function (response) {
 			var data = response.data;

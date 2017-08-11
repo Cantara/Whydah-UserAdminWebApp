@@ -101,7 +101,7 @@
 						ng-hide="app.isFiltered">
 						<td><label><input type="checkbox"
 								ng-model="app.isSelected"></label></td>
-						<td ng-click="activateApplicationDetail(app.id)"><img
+						<td ng-click="activateApplicationDetail2(app.id)"><img
 							src="{{app.logoUrl}}" style="max-height: 80px; max-width: 80px;" />
 						</td>
 						<td ng-click="activateApplicationDetail2(app.id)">{{app.id}} <br />
@@ -371,7 +371,7 @@
 										type="{{image.file.type}}" style="width: 150px; " />
 										
 									<input type="file" name="form.file" accept="image/*" ng-disabled="!form.applicationDetail.$visible"
-										image="image" resize-max-height="150" resize-max-width="150"
+										image="image" resize-max-height="150" resize-max-width="150" on-image-selected="onImageSelected()"
 										resize-quality="0.7">
 								</div>
 								

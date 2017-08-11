@@ -84,6 +84,7 @@ angular.module('imageupload', [])
                 resizeMaxWidth: '@?',
                 resizeQuality: '@?',
                 resizeType: '@?',
+                onImageSelected: '&'
             },
             link: function postLink(scope, element, attrs, ctrl) {
 
@@ -105,6 +106,14 @@ angular.module('imageupload', [])
                             scope.image.push(imageResult);
                         else
                             scope.image = imageResult; 
+                        
+                        
+                        if(scope.onImageSelected){
+                        	
+                        	scope.onImageSelected();
+                        }
+                       
+                        
                     });
                 };
 

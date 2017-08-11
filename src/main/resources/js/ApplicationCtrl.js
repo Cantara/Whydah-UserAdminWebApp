@@ -108,6 +108,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 			//$scope.form.userDetail.$setPristine();
 			$('#applicationdetail2').modal('show').on("hidden.bs.modal", function () {
 				 $interval.cancel(theIntervalUpdateLog);
+				 $scope.form.applicationDetail.$cancel();
 			});
 			//fetch logs for this application
 			 getLog(id);
@@ -234,6 +235,12 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 			}
 	}
 
+	$scope.onImageSelected = function(){
+	
+		$scope.form.applicationDetail.$setDirty();
+		
+	}
+	
 	$scope.save = function() {
 		
 		
@@ -241,7 +248,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 		if($scope.form.applicationDetail.$valid){
 			
 			if($scope.image){
-				Applications.application.logoUrl = $scope.image.resized.dataURL;
+				Applications.application.logoUrl = angular.copy($scope.image.resized.dataURL);
 			}
 			
 			
@@ -252,7 +259,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 					$scope.form.applicationDetail.$setPristine();
 					$scope.form.applicationDetail.$cancel();
 					init();
-					
+					$scope.image = null;
 					$('#applicationdetail2').modal('hide');
 				});
 			} else {
@@ -260,6 +267,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 				Applications.save(Applications.application, function(){
 					$scope.form.applicationDetail.$setPristine();
 					$scope.form.applicationDetail.$cancel();
+					$scope.image = null;
 					init();
 				});
 			}
