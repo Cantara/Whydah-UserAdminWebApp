@@ -23,9 +23,12 @@ import java.util.*;
 
 public class UserStressTest {
 
-    public String uawaURI = "http://localhost:9996/useradmin/";
-    public String stsURI = "http://localhost:9998/tokenservice/";
-    public static String apptokenIdFromUASWA = "";
+	public static String uawaURI = "https://inn-qa-uaswa.opplysningen.no/useradmin/";
+	public String stsURI = "https://inn-qa-sts.opplysningen.no/tokenservice/";
+
+	//	public String uawaURI = "http://localhost:9996/useradmin/";
+//    public String stsURI = "http://localhost:9998/tokenservice/";
+	public static String apptokenIdFromUASWA = "";
 
 
 	//NEEDED WHEN ASKING UAWA FOR THE CURRENT APPTOKENID

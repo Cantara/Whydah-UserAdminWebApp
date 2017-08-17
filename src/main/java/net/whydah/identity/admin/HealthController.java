@@ -13,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.Properties;
 
 @RequestMapping("/")
@@ -43,10 +44,14 @@ public class HealthController {
         return "{\n" +
                 "  \"Status\": \"OK\",\n" +
                 "  \"Version\": \"" + getVersion() + "\",\n" +
-                "  \"DEFCON\": \"" + "DEFCON5" + "\"\n" +
+                "  \"DEFCON\": \"" + tokenServiceClient.getWAS().getDefcon() + "\",\n" +
+                "  \"STS\": \"" + tokenServiceClient.getWAS().getSTS() + "\",\n" +
+                "  \"UAS\": \"" + tokenServiceClient.getWAS().getUAS() + "\",\n" +
                 "  \"hasApplicationToken\": \"" + Boolean.toString((tokenServiceClient.getWAS().getActiveApplicationTokenId() != null)) + "\"\n" +
                 "  \"hasValidApplicationToken\": \"" + Boolean.toString(tokenServiceClient.getWAS().checkActiveSession()) + "\"\n" +
                 "  \"hasApplicationsMetadata\": \"" + Boolean.toString(tokenServiceClient.getWAS().getApplicationList().size() > 2) + "\"\n" +
+                "  \"now\": \"" + Instant.now() + "\",\n" +
+                "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\"," +
 
 
                 "}\n";
