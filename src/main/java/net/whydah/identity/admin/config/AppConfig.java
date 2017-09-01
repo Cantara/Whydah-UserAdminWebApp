@@ -1,7 +1,6 @@
 package net.whydah.identity.admin.config;
 
 import net.whydah.sso.config.ApplicationMode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,10 +8,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Helper methods for reading configurration.
@@ -29,6 +26,8 @@ public class AppConfig {
         if(configfilename != null) {
             loadFromFile(properties, configfilename);
         }
+        logProperties(properties);
+
         return properties;
     }
 
@@ -42,9 +41,17 @@ public class AppConfig {
             System.exit(3);
         }
         properties.load(is);
+        logProperties(properties);
+
         return properties;
     }
 
+    private static void logProperties(Properties properties) {
+        Set keys = properties.keySet();
+        for (Object key : keys) {
+            log.info("Property: {}, value {}", key, properties.getProperty((String) key));
+        }
+    }
     private static void loadFromFile(Properties properties, String configfilename) throws IOException {
         File file = new File(configfilename);
         log.info("Overriding defaults from property file {}", file.getAbsolutePath());
@@ -54,6 +61,8 @@ public class AppConfig {
             log.error("Config file {} specified by System property {} not found.", configfilename, IAM_CONFIG_KEY);
             System.exit(3);
         }
+        logProperties(properties);
+
     }
   
 }
