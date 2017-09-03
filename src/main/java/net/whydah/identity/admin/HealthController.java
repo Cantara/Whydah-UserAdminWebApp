@@ -51,7 +51,7 @@ public class HealthController {
                 "  \"hasValidApplicationToken\": \"" + Boolean.toString(tokenServiceClient.getWAS().checkActiveSession()) + "\"\n" +
                 "  \"hasApplicationsMetadata\": \"" + Boolean.toString(tokenServiceClient.getWAS().hasApplicationMetaData()) + "\"\n" +
                 "  \"now\": \"" + Instant.now() + "\",\n" +
-                "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\"," +
+                "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\"" +
 
 
                 "}\n";
