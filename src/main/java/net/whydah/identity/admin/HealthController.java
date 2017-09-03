@@ -49,7 +49,7 @@ public class HealthController {
                 "  \"UAS\": \"" + tokenServiceClient.getWAS().getUAS() + "\",\n" +
                 "  \"hasApplicationToken\": \"" + Boolean.toString((tokenServiceClient.getWAS().getActiveApplicationTokenId() != null)) + "\"\n" +
                 "  \"hasValidApplicationToken\": \"" + Boolean.toString(tokenServiceClient.getWAS().checkActiveSession()) + "\"\n" +
-                "  \"hasApplicationsMetadata\": \"" + Boolean.toString(tokenServiceClient.getWAS().getApplicationList().size() > 2) + "\"\n" +
+                "  \"hasApplicationsMetadata\": \"" + Boolean.toString(tokenServiceClient.getWAS().hasApplicationMetaData()) + "\"\n" +
                 "  \"now\": \"" + Instant.now() + "\",\n" +
                 "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\"," +
 
