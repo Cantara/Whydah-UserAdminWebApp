@@ -1,7 +1,9 @@
 package net.whydah.identity;
 
+import net.whydah.identity.admin.WhydahServiceClient;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.config.SSLTool;
+import net.whydah.sso.config.ApplicationMode;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -17,9 +19,21 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 public class ServerRunner {
-    public static final int PORT_NO = 9996;
+    public static int PORT_NO = 9996;
+    public static final String CONTEXT = "/useradmin";
+
     //public static final String TESTURL = "http://localhost:" + PORT_NO + "/action";
-	private static final Logger log = LoggerFactory.getLogger(ServerRunner.class);
+    private static final Logger log = LoggerFactory.getLogger(ServerRunner.class);
+
+    private Server server;
+    private ServletContextHandler context;
+    public static String version;
+
+
+    public static String getHEALTHURL() {
+        return "http://localhost:" + PORT_NO + CONTEXT + "/health";
+    }
+
 
 	public static void main(String[] arguments) throws Exception {
 		// Property-overwrite of SSL verification to support weak ssl certificates
@@ -28,27 +42,62 @@ public class ServerRunner {
 			SSLTool.disableCertificateValidation();
 
 		}
-
-		RuntimeDelegate.setInstance(new
-				com.sun.jersey.server.impl.provider.RuntimeDelegateImpl());
-
-		Server server = new Server(PORT_NO);
-		ServletContextHandler context = new ServletContextHandler(server, "/useradmin");
-
-		DispatcherServlet dispatcherServlet = new DispatcherServlet();
-		dispatcherServlet.setContextConfigLocation("classpath:webapp/web/mvc-config.xml");
-
-		ServletHolder servletHolder = new ServletHolder(dispatcherServlet);
-		context.addServlet(servletHolder, "/*");
-
 		Path currentDir = getCurrentPath();
 		Path tempUploadDir = currentDir.resolve("data_export_dir");
 		createDirectories(tempUploadDir);
 
-		server.start();
-		server.join();
+        ServerRunner serverRunner = new ServerRunner();
+        serverRunner.start();
+
+
+        printConfiguration(AppConfig.readProperties());
+        WhydahServiceClient tc = new WhydahServiceClient();
+        log.info("UserAdminWebApp started OK. Version = {},IAM_MODE = {}, url: http://localhost:{}{}/login",
+                version, ApplicationMode.getApplicationMode(), String.valueOf(PORT_NO), CONTEXT);
+
+        serverRunner.join();
+
 	}
 
+
+    public ServerRunner() throws IOException {
+        this(PORT_NO);
+    }
+
+    public ServerRunner(int portNo) throws IOException {
+        this.PORT_NO = portNo;
+        server = new Server(PORT_NO);
+        context = new ServletContextHandler(server, CONTEXT);
+        version = this.getClass().getPackage().getImplementationVersion();
+
+
+        DispatcherServlet dispatcherServlet = new DispatcherServlet();
+        dispatcherServlet.setContextConfigLocation("classpath:webapp/web/mvc-config.xml");
+        ServletHolder servletHolder = new ServletHolder(dispatcherServlet);
+        context.addServlet(servletHolder, "/*");
+
+        RuntimeDelegate.setInstance(new
+                com.sun.jersey.server.impl.provider.RuntimeDelegateImpl());
+
+    }
+
+    public void start() throws Exception {
+        server.start();
+    }
+
+    public void stop() throws Exception {
+        server.stop();
+    }
+
+    public void join() throws InterruptedException {
+        server.join();
+    }
+
+    public static void printConfiguration(Properties properties) {
+        for (Object key : properties.keySet()) {
+            log.info("Using Property: {}, value: {}", key, properties.get(key));
+        }
+    }
 
 	public static Path getCurrentPath() {
 		return

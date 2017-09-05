@@ -1,6 +1,7 @@
 package net.whydah.identity.admin;
 
 import net.whydah.sso.util.WhydahUtil;
+import net.whydah.sso.whydah.DEFCON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -30,14 +31,30 @@ public class HealthController {
     @RequestMapping("/health")
     @Produces(MediaType.TEXT_PLAIN)
     public String isHealthy(HttpServletRequest request, HttpServletResponse response, Model model) {
-        boolean ok = true;
-        String statusText = WhydahUtil.getPrintableStatus(tokenServiceClient.getWAS());
-        log.trace("isHealthy={}, status: {}", ok, statusText);
-        if (ok) {
-            model.addAttribute("health", getHealthTextJson());
-        } else {
+        try {
+            if (tokenServiceClient.getWAS() == null) {
+                model.addAttribute("health", "Initializing");
+                return "health";
+
+            }
+            boolean ok = tokenServiceClient.getWAS().getDefcon().equals(DEFCON.DEFCON5);
+
+            if (ok && tokenServiceClient.getWAS().checkActiveSession()) {
+                log.trace("isHealthy={}, status: {}", ok, WhydahUtil.getPrintableStatus(tokenServiceClient.getWAS()));
+                model.addAttribute("health", getHealthTextJson());
+                return "health";
+            } else {
+                log.trace("isHealthy={}, status: {}", ok, WhydahUtil.getPrintableStatus(tokenServiceClient.getWAS()));
+                model.addAttribute("health", "isHealthy={false}");
+                return "health";
+            }
+        } catch (Exception e) {
+            log.warn("Initializing WhydahServiceClient", e);
+            model.addAttribute("health", "Initializing");
+            return "health";
+
         }
-        return "health";
+
     }
 
     public String getHealthTextJson() {
