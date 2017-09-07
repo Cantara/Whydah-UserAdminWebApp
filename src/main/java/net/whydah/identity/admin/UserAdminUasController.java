@@ -469,7 +469,7 @@ public class UserAdminUasController {
             jsonresult = new CommandListUserActivities(java.net.URI.create(properties.getProperty("statisticsservice")), apptokenid, usertokenid, applicationId.trim()).execute();
             if(jsonresult!=null){
                 //we should filter activities for this particular application
-                jsonresult = UserActivityHelper.getUserSessionsJsonFromUserActivityJson(jsonresult, null, applicationId);
+				jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(jsonresult, null, applicationId);
 
             }
         } catch (Exception e){
@@ -498,7 +498,7 @@ public class UserAdminUasController {
 			jsonresult = new CommandListUserActivities(java.net.URI.create(properties.getProperty("statisticsservice")), apptokenid, usertokenid, username.trim()).execute();
 			if (jsonresult != null) {
                 //we should filter activities for this particular application
-				jsonresult = UserActivityHelper.getUserSessionsJsonFromUserActivityJson(jsonresult, username);
+				jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(jsonresult, username);
 
             }
         } catch (Exception e) {
