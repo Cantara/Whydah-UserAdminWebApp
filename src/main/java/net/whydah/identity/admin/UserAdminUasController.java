@@ -577,11 +577,11 @@ public class UserAdminUasController {
 		HttpMethod method = new GetMethod();
 		String url;
 		try {
-			url = buildUasUrl(apptokenid, usertokenid, "applications/find/" + URIUtil.encodeAll(utf8query));
-		} catch (URIException urie) {
+            url = buildUasUrl(apptokenid, usertokenid, "find/applications/" + URIUtil.encodeAll(utf8query));
+        } catch (URIException urie) {
 			log.warn("Error in handling URIencoding", urie);
-			url = buildUasUrl(apptokenid, usertokenid, "applications/find/" + query);
-		}
+            url = buildUasUrl(apptokenid, usertokenid, "find/applications/" + query);
+        }
 		makeUasRequest(method, url, model, response);
 		return JSON_KEY;
 	}
