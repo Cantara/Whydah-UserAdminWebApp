@@ -19,6 +19,7 @@ import net.whydah.sso.user.mappers.UserIdentityMapper;
 import net.whydah.sso.user.mappers.UserRoleMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
+import net.whydah.sso.user.types.UserTokenID;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.*;
@@ -563,7 +564,7 @@ public class UserAdminUasController {
 	public String findApplications(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
 			@PathVariable("query") String query, HttpServletRequest request, HttpServletResponse response, Model model) {
 		log.trace("findApplications - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
-		if (usertokenid == null || usertokenid.length() < 7) {
+		if (!new UserTokenID(usertokenid).isValid()) {
 			usertokenid = CookieManager.getUserTokenIdFromCookie(request);
 			log.trace("findApplications - Override usertokenid={}", usertokenid);
 		}
