@@ -3,7 +3,6 @@ package net.whydah.identity.admin.dao;
 import net.whydah.identity.admin.CookieManager;
 import net.whydah.identity.admin.WhydahServiceClient;
 import net.whydah.identity.admin.config.AppConfig;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.slf4j.Logger;
@@ -13,13 +12,9 @@ import org.springframework.ui.Model;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.UriBuilder;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 public enum SessionUserAdminDao {
@@ -127,8 +122,9 @@ public enum SessionUserAdminDao {
         try {
             //try ticket
             if (userTicket != null && userTicket.length() > 3) {
-                log.trace("Find UserToken - Using userTicket");
+                log.trace("Find UserToken - Using userTicket:{}", userTicket);
                 userTokenXml = getServiceClient().getUserTokenByUserTicket(userTicket);
+                log.trace("Found UserToken - :{}", userTokenXml);
                 isValidTicket = false;
                 if (userTokenXml != null) {
                     if (net.whydah.identity.admin.usertoken.UserTokenXpathHelper.hasUserAdminRight(userTokenXml, SessionUserAdminDao.instance.UAWA_APPLICATION_ID)) {
@@ -145,6 +141,7 @@ public enum SessionUserAdminDao {
             if (userTokenId != null && userTokenId.length() > 3) { //from cookie
                 log.trace("Find UserToken - Using userTokenID from cookie");
                 userTokenXml = getServiceClient().getUserTokenByUserTokenID(userTokenId);
+                log.trace("Found UserToken - :{}", userTokenXml);
                 if (userTokenXml != null) {
                     if (net.whydah.identity.admin.usertoken.UserTokenXpathHelper.hasUserAdminRight(userTokenXml, SessionUserAdminDao.instance.UAWA_APPLICATION_ID)) {
                         Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
