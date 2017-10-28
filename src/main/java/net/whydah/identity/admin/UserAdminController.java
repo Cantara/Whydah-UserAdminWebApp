@@ -93,8 +93,8 @@ public class UserAdminController {
                 Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
                 CookieManager.createAndSetUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, response);
                 addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml));
-                log.info("Logon OK. userTokenIdFromUserTokenXml={}", userTokenId);
-        		return SessionUserAdminDao.instance.MY_APP_TYPE;
+                log.info("Logon OK. userTokenIdFromUserTokenXml={}, userTokenXML", userTokenId, userTokenXml);
+                return SessionUserAdminDao.instance.MY_APP_TYPE;
         	}
         }
     }
