@@ -27,6 +27,10 @@ UseradminApp.config(['$routeProvider',
       });
 }]);
 
+UseradminApp.config(['$locationProvider', function($locationProvider) {
+	  $locationProvider.hashPrefix('');
+	}]);
+
 // "Global" variables
 UseradminApp.controller('MainCtrl', function($scope, $routeParams, Messages) {
   $scope.conf = {
