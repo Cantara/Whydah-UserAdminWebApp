@@ -1,8 +1,8 @@
 package net.whydah.identity;
 
-import net.whydah.identity.admin.WhydahServiceClient;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.config.SSLTool;
+import net.whydah.identity.admin.dao.WhydahServiceClient;
 import net.whydah.sso.config.ApplicationMode;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;

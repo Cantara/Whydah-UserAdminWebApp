@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.ServerRunner;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
+import net.whydah.identity.admin.dao.WhydahServiceClient;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.mappers.ApplicationTagMapper;
 import net.whydah.sso.application.types.Application;
@@ -52,8 +53,8 @@ import java.util.*;
  */
 @RequestMapping("/{apptokenid}/{usertokenid}")
 @Controller
-public class UserAdminUasController {
-	private static final Logger log = LoggerFactory.getLogger(UserAdminUasController.class);
+public class UASProxyController {
+	private static final Logger log = LoggerFactory.getLogger(UASProxyController.class);
 	private static final String JSON_DATA_KEY = "jsondata";
 	public static final String JSON_KEY = "json";
 	public static final String CONTENTTYPE_JSON_UTF8 = "application/json; charset=utf-8";
@@ -66,9 +67,9 @@ public class UserAdminUasController {
 	private static Map<String, String> map_importedFileNames = new HashMap<String, String>();
 	private static Path currentDir = ServerRunner.getCurrentPath();
 	private static Path tempUploadDir = currentDir.resolve("data_import_dir");
-    
-    
-	public UserAdminUasController() throws IOException {
+
+
+	public UASProxyController() throws IOException {
 		Properties properties = AppConfig.readProperties();
 		userAdminServiceUrl = properties.getProperty("useradminservice");
 		httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());

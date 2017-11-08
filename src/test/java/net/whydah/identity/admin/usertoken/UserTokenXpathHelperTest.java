@@ -2,14 +2,15 @@ package net.whydah.identity.admin.usertoken;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static net.whydah.identity.admin.dao.SessionUserAdminDao.hasUserAdminRight;
+import static org.junit.Assert.assertTrue;
 
 public class UserTokenXpathHelperTest {
     @Test
     public void testHasUserAdminRightAllowed() {
         String[] noAccessRoleValues = new String[]{"1", "true", "enabled", ""};
         for (String allowedRoleValue : noAccessRoleValues) {
-            assertTrue(UserTokenXpathHelper.hasUserAdminRight(getUserToken(allowedRoleValue), "2219"));
+            assertTrue(hasUserAdminRight(getUserToken(allowedRoleValue), "2219"));
         }
     }
 
@@ -21,13 +22,6 @@ public class UserTokenXpathHelperTest {
         }
     }
 
-    @Test
-    public void testHasUserAdminRightDeniedWrongRoles() {
-        String[] noAccessRoleValues = new String[]{"User", "Admin", "Manager"};
-        for (String noAccessRoleValue : noAccessRoleValues) {
-            assertFalse(noAccessRoleValue + " was expected to result in access denied.", UserTokenXpathHelper.getRoleValueFromUserToken(getUserToken(noAccessRoleValue), "2219", "WhydahUserAdmin") ==null);
-        }
-    }
 
     private String getUserToken(String roleValue) {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +

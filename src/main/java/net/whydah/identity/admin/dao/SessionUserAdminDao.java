@@ -1,7 +1,6 @@
 package net.whydah.identity.admin.dao;
 
 import net.whydah.identity.admin.CookieManager;
-import net.whydah.identity.admin.WhydahServiceClient;
 import net.whydah.identity.admin.config.AppConfig;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -17,10 +16,13 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.util.Properties;
 
+import static net.whydah.sso.basehelpers.XpathHelper.findValue;
+
 public enum SessionUserAdminDao {
     instance;
 
-    protected Logger log = LoggerFactory.getLogger(SessionUserAdminDao.class);
+    private static final Logger log = LoggerFactory.getLogger(SessionUserAdminDao.class);
+    protected Logger logger = LoggerFactory.getLogger(SessionUserAdminDao.class);
     protected Properties properties;
 
     private WhydahServiceClient serviceClient;
@@ -70,13 +72,13 @@ public enum SessionUserAdminDao {
             
             httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
 
-            StringBuilder strb = new StringBuilder("Initialized UserAdminController \n");
+            StringBuilder strb = new StringBuilder("Initialized UAWAController \n");
             strb.append("\n- Standalone=").append(STANDALONE);
             strb.append("\n- MY_APP_URI=").append(MY_APP_URI);
             strb.append("\n- LOGIN_SERVICE_REDIRECT=").append(LOGIN_SERVICE_REDIRECT);
             strb.append("\n- LOGOUT_SERVICE_REDIRECT=").append(LOGOUT_SERVICE_REDIRECT);
 
-            log.debug(strb.toString());
+            logger.debug(strb.toString());
 
 
         } catch (IOException e) {
@@ -127,7 +129,7 @@ public enum SessionUserAdminDao {
                 log.trace("Found UserToken - :{}", userTokenXml);
                 isValidTicket = false;
                 if (userTokenXml != null) {
-                    if (net.whydah.identity.admin.usertoken.UserTokenXpathHelper.hasUserAdminRight(userTokenXml, SessionUserAdminDao.instance.UAWA_APPLICATION_ID)) {
+                    if (hasUserAdminRight(userTokenXml, SessionUserAdminDao.instance.UAWA_APPLICATION_ID)) {
                         Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
                         CookieManager.updateUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, request, response);
                         model.addAttribute(ConstantValue.USER_TOKEN_ID, userTokenId);
@@ -143,7 +145,7 @@ public enum SessionUserAdminDao {
                 userTokenXml = getServiceClient().getUserTokenByUserTokenID(userTokenId);
                 log.trace("Found UserToken - :{}", userTokenXml);
                 if (userTokenXml != null) {
-                    if (net.whydah.identity.admin.usertoken.UserTokenXpathHelper.hasUserAdminRight(userTokenXml, SessionUserAdminDao.instance.UAWA_APPLICATION_ID)) {
+                    if (hasUserAdminRight(userTokenXml, SessionUserAdminDao.instance.UAWA_APPLICATION_ID)) {
                         Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
                         CookieManager.updateUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, request, response);
                         model.addAttribute(ConstantValue.USER_TOKEN_ID, userTokenId);
@@ -180,10 +182,31 @@ public enum SessionUserAdminDao {
 	        hashedPass = "0" + hashedPass;
 	      }
 	    } catch (Exception e) {
-	      System.out.println("failed to create md5");
-	      System.out.println(e.getMessage());
-	    }
+            log.debug("failed to create md5");
+            log.debug(e.getMessage());
+        }
 	    return hashedPass;
 	  }
+
+    public static boolean hasUserAdminRight(String userTokenXml, String applicationId) {
+        return !(getRoleValueFromUserToken(userTokenXml, applicationId, "WhydahUserAdmin") == null);
+
+    }
+
+    public static String getRoleValueFromUserToken(String userTokenXml, String applicationId, String roleName) {
+        String userRole = "";
+        if (userTokenXml == null) {
+            log.debug("userTokenXml was empty, so returning null.");
+            return null;
+        } else {
+            String expression = "count(/usertoken/application[@ID='" + applicationId + "']/role[@name='" + roleName + "'])";
+            userRole = findValue(userTokenXml, expression);
+            if (userRole == null || "0".equalsIgnoreCase(userRole)) {
+                return null;
+            }
+            return findValue(userTokenXml, "/usertoken/application[@ID='" + applicationId + "']/role[@name='" + roleName + "']");
+        }
+    }
+
 
 }

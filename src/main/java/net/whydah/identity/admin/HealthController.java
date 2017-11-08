@@ -1,6 +1,7 @@
 package net.whydah.identity.admin;
 
 import net.whydah.identity.admin.config.AppConfig;
+import net.whydah.identity.admin.dao.WhydahServiceClient;
 import net.whydah.sso.util.WhydahUtil;
 import net.whydah.sso.whydah.DEFCON;
 import org.slf4j.Logger;
