@@ -2,7 +2,6 @@ package net.whydah.identity;
 
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.config.SSLTool;
-import net.whydah.identity.admin.dao.WhydahServiceClient;
 import net.whydah.sso.config.ApplicationMode;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -51,7 +50,7 @@ public class ServerRunner {
 
 
         printConfiguration(AppConfig.readProperties());
-        WhydahServiceClient tc = new WhydahServiceClient();
+//        WhydahUAWAServiceClient tc = new WhydahUAWAServiceClient();
         log.info("UserAdminWebApp started OK. Version = {},IAM_MODE = {}, url: http://localhost:{}{}/login",
                 version, ApplicationMode.getApplicationMode(), String.valueOf(PORT_NO), CONTEXT);
 

@@ -7,16 +7,24 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.UriBuilder;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
+import java.io.StringReader;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.Properties;
 
-import static net.whydah.sso.basehelpers.XpathHelper.findValue;
 
 public enum SessionUserAdminDao {
     instance;
@@ -25,7 +33,7 @@ public enum SessionUserAdminDao {
     protected Logger logger = LoggerFactory.getLogger(SessionUserAdminDao.class);
     protected Properties properties;
 
-    private WhydahServiceClient serviceClient;
+    private WhydahUAWAServiceClient serviceClient;
     public String MY_APP_TYPE = "myapp";
     public String MY_APP_URI;
     public String LOGIN_SERVICE;
@@ -48,7 +56,7 @@ public enum SessionUserAdminDao {
 
             properties = AppConfig.readProperties();
             this.tokenServiceUri = UriBuilder.fromUri(properties.getProperty("securitytokenservice")).build();
-            serviceClient = new WhydahServiceClient(properties);
+            serviceClient = new WhydahUAWAServiceClient(properties);
             STANDALONE = Boolean.valueOf(properties.getProperty("standalone"));
             MY_APP_URI = properties.getProperty("myuri");
             MY_APP_TYPE = properties.getProperty("myapp");
@@ -130,7 +138,7 @@ public enum SessionUserAdminDao {
                 isValidTicket = false;
                 if (userTokenXml != null) {
                     if (hasUserAdminRight(userTokenXml, SessionUserAdminDao.instance.UAWA_APPLICATION_ID)) {
-                        Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
+                        Integer tokenRemainingLifetimeSeconds = WhydahUAWAServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
                         CookieManager.updateUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, request, response);
                         model.addAttribute(ConstantValue.USER_TOKEN_ID, userTokenId);
                         model.addAttribute(ConstantValue.USERTICKET, userTicket);
@@ -146,7 +154,7 @@ public enum SessionUserAdminDao {
                 log.trace("Found UserToken - :{}", userTokenXml);
                 if (userTokenXml != null) {
                     if (hasUserAdminRight(userTokenXml, SessionUserAdminDao.instance.UAWA_APPLICATION_ID)) {
-                        Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
+                        Integer tokenRemainingLifetimeSeconds = WhydahUAWAServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
                         CookieManager.updateUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, request, response);
                         model.addAttribute(ConstantValue.USER_TOKEN_ID, userTokenId);
                         return userTokenXml;
@@ -168,7 +176,7 @@ public enum SessionUserAdminDao {
         return userTokenXml;
     }
 
-    public WhydahServiceClient getServiceClient() {
+    public WhydahUAWAServiceClient getServiceClient() {
         return serviceClient;
     }
 
@@ -208,5 +216,24 @@ public enum SessionUserAdminDao {
         }
     }
 
+    public static String findValue(String xmlString, String expression) {
+        String value = null;
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.parse(new InputSource(new StringReader(xmlString)));
+            XPath xPath = XPathFactory.newInstance().newXPath();
+
+
+            XPathExpression xPathExpression = xPath.compile(expression);
+            value = xPathExpression.evaluate(doc);
+        } catch (Exception e) {
+            log.warn("Failed to parse xml. Expression {}, xml {}, ", expression, xmlString, e);
+        }
+        return value;
+    }
 
 }

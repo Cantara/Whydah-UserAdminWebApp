@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.ServerRunner;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
-import net.whydah.identity.admin.dao.WhydahServiceClient;
+import net.whydah.identity.admin.dao.WhydahUAWAServiceClient;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.mappers.ApplicationTagMapper;
 import net.whydah.sso.application.types.Application;
@@ -60,7 +60,7 @@ public class UASProxyController {
 	public static final String CONTENTTYPE_JSON_UTF8 = "application/json; charset=utf-8";
 	private final String userAdminServiceUrl;
 	private final HttpClient httpClient;
-	private WhydahServiceClient tokenServiceClient = new WhydahServiceClient();
+	private WhydahUAWAServiceClient tokenServiceClient = new WhydahUAWAServiceClient();
 	private static Map<String, Integer> preImportUsersProgress=new HashMap<String, Integer>();
 	private static Map<String, Integer> importUsersProgress=new HashMap<String, Integer>();
 	private static Map<String, Integer> importAppsProgress=new HashMap<String, Integer>();

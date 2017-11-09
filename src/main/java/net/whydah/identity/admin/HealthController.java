@@ -1,7 +1,7 @@
 package net.whydah.identity.admin;
 
 import net.whydah.identity.admin.config.AppConfig;
-import net.whydah.identity.admin.dao.WhydahServiceClient;
+import net.whydah.identity.admin.dao.WhydahUAWAServiceClient;
 import net.whydah.sso.util.WhydahUtil;
 import net.whydah.sso.whydah.DEFCON;
 import org.slf4j.Logger;
@@ -23,19 +23,19 @@ import java.util.Properties;
 @Controller
 public class HealthController {
     private static final Logger log = LoggerFactory.getLogger(HealthController.class);
-    private WhydahServiceClient tokenServiceClient = new WhydahServiceClient();
+    private WhydahUAWAServiceClient tokenServiceClient = new WhydahUAWAServiceClient();
     protected static Properties properties;
 
     private static String applicationInstanceName;
 
 
     public HealthController() throws IOException {
-        tokenServiceClient = new WhydahServiceClient();
+        tokenServiceClient = new WhydahUAWAServiceClient();
         try {
             properties = AppConfig.readProperties();
             this.applicationInstanceName = properties.getProperty("applicationname");
         } catch (Exception e) {
-            log.warn("Unable to create WhydahServiceClient in constructor", e);
+            log.warn("Unable to create WhydahUAWAServiceClient in constructor", e);
         }
 
     }
@@ -61,7 +61,7 @@ public class HealthController {
                 return "health";
             }
         } catch (Exception e) {
-            log.warn("Initializing WhydahServiceClient", e);
+            log.warn("Initializing WhydahUAWAServiceClient", e);
             model.addAttribute("health", "Initializing");
             return "health";
 

@@ -40,8 +40,7 @@ public class ServerStarterTest {
             url = new URL(ServerRunner.getHEALTHURL());
             conn = url.openConnection();
             conn.connect();
-            conn = url.openConnection();
-            conn.connect();
+
             InputStream respose = conn.getInputStream();
             try (Scanner scanner = new Scanner(respose)) {
                 String responseBody = scanner.useDelimiter("\\A").next();

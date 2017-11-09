@@ -3,7 +3,7 @@ package net.whydah.identity.admin;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.ConstantValue;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
-import net.whydah.identity.admin.dao.WhydahServiceClient;
+import net.whydah.identity.admin.dao.WhydahUAWAServiceClient;
 import net.whydah.sso.user.helpers.UserTokenXpathHelper;
 import net.whydah.sso.user.mappers.UserTokenMapper;
 import org.slf4j.Logger;
@@ -52,7 +52,7 @@ public class UAWAController {
         		return "login_error";
         	} else {
                 String userTokenId = UserTokenXpathHelper.getUserTokenId(userTokenXml);
-                Integer tokenRemainingLifetimeSeconds = WhydahServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
+                Integer tokenRemainingLifetimeSeconds = WhydahUAWAServiceClient.calculateTokenRemainingLifetimeInSeconds(userTokenXml);
                 CookieManager.createAndSetUserTokenCookie(userTokenId, tokenRemainingLifetimeSeconds, response);
                 addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml));
                 log.info("Logon OK. userTokenIdFromUserTokenXml={}, userTokenXML{}", userTokenId, userTokenXml);
