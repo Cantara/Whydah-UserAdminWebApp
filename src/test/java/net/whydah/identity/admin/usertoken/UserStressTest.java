@@ -133,7 +133,7 @@ public class UserStressTest {
 
 	private void addATestUser(int i) {
         UserAggregate ua = new UserAggregate("j" +
-                "m_uid-" + i, "m_username " + i, "firstName " + i, "lastName " + i, "personRef " + i, "tester" + i + "@whydah.com", String.valueOf(RandomUtils.nextInt(1000000000)));
+                "m_uid-" + i, "m_username " + i, "firstName" + i, "lastName" + i, "personRef" + i, "tester" + i + "@whydah.com", String.valueOf(RandomUtils.nextInt(1000000000)));
         ua.setRoleList(new ArrayList<UserApplicationRoleEntry>());
         String json = UserAggregateMapper.toJson(ua);
 		String addCmd = new BaseHttpPostHystrixCommand<String>(URI.create(uawaURI), null, null, "STRESS_TEST", 2000) {
