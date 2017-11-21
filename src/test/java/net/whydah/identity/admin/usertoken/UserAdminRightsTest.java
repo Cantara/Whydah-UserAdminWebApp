@@ -1,14 +1,27 @@
 package net.whydah.identity.admin.usertoken;
 
+import net.whydah.sso.user.helpers.UserXpathHelper;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static net.whydah.identity.admin.dao.SessionUserAdminDao.hasUserAdminRight;
+import static net.whydah.identity.admin.usertoken.UserStressTest.setEnv;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
 public class UserAdminRightsTest {
 
+    @BeforeClass
+    public static void setup() throws Exception {
+        Map<String, String> addToEnv = new HashMap<>();
+        addToEnv.put("IAM_MODE", "TEST");
+        setEnv(addToEnv);
+
+    }
     @Test
     public void testAccessVerifyer() throws Exception {
 
@@ -94,5 +107,50 @@ public class UserAdminRightsTest {
         assertFalse(hasUserAdminRight(tottoToken, "2219"));
     }
 
+    @Test
+    public void testAccessVerifyer2() {
+
+        String testUserTokenWithoutRightRole = "";
+        assertFalse(hasUserAdminRight(testUserTokenWithoutRightRole, "2219"));
+
+
+        String testUserTokenWithRightRole = "<usertoken xmlns:ns2=\"http://www.w3.org/1999/xhtml\" id=\"37fbd0a0-8fee-436c-810f-b61741456629\">\n" +
+                "    <uid>useradmin</uid>\n" +
+                "    <timestamp>1511257841655</timestamp>\n" +
+                "    <lifespan>86400000</lifespan>\n" +
+                "    <issuer></issuer>\n" +
+                "    <securitylevel>1</securitylevel>\n" +
+                "    <DEFCON>DEFCON5</DEFCON>\n" +
+                "    <username>useradmin</username>\n" +
+                "    <firstname>UserAdmin</firstname>\n" +
+                "    <lastname>UserAdminWebApp</lastname>\n" +
+                "    <cellphone>87654321</cellphone>\n" +
+                "    <email>whydahadmin@getwhydah.com</email>\n" +
+                "    <personref>42</personref>\n" +
+                "    <application ID=\"2219\">\n" +
+                "        <applicationName>Whydah-UserAdminWebApp</applicationName>\n" +
+                "        <organizationName>Support</organizationName>\n" +
+                "        <role name=\"WhydahUserAdmin\" value=\"1\"/>\n" +
+                "    </application>\n" +
+                "    <application ID=\"2212\">\n" +
+                "        <applicationName>Whydah-UserAdminService</applicationName>\n" +
+                "        <organizationName>Whydah</organizationName>\n" +
+                "        <role name=\"WhydahUserAdmin\" value=\"1\"/>\n" +
+                "    </application>\n" +
+                "    <application ID=\"2210\">\n" +
+                "        <applicationName>Whydah-UserIdentityBackend</applicationName>\n" +
+                "        <organizationName>Whydah</organizationName>\n" +
+                "        <role name=\"WhydahUserAdmin\" value=\"1\"/>\n" +
+                "    </application>\n" +
+                "\n" +
+                "    <ns2:link type=\"application/xml\" href=\"https://whydahdev.cantara.no/tokenservice/user/c1378e0d3171d0b970f6b9bf990f18a1/validate_usertokenid/37fbd0a0-8fee-436c-810f-b61741456629\" rel=\"self\"/>\n" +
+                "    <hash type=\"MD5\">55926edd39d2ef5d6599756ea506ca5c</hash>\n" +
+                "</usertoken>";
+
+        assertTrue(UserXpathHelper.hasRoleFromUserToken(testUserTokenWithRightRole, "2219", "WhydahUserAdmin"));
+        assertFalse(UserXpathHelper.hasRoleFromUserToken(testUserTokenWithRightRole, "3219", "WhydahUserAdmin"));
+        assertTrue(hasUserAdminRight(testUserTokenWithRightRole, "2219"));
+
+    }
 
 }

@@ -2,25 +2,17 @@ package net.whydah.identity.admin.dao;
 
 import net.whydah.identity.admin.CookieManager;
 import net.whydah.identity.admin.config.AppConfig;
+import net.whydah.sso.user.helpers.UserXpathHelper;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.UriBuilder;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
-import java.io.StringReader;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.Properties;
@@ -197,43 +189,11 @@ public enum SessionUserAdminDao {
 	  }
 
     public static boolean hasUserAdminRight(String userTokenXml, String applicationId) {
-        return !(getRoleValueFromUserToken(userTokenXml, applicationId, "WhydahUserAdmin") == null);
-
+        return UserXpathHelper.hasRoleFromUserToken(userTokenXml, applicationId, "WhydahUserAdmin");
     }
 
-    public static String getRoleValueFromUserToken(String userTokenXml, String applicationId, String roleName) {
-        String userRole = "";
-        if (userTokenXml == null) {
-            log.debug("userTokenXml was empty, so returning null.");
-            return null;
-        } else {
-            String expression = "count(/usertoken/application[@ID='" + applicationId + "']/role[@name='" + roleName + "'])";
-            userRole = findValue(userTokenXml, expression);
-            if (userRole == null || "0".equalsIgnoreCase(userRole)) {
-                return null;
-            }
-            return findValue(userTokenXml, "/usertoken/application[@ID='" + applicationId + "']/role[@name='" + roleName + "']");
-        }
-    }
-
-    public static String findValue(String xmlString, String expression) {
-        String value = null;
-        try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(new InputSource(new StringReader(xmlString)));
-            XPath xPath = XPathFactory.newInstance().newXPath();
 
 
-            XPathExpression xPathExpression = xPath.compile(expression);
-            value = xPathExpression.evaluate(doc);
-        } catch (Exception e) {
-            log.warn("Failed to parse xml. Expression {}, xml {}, ", expression, xmlString, e);
-        }
-        return value;
-    }
+
 
 }
