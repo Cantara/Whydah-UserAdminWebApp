@@ -1,5 +1,6 @@
 package net.whydah.identity.admin.usertoken;
 
+import net.whydah.identity.admin.dao.SessionUserAdminDao;
 import net.whydah.sso.user.helpers.UserXpathHelper;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -151,6 +152,11 @@ public class UserAdminRightsTest {
         assertFalse(UserXpathHelper.hasRoleFromUserToken(testUserTokenWithRightRole, "3219", "WhydahUserAdmin"));
         assertTrue(hasUserAdminRight(testUserTokenWithRightRole, "2219"));
 
+    }
+
+    @Test
+    public void testProperty() {
+        assertTrue("2219".equalsIgnoreCase(SessionUserAdminDao.instance.UAWA_APPLICATION_ID));
     }
 
 }

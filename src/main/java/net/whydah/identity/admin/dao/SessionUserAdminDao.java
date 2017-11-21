@@ -59,7 +59,7 @@ public enum SessionUserAdminDao {
             LOGIN_SERVICE_REDIRECT = "redirect:" + properties.getProperty("logonservice") + "login?" + ConstantValue.REDIRECT_URI + "=" + MY_APP_URI;
             LOGOUT_SERVICE = properties.getProperty("logonservice") + "logout?" + ConstantValue.REDIRECT_URI + "=" + MY_APP_URI;
             LOGOUT_SERVICE_REDIRECT = "redirect:" + LOGOUT_SERVICE;
-            UAWA_APPLICATION_ID = properties.getProperty("applicationid");
+            UAWA_APPLICATION_ID = properties.getProperty("applicationid").trim();
             if (UAWA_APPLICATION_ID == null || UAWA_APPLICATION_ID.trim().isEmpty()) {
                 throw new RuntimeException("Missing configuration property: applicationid");
             }
