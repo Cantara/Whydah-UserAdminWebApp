@@ -7,15 +7,52 @@
         <title>Whydah Useradmin</title>
         
         <link href="css/bootstrap-glyphicons.css" rel="stylesheet">
-        <link href="css/bootstrap-3.1.1.min.css" rel="stylesheet">
+        <link href="css/bootstrap-3.3.7.min.css" rel="stylesheet">
         <link href="css/main.css" rel="stylesheet">
         <link href="css/autocomplete.css" rel="stylesheet">
         <link href="css/nprogress.css" rel="stylesheet">
         <link href="css/xeditable.min.css" rel="stylesheet">
     </head>
+    <style>
+   			
+			.navbar-custom {
+			  background-color:#0c7bbe;
+			  color:#ffffff;
+			  border-radius:0;
+			}
+			
+			.navbar-custom .navbar-nav > li > a {
+			  color:#fff;
+			}
+			
+			.navbar-custom .navbar-nav > .active > a {
+			  color: #ffffff;
+			  background-color:transparent;
+			}
+			
+			.navbar-custom .navbar-nav > li > a:hover,
+			.navbar-custom .navbar-nav > li > a:focus,
+			.navbar-custom .navbar-nav > .active > a:hover,
+			.navbar-custom .navbar-nav > .active > a:focus,
+			.navbar-custom .navbar-nav > .open >a {
+			  text-decoration: none;
+			  background-color: #0c7bbe;
+			}
+			
+			.navbar-custom .navbar-brand {
+			  color:#eeeeee;
+			}
+			.navbar-custom .navbar-toggle {
+			  background-color:#eeeeee;
+			}
+			.navbar-custom .icon-bar {
+			  background-color:#0c7bbe;
+			}
+   			
+    </style>
     <body ng-controller="MainCtrl">
 
-        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <nav class="navbar navbar-default navbar-custom navbar-fixed-top" role="navigation">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -24,7 +61,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#"><img src="img/whydah.png" alt="Whydah" style="max-height: 90%"/> Whydah Useradmin</a>
+                    <a class="navbar-brand" href="#"><img src="img/whydah.png" alt="Whydah" style="max-height: 90%; display: inline;"/> Whydah Useradmin</a>
                 </div>
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
@@ -35,9 +72,10 @@
                     <ul class="nav navbar-nav navbar-right">
                         <li><a id="logout" href="${logOutUrl}">Log out <strong>${realName}</strong></a></li>
                     </ul>
-                </div><!--/.nav-collapse -->
+                </div>
             </div>
-        </div>
+        </nav>
+      
 
         <!-- Logon timeout Modal -->
         <div class="modal fade" id="timeoutmodal" tabindex="-1" role="dialog" aria-labelledby="timoutlabel" aria-hidden="true" ng-controller="MainCtrl">
@@ -81,7 +119,7 @@
 
         <!-- Framework and tools -->
         <script src="js/lib/jquery/3.2.1/jquery.min.js"></script>
-        <script src="js/lib/bootstrap-3.1.1.min.js"></script>
+        <script src="js/lib/bootstrap-3.3.7.min.js"></script>
         <!--<script src="js/lib/angular/latest/angular.min.js"></script> !-->
         
         <script src="js/lib/angular/latest/angular.min.js"></script>
