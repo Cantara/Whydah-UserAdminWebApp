@@ -623,8 +623,12 @@ public class UASProxyController {
 					response.setContentType(CONTENTTYPE_JSON_UTF8);
 					return responseBody.toString();
 					
+				} if (rescode == 400) {
+					String msg = "{\"error\":\"Illegal input value.\"}";
+					model.addAttribute(JSON_DATA_KEY,msg);
+					return msg;
+					
 				} else {
-
 					log.warn("Failed connection to UAS. Reason {}", responseBody.toString() );
 					String msg = "{\"error\":\"Failed connection to backend. Please investigate the logs for reason.\"}";
 					model.addAttribute(JSON_DATA_KEY,msg);
