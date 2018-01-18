@@ -1,6 +1,7 @@
 package net.whydah.identity.admin.usertoken;
 
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
+import net.whydah.sso.config.ApplicationMode;
 import net.whydah.sso.user.helpers.UserXpathHelper;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,8 +22,10 @@ public class UserAdminRightsTest {
         Map<String, String> addToEnv = new HashMap<>();
         addToEnv.put("IAM_MODE", "TEST");
         setEnv(addToEnv);
+        System.setProperty(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
 
     }
+
     @Test
     public void testAccessVerifyer() throws Exception {
 

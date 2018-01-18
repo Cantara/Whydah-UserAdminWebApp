@@ -1,11 +1,18 @@
 package net.whydah.identity.admin.usertoken;
 
+import net.whydah.sso.config.ApplicationMode;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-
 public class ProgressReportTest {
+
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        System.setProperty(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
+    }
 
 	@Test
 	public void testReportForFun(){

@@ -8,6 +8,7 @@ import net.whydah.sso.commands.baseclasses.BaseHttpDeleteHystrixCommand;
 import net.whydah.sso.commands.baseclasses.BaseHttpGetHystrixCommand;
 import net.whydah.sso.commands.baseclasses.BaseHttpPostHystrixCommand;
 import net.whydah.sso.commands.userauth.CommandLogonUserByUserCredential;
+import net.whydah.sso.config.ApplicationMode;
 import net.whydah.sso.user.helpers.UserXpathHelper;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.types.UserAggregate;
@@ -15,6 +16,7 @@ import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserCredential;
 import net.whydah.sso.util.SSLTool;
 import org.apache.commons.lang.math.RandomUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -51,6 +53,7 @@ public class UserStressTest {
 
         Map<String, String> addToEnv = new HashMap<>();
         addToEnv.put("IAM_MODE", "TEST");
+		System.setProperty(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
         setEnv(addToEnv);
         SSLTool.disableCertificateValidation();
         
@@ -79,7 +82,7 @@ public class UserStressTest {
 	}
 	
 	@Test
-	//@Ignore
+	@Ignore
 	public void doUsersStressTestWith1000Users() throws Exception{
 		
 		setup();
