@@ -46,15 +46,15 @@ public class UserStressTest {
 	//TEST METHODS
 
 	public void setup() throws Exception {
+		Map<String, String> addToEnv = new HashMap<>();
+		addToEnv.put(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
+		setEnv(addToEnv);
+		System.setProperty(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
 
 		//initialize the testing service
 		ApplicationCredential appCredential = new ApplicationCredential(TEMPORARY_APPLICATION_ID, TEMPORARY_APPLICATION_NAME, TEMPORARY_APPLICATION_SECRET);
 		UserCredential userCredential = new UserCredential(userName, password);
 
-        Map<String, String> addToEnv = new HashMap<>();
-        addToEnv.put("IAM_MODE", "TEST");
-		System.setProperty(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
-        setEnv(addToEnv);
         SSLTool.disableCertificateValidation();
         
         String myApplicationTokenID = "";

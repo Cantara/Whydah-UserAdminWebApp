@@ -5,13 +5,20 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static net.whydah.identity.admin.usertoken.UserStressTest.setEnv;
 
 public class ProgressReportTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        System.setProperty(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
+		Map<String, String> addToEnv = new HashMap<>();
+		addToEnv.put(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
+		setEnv(addToEnv);
+		System.setProperty(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
     }
 
 	@Test

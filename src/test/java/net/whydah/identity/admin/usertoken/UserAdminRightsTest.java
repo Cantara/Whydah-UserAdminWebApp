@@ -20,7 +20,7 @@ public class UserAdminRightsTest {
     @BeforeClass
     public static void setup() throws Exception {
         Map<String, String> addToEnv = new HashMap<>();
-        addToEnv.put("IAM_MODE", "TEST");
+        addToEnv.put(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
         setEnv(addToEnv);
         System.setProperty(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
 
