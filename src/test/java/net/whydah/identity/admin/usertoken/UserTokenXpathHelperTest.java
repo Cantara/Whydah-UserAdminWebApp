@@ -1,11 +1,26 @@
 package net.whydah.identity.admin.usertoken;
 
+import net.whydah.sso.config.ApplicationMode;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static net.whydah.identity.admin.dao.SessionUserAdminDao.hasUserAdminRight;
+import static net.whydah.identity.admin.usertoken.UserStressTest.setEnv;
 import static org.junit.Assert.assertTrue;
 
 public class UserTokenXpathHelperTest {
+
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        Map<String, String> addToEnv = new HashMap<>();
+        addToEnv.put(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
+        setEnv(addToEnv);
+        System.setProperty(ApplicationMode.IAM_MODE_KEY, ApplicationMode.DEV);
+    }
+
     @Test
     public void testHasUserAdminRightAllowed() {
         String[] noAccessRoleValues = new String[]{"1", "true", "enabled", ""};
