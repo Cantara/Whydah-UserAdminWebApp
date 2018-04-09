@@ -16,6 +16,28 @@ import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.mappers.ApplicationTagMapper;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.Tag;
+import net.whydah.sso.commands.adminapi.application.CommandAddApplication;
+import net.whydah.sso.commands.adminapi.application.CommandDeleteApplication;
+import net.whydah.sso.commands.adminapi.application.CommandGetApplication;
+import net.whydah.sso.commands.adminapi.application.CommandUpdateApplication;
+import net.whydah.sso.commands.adminapi.user.CommandAddUser;
+import net.whydah.sso.commands.adminapi.user.CommandAddUserAggregate;
+import net.whydah.sso.commands.adminapi.user.CommandCheckDuplicateUsers;
+import net.whydah.sso.commands.adminapi.user.CommandDeleteUser;
+import net.whydah.sso.commands.adminapi.user.CommandExportUsers;
+import net.whydah.sso.commands.adminapi.user.CommandGetUser;
+import net.whydah.sso.commands.adminapi.user.CommandGetUserAggregate;
+import net.whydah.sso.commands.adminapi.user.CommandListUsers;
+import net.whydah.sso.commands.adminapi.user.CommandListUsersWithPagination;
+import net.whydah.sso.commands.adminapi.user.CommandResetUserPassword;
+import net.whydah.sso.commands.adminapi.user.CommandUpdateUser;
+import net.whydah.sso.commands.adminapi.user.CommandUpdateUserAggregate;
+import net.whydah.sso.commands.adminapi.user.role.CommandAddUserRole;
+import net.whydah.sso.commands.adminapi.user.role.CommandDeleteUserRole;
+import net.whydah.sso.commands.adminapi.user.role.CommandGetUserRoles;
+import net.whydah.sso.commands.adminapi.user.role.CommandUpdateUserRole;
+import net.whydah.sso.commands.application.CommandListApplications;
+import net.whydah.sso.commands.application.CommandSearchForApplications;
 import net.whydah.sso.commands.extensions.crmapi.CommandGetCRMCustomer;
 import net.whydah.sso.commands.extensions.statistics.CommandListUserActivities;
 import net.whydah.sso.ddd.model.user.UserTokenId;
@@ -27,13 +49,15 @@ import net.whydah.sso.user.mappers.UserRoleMapper;
 import net.whydah.sso.user.mappers.UserTokenMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
+import net.whydah.sso.util.StringConv;
 
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.*;
-import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.apache.commons.httpclient.util.URIUtil;
+//import org.apache.commons.httpclient.*;
+//import org.apache.commons.httpclient.HttpMethod;
+//import org.apache.commons.httpclient.methods.*;
+//import org.apache.commons.httpclient.params.HttpMethodParams;
+//import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,8 +74,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -67,7 +94,7 @@ public class UASProxyController {
 	public static final String JSON_KEY = "json";
 	public static final String CONTENTTYPE_JSON_UTF8 = "application/json; charset=utf-8";
 	private final String userAdminServiceUrl;
-	private final HttpClient httpClient;
+	//private final HttpClient httpClient;
 	private WhydahUAWAServiceClient tokenServiceClient = new WhydahUAWAServiceClient();
 	private static Map<String, Integer> preImportUsersProgress=new HashMap<String, Integer>();
 	private static Map<String, Integer> importUsersProgress=new HashMap<String, Integer>();
@@ -80,7 +107,7 @@ public class UASProxyController {
 	public UASProxyController() throws IOException {
 		Properties properties = AppConfig.readProperties();
 		userAdminServiceUrl = properties.getProperty("useradminservice");
-		httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
+		//httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
 		ServerRunner.createDirectories(tempUploadDir);
 	}
 
@@ -108,12 +135,12 @@ public class UASProxyController {
 	@RequestMapping(value = "/users/find/{query}", method = RequestMethod.GET)
 	public String findUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, @PathVariable("query") String query, HttpServletRequest request, HttpServletResponse response, Model model) {
 		log.trace("findUsers - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
-        
+
 		String utf8query = query;
 		try {
 			utf8query = new String(query.getBytes("ISO-8859-1"), "UTF-8");
@@ -127,27 +154,34 @@ public class UASProxyController {
 		}
 
 		log.info("findUsers - Finding users with query: " + utf8query);
-		HttpMethod method = new GetMethod();
-		String url;
 		try {
-			url = buildUasUrl(apptokenid, usertokenid, "users/find/" + URIUtil.encodeAll(utf8query));
-		} catch (URIException urie) {
-			log.warn("Error in handling URIencoding", urie);
-			url = buildUasUrl(apptokenid, usertokenid, "users/find/" + query);
+			utf8query = URLEncoder.encode(utf8query, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
-		makeUasRequest(method, url, model, response);
-		return JSON_KEY;
+		//		HttpMethod method = new GetMethod();
+		//		String url;
+		//		try {
+		//			url = buildUasUrl(apptokenid, usertokenid, "users/find/" + URIUtil.encodeAll(utf8query));
+		//		} catch (URIException urie) {
+		//			log.warn("Error in handling URIencoding", urie);
+		//			url = buildUasUrl(apptokenid, usertokenid, "users/find/" + query);
+		//		}
+
+		//HttpClient replacement
+		CommandListUsers cmd = new CommandListUsers(URI.create(userAdminServiceUrl), apptokenid, usertokenid, utf8query);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 	private String checkLogin(String usertokenid, HttpServletRequest request,
 			HttpServletResponse response, Model model) {
-		
+
 		if (usertokenid == null || usertokenid.length() < 7) {
 			usertokenid = CookieManager.getUserTokenIdFromCookie(request);
 			log.trace("findUsers - Override usertokenid={}", usertokenid);
 		}
-		
-		
+
+
 		String userTokenXml = SessionUserAdminDao.instance.getServiceClient().getUserTokenByUserTokenID(usertokenid);
 		log.trace("Found UserToken - :{}", userTokenXml);
 		if (userTokenXml != null) {
@@ -157,7 +191,7 @@ public class UASProxyController {
 				model.addAttribute(ConstantValue.USER_TOKEN_ID, usertokenid);
 			} else {
 				CookieManager.clearUserTokenCookie(request, response);
-        		addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml)); 
+				addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml)); 
 				return "login_error";
 			}
 		} else {
@@ -165,7 +199,7 @@ public class UASProxyController {
 		}
 		return null;
 	}
-	
+
 
 
 	@GET
@@ -174,18 +208,21 @@ public class UASProxyController {
 	public String getUserIdentity(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
 			@PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
 		log.trace("getUserIdentity with uid={}", uid);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
-		
-		HttpMethod method = new GetMethod();
-		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
-		makeUasRequest(method, url, model, response);
-		log.trace("getUserIdentity with uid={} returned the following jsondata=\n{}", uid, model.asMap().get(JSON_DATA_KEY));
-		response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
+
+		//		HttpMethod method = new GetMethod();
+		//		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
+		//		makeUasRequest(method, url, model, response);
+		//		log.trace("getUserIdentity with uid={} returned the following jsondata=\n{}", uid, model.asMap().get(JSON_DATA_KEY));
+		//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+
+		//HttpClient replacement
+		CommandGetUser cmd = new CommandGetUser(URI.create(userAdminServiceUrl), apptokenid, usertokenid, uid);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 	//Not currently used. Json fetch useridentity + roles currently.
@@ -207,24 +244,44 @@ public class UASProxyController {
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@RequestMapping(value = "/user/", method = RequestMethod.POST)
 	public String createUserIdentity(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
-			HttpServletRequest request, HttpServletResponse response, Model model) {
+			HttpServletRequest request, HttpServletResponse response, Model model) throws IOException {
 		log.trace("createUserIdentity was called");
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
-		
-		InputStreamRequestEntity inputStreamRequestEntity = null;
-		try {
-			inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
-		} catch (IOException e) {
-			log.error("", e);
+
+		//		InputStreamRequestEntity inputStreamRequestEntity = null;
+		//		try {
+		//			inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
+		//		} catch (IOException e) {
+		//			log.error("", e);
+		//		}
+		//		PostMethod method = new PostMethod();
+		//		method.setRequestEntity(inputStreamRequestEntity);
+		//		String url = buildUasUrl(apptokenid, usertokenid, "user/");
+		//		makeUasRequest(method, url, model, response);
+		//		
+		//	
+		//		log.trace("createUserIdentity with the following jsondata=\n{}", model.asMap().get(JSON_DATA_KEY));
+		//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+
+		//HttpClient replacement
+		String json = IOUtils.toString(request.getInputStream(), "UTF-8");
+		CommandAddUser cmd = new CommandAddUser(URI.create(userAdminServiceUrl), apptokenid, usertokenid, json);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
+
+	}
+
+	private String handleResponse(HttpServletResponse response, Model model, String result, byte[] raw_response, int statusCode) {
+		if(result!=null) {
+			model.addAttribute(JSON_DATA_KEY, result);
+		} else {
+			String responseMsg = raw_response!=null? StringConv.UTF8(raw_response): "N/A" ;
+			log.warn("Failed connection to UAS. Response code: {} - Response message: {}", statusCode, responseMsg);
+			String msg = "{\"error\":\"Failed connection to the backend server - " +  (statusCode!=0 ? ("Status code: " + statusCode) : "A fallback exception occured." ) + "\"}";
+			model.addAttribute(JSON_DATA_KEY, msg);
 		}
-		PostMethod method = new PostMethod();
-		method.setRequestEntity(inputStreamRequestEntity);
-		String url = buildUasUrl(apptokenid, usertokenid, "user/");
-		makeUasRequest(method, url, model, response);
-		log.trace("createUserIdentity with the following jsondata=\n{}", model.asMap().get(JSON_DATA_KEY));
 		response.setContentType(CONTENTTYPE_JSON_UTF8);
 		return JSON_KEY;
 	}
@@ -233,47 +290,57 @@ public class UASProxyController {
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@RequestMapping(value = "/user/{uid}/", method = RequestMethod.PUT)
 	public String updateUserIdentity(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
-			@PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
+			@PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) throws IOException {
 		log.trace("updateUserIdentity with uid={}", uid);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
-		
-		InputStreamRequestEntity inputStreamRequestEntity = null;
-		try {
-			inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
-		} catch (IOException e) {
-			log.error("", e);
-		}
-		PutMethod method = new PutMethod();
-		method.setRequestEntity(inputStreamRequestEntity);
-		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
-		makeUasRequest(method, url, model, response);
-		log.trace("updateUserIdentity for uid={} with the following jsondata=\n{}", uid, model.asMap().get(JSON_DATA_KEY));
-		response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
+
+		//		InputStreamRequestEntity inputStreamRequestEntity = null;
+		//		try {
+		//			inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
+		//		} catch (IOException e) {
+		//			log.error("", e);
+		//		}
+		//		PutMethod method = new PutMethod();
+		//		method.setRequestEntity(inputStreamRequestEntity);
+		//		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
+		//		makeUasRequest(method, url, model, response);
+		//		log.trace("updateUserIdentity for uid={} with the following jsondata=\n{}", uid, model.asMap().get(JSON_DATA_KEY));
+		//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+		//		return JSON_KEY;
+
+		//HttpClient replacement
+		String json = IOUtils.toString(request.getInputStream(), "UTF-8");
+		CommandUpdateUser cmd = new CommandUpdateUser(URI.create(userAdminServiceUrl), apptokenid, usertokenid, uid, json);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
+
 	}
 
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@RequestMapping(value = "/user/{uid}/", method = RequestMethod.DELETE)
 	public String deleteUser(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
-			@PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
-		
+			@PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) throws IOException {
+
 		log.info("Deleting user with uid: " + uid);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
-		
-		DeleteMethod method = new DeleteMethod();
-		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
-		makeUasRequest(method, url, model, response);
-		response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
+
+		//		DeleteMethod method = new DeleteMethod();
+		//		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid);
+		//		makeUasRequest(method, url, model, response);
+		//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+		//		return JSON_KEY;
+
+		//HttpClient replacement
+		CommandDeleteUser cmd = new CommandDeleteUser(URI.create(userAdminServiceUrl), apptokenid, usertokenid, uid);
+		return handleResponse(response, model, cmd.execute()?"":null, cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 
@@ -285,45 +352,54 @@ public class UASProxyController {
 	public String getUserRoles(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
 			@PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
 		log.trace("Getting user roles for user with uid={}", uid);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
-		
-		HttpMethod method = new GetMethod();
-		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid + "/roles");
-		makeUasRequest(method, url, model, response);
-		log.trace("getUserRoles with uid={} returned the following jsondata=\n{}", uid, model.asMap().get(JSON_DATA_KEY));
-		response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
+
+		//		HttpMethod method = new GetMethod();
+		//		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid + "/roles");
+		//		makeUasRequest(method, url, model, response);
+		//		log.trace("getUserRoles with uid={} returned the following jsondata=\n{}", uid, model.asMap().get(JSON_DATA_KEY));
+		//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+		//		return JSON_KEY;
+
+		//HttpClient replacement
+		CommandGetUserRoles cmd = new CommandGetUserRoles(URI.create(userAdminServiceUrl), apptokenid, usertokenid, uid);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@RequestMapping(value = "/user/{uid}/role/", method = RequestMethod.POST)
 	public String postUserRole(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
-			@PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
+			@PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) throws IOException {
 		log.trace("postUserRole for uid={}", uid);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
-		
-		PostMethod method = new PostMethod();
-		InputStreamRequestEntity inputStreamRequestEntity = null;
-		try {
-			inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
-		} catch (IOException e) {
-			log.error("", e);
-		}
-		method.setRequestEntity(inputStreamRequestEntity);
-		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid + "/role/");
-		makeUasRequest(method, url, model, response);
-		log.trace("postUserRole for uid={} with the following jsondata=\n{}", uid, model.asMap().get(JSON_DATA_KEY));
-		response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
+		//
+		//		PostMethod method = new PostMethod();
+		//		InputStreamRequestEntity inputStreamRequestEntity = null;
+		//		try {
+		//			inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
+		//		} catch (IOException e) {
+		//			log.error("", e);
+		//		}
+		//		method.setRequestEntity(inputStreamRequestEntity);
+		//		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid + "/role/");
+		//		makeUasRequest(method, url, model, response);
+		//		log.trace("postUserRole for uid={} with the following jsondata=\n{}", uid, model.asMap().get(JSON_DATA_KEY));
+		//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+		//		return JSON_KEY;
+
+		//HttpClient replacement
+		String json = IOUtils.toString(request.getInputStream(), "UTF-8");
+		CommandAddUserRole cmd = new CommandAddUserRole(URI.create(userAdminServiceUrl), apptokenid, usertokenid, uid, json);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 	@DELETE
@@ -331,87 +407,101 @@ public class UASProxyController {
 	@RequestMapping(value = "/user/{uid}/role/{roleId}", method = RequestMethod.DELETE)
 	public String deleteUserRole(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, @PathVariable("uid") String uid, @PathVariable("roleId") String roleId, HttpServletRequest request, HttpServletResponse response, Model model) {
 		log.trace("Deleting role with roleId: " + roleId + ", for user with uid: " + uid);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
+
+//		DeleteMethod method = new DeleteMethod();
+//		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid + "/role/" + roleId);
+//		makeUasRequest(method, url, model, response);
+//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+//		return JSON_KEY;
 		
-		DeleteMethod method = new DeleteMethod();
-		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid + "/role/" + roleId);
-		makeUasRequest(method, url, model, response);
-		response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
+		//HttpClient replacement
+		CommandDeleteUserRole cmd = new CommandDeleteUserRole(URI.create(userAdminServiceUrl), apptokenid, usertokenid, uid, roleId);
+		return handleResponse(response, model, cmd.execute()?"":null, cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@RequestMapping(value = "/user/{uid}/role/{roleId}", method = RequestMethod.PUT)
 	public String putUserRole(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
-			@PathVariable("uid") String uid, @PathVariable("roleId") String roleId, HttpServletRequest request, HttpServletResponse response, Model model) {
+			@PathVariable("uid") String uid, @PathVariable("roleId") String roleId, HttpServletRequest request, HttpServletResponse response, Model model) throws IOException {
 		log.trace("putUserRole with roleId: " + roleId + ", for user with uid: " + uid);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
+
+//		PutMethod method = new PutMethod();
+//		InputStreamRequestEntity inputStreamRequestEntity = null;
+//		try {
+//			inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
+//		} catch (IOException e) {
+//			log.error("", e);
+//		}
+//		method.setRequestEntity(inputStreamRequestEntity);
+//		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid + "/role/" + roleId);
+//		makeUasRequest(method, url, model, response);
+//		log.trace("putUserRole for uid={}, roleId={} with the following jsondata=\n{}", uid, roleId, model.asMap().get(JSON_DATA_KEY));
+//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+//		return JSON_KEY;
 		
-		PutMethod method = new PutMethod();
-		InputStreamRequestEntity inputStreamRequestEntity = null;
-		try {
-			inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
-		} catch (IOException e) {
-			log.error("", e);
-		}
-		method.setRequestEntity(inputStreamRequestEntity);
-		String url = buildUasUrl(apptokenid, usertokenid, "user/" + uid + "/role/" + roleId);
-		makeUasRequest(method, url, model, response);
-		log.trace("putUserRole for uid={}, roleId={} with the following jsondata=\n{}", uid, roleId, model.asMap().get(JSON_DATA_KEY));
-		response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
+		//HttpClient replacement
+		String json = IOUtils.toString(request.getInputStream(), "UTF-8");
+		CommandUpdateUserRole cmd = new CommandUpdateUserRole(URI.create(userAdminServiceUrl), apptokenid, usertokenid, uid, roleId, json);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 
 	// PASSWORD
 
-	@POST
-	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	@RequestMapping(value = "/user/{uid}/resetpassword", method = RequestMethod.POST)
-	public String resetPassword(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, @PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
-		log.trace("Resetting password for user: " + uid);
-		
-		String result = checkLogin(usertokenid, request, response, model);
-		if(result!=null){
-			return result;
-		}
-		
-		PostMethod method = new PostMethod();
-		//       String url = userAdminServiceUrl + "password/" + apptokenid +"/reset/username/" + username;
-		String url = userAdminServiceUrl + getUAWAApplicationId() + "/user/" + uid + "/reset_password";
-		makeUasRequest(method, url, model, response);
-		//        response.setContentType(CONTENTTYPE_JSON_UTF8);
-		response.setContentType(MediaType.APPLICATION_JSON);
-		return JSON_KEY;
-	}
+//	@POST
+//	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+//	@RequestMapping(value = "/user/{uid}/resetpassword", method = RequestMethod.POST)
+//	public String resetPassword(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, @PathVariable("uid") String uid, HttpServletRequest request, HttpServletResponse response, Model model) {
+//		log.trace("Resetting password for user: " + uid);
+//
+//		String result = checkLogin(usertokenid, request, response, model);
+//		if(result!=null){
+//			return result;
+//		}
+//
+//		PostMethod method = new PostMethod();
+//		//       String url = userAdminServiceUrl + "password/" + apptokenid +"/reset/username/" + username;
+//		String url = userAdminServiceUrl + getUAWAApplicationId() + "/user/" + uid + "/reset_password";
+//		makeUasRequest(method, url, model, response);
+//		//        response.setContentType(CONTENTTYPE_JSON_UTF8);
+//		response.setContentType(MediaType.APPLICATION_JSON);
+//		return JSON_KEY;
+//	}
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@RequestMapping(value ="/auth/password/reset/username/{username}", method = RequestMethod.POST)
 	public String resetUserPassword(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,  @PathVariable("username") String username, HttpServletRequest request, HttpServletResponse response, Model model) {
 		log.trace("Resetting password for username: " + username);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
+
+//		PostMethod method = new PostMethod();
+//		//       String url = userAdminServiceUrl + "password/" + apptokenid +"/reset/username/" + username;
+//		String url = userAdminServiceUrl + getUAWAApplicationId() + "/auth/password/reset/username/" + username;
+//		makeUasRequest(method, url, model, response);
+//		//        response.setContentType(CONTENTTYPE_JSON_UTF8);
+//		response.setContentType(MediaType.APPLICATION_JSON);
+//		return JSON_KEY;
 		
-		PostMethod method = new PostMethod();
-		//       String url = userAdminServiceUrl + "password/" + apptokenid +"/reset/username/" + username;
-		String url = userAdminServiceUrl + getUAWAApplicationId() + "/auth/password/reset/username/" + username;
-		makeUasRequest(method, url, model, response);
-		//        response.setContentType(CONTENTTYPE_JSON_UTF8);
-		response.setContentType(MediaType.APPLICATION_JSON);
-		return JSON_KEY;
+
+		//HttpClient replacement
+		CommandResetUserPassword cmd = new CommandResetUserPassword(URI.create(userAdminServiceUrl), apptokenid, username);
+		return handleResponse(response, model, cmd.execute()?"":null, cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 
@@ -429,12 +519,15 @@ public class UASProxyController {
 		}
 
 		//        String resourcePath = "application/"+applicationId;
-		String url = buildUasUrl(apptokenid, usertokenid, "application/"+applicationId);
-		GetMethod method = new GetMethod();
-		makeUasRequest(method, url, model, response);
-
-		response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
+//		String url = buildUasUrl(apptokenid, usertokenid, "application/"+applicationId);
+//		GetMethod method = new GetMethod();
+//		makeUasRequest(method, url, model, response);
+//
+//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+//		return JSON_KEY;
+		
+		CommandGetApplication cmd = new CommandGetApplication(URI.create(userAdminServiceUrl), apptokenid, usertokenid, applicationId);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 	@GET
@@ -450,83 +543,100 @@ public class UASProxyController {
 		}
 
 		//        String resourcePath = "application/"+applicationId;
-		String url = buildUasUrl(apptokenid, usertokenid, "application/"+applicationId);
-		GetMethod method = new GetMethod();
-		String jsonResult = makeUasRequest(method, url, model, response);
+		//String url = buildUasUrl(apptokenid, usertokenid, "application/"+applicationId);
+		//GetMethod method = new GetMethod();
+		//String jsonResult = makeUasRequest(method, url, model, response);
 
-		Application app = ApplicationMapper.fromJson(jsonResult);
-		List<Tag> tagList = new ArrayList<Tag>();
-		if(app.getTags()!=null && !app.getTags().isEmpty()){
-			tagList = ApplicationTagMapper.getTagList(app.getTags());
+		CommandGetApplication cmd = new CommandGetApplication(URI.create(userAdminServiceUrl), apptokenid, usertokenid, applicationId);
+		String jsonResult = cmd.execute();
+		if(jsonResult!=null) {
+			Application app = ApplicationMapper.fromJson(jsonResult);
+			List<Tag> tagList = new ArrayList<Tag>();
+			if(app.getTags()!=null && !app.getTags().isEmpty()){
+				tagList = ApplicationTagMapper.getTagList(app.getTags());
+			}
+			model.addAttribute(JSON_DATA_KEY, ApplicationTagMapper.toJson(tagList));	
+		} else {
+			String responseMsg = cmd.getResponseBodyAsByteArray()!=null? StringConv.UTF8(cmd.getResponseBodyAsByteArray()): "N/A" ;
+			log.warn("Failed connection to UAS. Response code: {} - Response message: {}", cmd.getStatusCode(), responseMsg);
+			String msg = "{\"error\":\"Failed connection to the backend server - " +  (cmd.getStatusCode()!=0 ? ("Status code: " + cmd.getStatusCode()) : "A fallback exception occured." ) + "\"}";
+			model.addAttribute(JSON_DATA_KEY, msg);
 		}
-
-		model.addAttribute(JSON_DATA_KEY, ApplicationTagMapper.toJson(tagList));
+		
 		response.setContentType(CONTENTTYPE_JSON_UTF8);
 		return JSON_KEY;
-
 	}
 
 
 
 
-//	protected String findValidUserTokenId(@PathVariable("usertokenid") String usertokenid, HttpServletRequest request) {
-//		if (usertokenid == null || usertokenid.length() < 7) {
-//			usertokenid = CookieManager.getUserTokenIdFromCookie(request);
-//			log.trace("getApplications - Override usertokenid={}", usertokenid);
-//		}
-//		return usertokenid;
-//	}
+	//	protected String findValidUserTokenId(@PathVariable("usertokenid") String usertokenid, HttpServletRequest request) {
+	//		if (usertokenid == null || usertokenid.length() < 7) {
+	//			usertokenid = CookieManager.getUserTokenIdFromCookie(request);
+	//			log.trace("getApplications - Override usertokenid={}", usertokenid);
+	//		}
+	//		return usertokenid;
+	//	}
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@RequestMapping(value = "/application/", method = RequestMethod.POST)
 	public String createApplicationSpecification(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
-			HttpServletRequest request, HttpServletResponse response, Model model) {
+			HttpServletRequest request, HttpServletResponse response, Model model) throws IOException {
 		log.trace("createApplicationSpecification was called");
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
-		InputStreamRequestEntity inputStreamRequestEntity = null;
-		try {
-			inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
-		} catch (IOException e) {
-			log.error("", e);
-		}
-
-		PostMethod method = new PostMethod();
-		method.setRequestEntity(inputStreamRequestEntity);
-		String url = buildUasUrl(apptokenid, usertokenid, "application/");
-		makeUasRequest(method, url, model, response);
-		log.trace("createApplicationSpecification with the following jsondata=\n{}", model.asMap().get(JSON_DATA_KEY));
-		response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
+//		InputStreamRequestEntity inputStreamRequestEntity = null;
+//		try {
+//			inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
+//		} catch (IOException e) {
+//			log.error("", e);
+//		}
+//
+//		PostMethod method = new PostMethod();
+//		method.setRequestEntity(inputStreamRequestEntity);
+//		String url = buildUasUrl(apptokenid, usertokenid, "application/");
+//		makeUasRequest(method, url, model, response);
+//		log.trace("createApplicationSpecification with the following jsondata=\n{}", model.asMap().get(JSON_DATA_KEY));
+//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+//		return JSON_KEY;
+		
+		String applicationJson = IOUtils.toString(request.getInputStream(), "UTF-8");
+		CommandAddApplication cmd = new CommandAddApplication(URI.create(userAdminServiceUrl), apptokenid, usertokenid, applicationJson);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@RequestMapping(value = "/application/{applicationId}/", method = RequestMethod.PUT)
 	public String updateApplicationSpecification(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
-			@PathVariable("applicationId") String applicationId, HttpServletRequest request, HttpServletResponse response,  Model model) {
+			@PathVariable("applicationId") String applicationId, HttpServletRequest request, HttpServletResponse response,  Model model) throws IOException {
 		log.trace("createApplicationSpecification was called");
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
-		InputStreamRequestEntity inputStreamRequestEntity = null;
-		try {
-			inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
-		} catch (IOException e) {
-			log.error("", e);
-		}
-		PutMethod method = new PutMethod();
-		method.setRequestEntity(inputStreamRequestEntity);
-		String url = buildUasUrl(apptokenid, usertokenid, "application/" + applicationId);
-		makeUasRequest(method, url, model, response);
-		log.trace("updateApplicationSpecification with the following jsondata=\n{}", model.asMap().get(JSON_DATA_KEY));
-		response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
+		//		InputStreamRequestEntity inputStreamRequestEntity = null;
+		//		try {
+		//			inputStreamRequestEntity = new InputStreamRequestEntity(request.getInputStream());
+		//		} catch (IOException e) {
+		//			log.error("", e);
+		//		}
+		//		PutMethod method = new PutMethod();
+		//		method.setRequestEntity(inputStreamRequestEntity);
+		//		String url = buildUasUrl(apptokenid, usertokenid, "application/" + applicationId);
+		//		makeUasRequest(method, url, model, response);
+		//		log.trace("updateApplicationSpecification with the following jsondata=\n{}", model.asMap().get(JSON_DATA_KEY));
+		//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+
+		String applicationJson = IOUtils.toString(request.getInputStream(), "UTF-8");
+		CommandUpdateApplication cmd = new CommandUpdateApplication(URI.create(userAdminServiceUrl), apptokenid, usertokenid, applicationId, applicationJson);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
+
+
 
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -538,11 +648,14 @@ public class UASProxyController {
 		if(result!=null){
 			return result;
 		}
-		DeleteMethod method = new DeleteMethod();
-		String url = buildUasUrl(apptokenid, usertokenid, "application/" + applicationId);
-		makeUasRequest(method, url, model, response);
-		response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
+//		DeleteMethod method = new DeleteMethod();
+//		String url = buildUasUrl(apptokenid, usertokenid, "application/" + applicationId);
+//		makeUasRequest(method, url, model, response);
+//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+//		return JSON_KEY;
+		
+		CommandDeleteApplication cmd = new CommandDeleteApplication(URI.create(userAdminServiceUrl), apptokenid, usertokenid, applicationId);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 	// APPLICATIONS
@@ -557,13 +670,16 @@ public class UASProxyController {
 			return result;
 		}
 
-		String jsonResult = getAllApplicationsJsonData(apptokenid, usertokenid,
-				response, model);
-		log.trace("applicationsJson=" + jsonResult);
-
-
-		response.setContentType(CONTENTTYPE_JSON_UTF8);
-		return JSON_KEY;
+//		String jsonResult = getAllApplicationsJsonData(apptokenid, usertokenid,
+//				response, model);
+//		log.trace("applicationsJson=" + jsonResult);
+//
+//
+//		response.setContentType(CONTENTTYPE_JSON_UTF8);
+//		return JSON_KEY;
+		
+		CommandListApplications cmd = new CommandListApplications(URI.create(userAdminServiceUrl), apptokenid);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 	// APPLICATIONTAGS
@@ -577,21 +693,34 @@ public class UASProxyController {
 			return result;
 		}
 
-		String jsonResult = getAllApplicationsJsonData(apptokenid, usertokenid,
-				response, model);
-		List<Application> applicationList = ApplicationMapper.fromJsonList(jsonResult);
-		ObjectMapper om = new ObjectMapper();
-		HashMap<String, List<Tag>> tagList = new HashMap<String, List<Tag>>();
-		for (Application application : applicationList) {
-			if(application.getTags()!=null && !application.getTags().isEmpty()){
-				//tagList.addAll(ApplicationTagMapper.getTagList(application.getTags()));
-				tagList.put(application.getId(), ApplicationTagMapper.getTagList(application.getTags()));
+//		String jsonResult = getAllApplicationsJsonData(apptokenid, usertokenid,
+//				response, model);
+//		
+		CommandListApplications cmd = new CommandListApplications(URI.create(userAdminServiceUrl), apptokenid);
+		String jsonResult = cmd.execute();
+		
+		if(jsonResult!=null) {
+			List<Application> applicationList = ApplicationMapper.fromJsonList(jsonResult);
+			ObjectMapper om = new ObjectMapper();
+			HashMap<String, List<Tag>> tagList = new HashMap<String, List<Tag>>();
+			for (Application application : applicationList) {
+				if(application.getTags()!=null && !application.getTags().isEmpty()){
+					//tagList.addAll(ApplicationTagMapper.getTagList(application.getTags()));
+					tagList.put(application.getId(), ApplicationTagMapper.getTagList(application.getTags()));
+				}
 			}
+			//String jsonData = ApplicationTagMapper.toJson(tagList);
+			String jsonData = om.writeValueAsString(tagList);
+			model.addAttribute(JSON_DATA_KEY, jsonData);
+			log.trace("tags=" + jsonData);
+			
+		} else {
+			String responseMsg = cmd.getResponseBodyAsByteArray()!=null? StringConv.UTF8(cmd.getResponseBodyAsByteArray()): "N/A" ;
+			log.warn("Failed connection to UAS. Response code: {} - Response message: {}", cmd.getStatusCode(), responseMsg);
+			String msg = "{\"error\":\"Failed connection to the backend server - " +  (cmd.getStatusCode()!=0 ? ("Status code: " + cmd.getStatusCode()) : "A fallback exception occured." ) + "\"}";
+			model.addAttribute(JSON_DATA_KEY, msg);
 		}
-		//String jsonData = ApplicationTagMapper.toJson(tagList);
-		String jsonData = om.writeValueAsString(tagList);
-		model.addAttribute(JSON_DATA_KEY, jsonData);
-		log.trace("tags=" + jsonData);
+		
 		response.setContentType(CONTENTTYPE_JSON_UTF8);
 		return JSON_KEY;
 	}
@@ -686,29 +815,6 @@ public class UASProxyController {
 		return JSON_KEY;
 	}
 
-	private String getAllApplicationsJsonData(String apptokenid, String usertokenid, HttpServletResponse response, Model model) {
-		String url = buildUasUrl(apptokenid, usertokenid, "applications");
-		GetMethod method = new GetMethod();
-		String jsonResult = makeUasRequest(method, url, model, response);
-		return jsonResult;
-	}
-
-	private List<UserAggregate> getAllUserAggregates(String apptokenid, String usertokenid, HttpServletResponse response, Model model) throws JsonProcessingException, IOException{
-
-		HttpMethod method = new GetMethod();
-		String url = buildUasUrl(apptokenid, usertokenid, "users/find/*");
-		String userIdentityList = makeUasRequest(method, url, model, response);
-		List<UserAggregate> uaList = UserAggregateMapper.getFromJson(userIdentityList);
-		//get roles for each
-		for(UserAggregate ua : uaList){
-			HttpMethod m = new GetMethod();
-			String roles_url = buildUasUrl(apptokenid, usertokenid, "user/" + ua.getUid() + "/roles");
-			String roleJson = makeUasRequest(m, roles_url, model, response);
-			List<UserApplicationRoleEntry> entryList = UserRoleMapper.fromJsonAsList(roleJson);
-			ua.setRoleList(entryList);
-		}
-		return uaList;
-	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -726,83 +832,94 @@ public class UASProxyController {
 		} catch (UnsupportedEncodingException uee) {
 
 		}
-		log.trace("findApplications - Finding users with query: " + utf8query);
-		HttpMethod method = new GetMethod();
-		String url;
+		
 		try {
-			url = buildUasUrl(apptokenid, usertokenid, "find/applications/" + URIUtil.encodeAll(utf8query));
-		} catch (URIException urie) {
-			log.warn("Error in handling URIencoding", urie);
-			url = buildUasUrl(apptokenid, usertokenid, "find/applications/" + query);
+			utf8query = URLEncoder.encode(utf8query, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
-		makeUasRequest(method, url, model, response);
-		return JSON_KEY;
+		
+//		log.trace("findApplications - Finding users with query: " + utf8query);
+//		HttpMethod method = new GetMethod();
+//		String url;
+//		try {
+//			url = buildUasUrl(apptokenid, usertokenid, "find/applications/" + URIUtil.encodeAll(utf8query));
+//		} catch (URIException urie) {
+//			log.warn("Error in handling URIencoding", urie);
+//			url = buildUasUrl(apptokenid, usertokenid, "find/applications/" + query);
+//		}
+//		makeUasRequest(method, url, model, response);
+//		return JSON_KEY;
+		
+		CommandSearchForApplications cmd = new CommandSearchForApplications(URI.create(userAdminServiceUrl), apptokenid, utf8query);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
-	private String buildUasUrl(String apptokenid, String usertokenid, String s) {
-		return userAdminServiceUrl + getUAWAApplicationId() + "/" + usertokenid + "/" + s;
-	}
-
-	private String makeUasRequest(HttpMethod method, String url, Model model, HttpServletResponse response) {
-		log.info("Calling url: " + url);
-		HttpMethodParams params = new HttpMethodParams();
-		StringBuilder responseBody=new StringBuilder();
-		params.setHttpElementCharset("UTF-8");
-		params.setContentCharset("UTF-8");
-		method.setParams(params);
-		try {
-			method.setURI(new URI(url, true));
-			int rescode = httpClient.executeMethod(method);
-			// TODO: check rescode?
-			if(rescode==204){
-				response.setStatus(200);
-				model.addAttribute(JSON_DATA_KEY, "");
-				response.setContentType(CONTENTTYPE_JSON_UTF8);
-				return "";
-			} else {
-				InputStream responseBodyStream = method.getResponseBodyAsStream();
-				BufferedReader in = new BufferedReader(new InputStreamReader(responseBodyStream));
-				responseBody = new StringBuilder();
-				String line;
-				while ((line = in.readLine()) !=null) {
-					responseBody.append(line);
-				}
-				response.setStatus(rescode);
-				if (rescode == 200) {
-
-					model.addAttribute(JSON_DATA_KEY, responseBody.toString());
-					response.setContentType(CONTENTTYPE_JSON_UTF8);
-					return responseBody.toString();
-
-				} if (rescode == 400) {
-					String msg = "{\"error\":\"Illegal input value.\"}";
-					model.addAttribute(JSON_DATA_KEY,msg);
-					return msg;
-
-				} else {
-					log.warn("Failed connection to UAS. Reason {}", responseBody.toString() );
-					String msg = "{\"error\":\"Failed connection to backend. Please investigate the logs for reason.\"}";
-					model.addAttribute(JSON_DATA_KEY,msg);
-					return msg;
-
-				}
-			}
-
-		} catch (IOException e) {
-			response.setStatus(503);
-			log.error("IOException", e);
-		} catch (NullPointerException e) {
-			response.setStatus(503);
-			log.error("Nullpointer:", e);
-		} finally {
-			method.releaseConnection();
-		}
-
-
-		String msg = "{\"error\":\"Server error exception.\"}";
-		model.addAttribute(JSON_DATA_KEY,msg);		
-		return msg;
-	}
+//	private String buildUasUrl(String apptokenid, String usertokenid, String s) {
+//		return userAdminServiceUrl + getUAWAApplicationId() + "/" + usertokenid + "/" + s;
+//	}
+//
+//
+//	private String makeUasRequest(HttpMethod method, String url, Model model, HttpServletResponse response) {
+//		log.info("Calling url: " + url);
+//		HttpMethodParams params = new HttpMethodParams();
+//		StringBuilder responseBody=new StringBuilder();
+//		params.setHttpElementCharset("UTF-8");
+//		params.setContentCharset("UTF-8");
+//		method.setParams(params);
+//		try {
+//			method.setURI(new URI(url, true));
+//			int rescode = httpClient.executeMethod(method);
+//			// TODO: check rescode?
+//			if(rescode==204){
+//				response.setStatus(200);
+//				model.addAttribute(JSON_DATA_KEY, "");
+//				response.setContentType(CONTENTTYPE_JSON_UTF8);
+//				return "";
+//			} else {
+//				InputStream responseBodyStream = method.getResponseBodyAsStream();
+//				BufferedReader in = new BufferedReader(new InputStreamReader(responseBodyStream));
+//				responseBody = new StringBuilder();
+//				String line;
+//				while ((line = in.readLine()) !=null) {
+//					responseBody.append(line);
+//				}
+//				response.setStatus(rescode);
+//				if (rescode == 200) {
+//
+//					model.addAttribute(JSON_DATA_KEY, responseBody.toString());
+//					response.setContentType(CONTENTTYPE_JSON_UTF8);
+//					return responseBody.toString();
+//
+//				} if (rescode == 400) {
+//					String msg = "{\"error\":\"Illegal input value.\"}";
+//					model.addAttribute(JSON_DATA_KEY,msg);
+//					return msg;
+//
+//				} else {
+//					log.warn("Failed connection to UAS. Reason {}", responseBody.toString() );
+//					String msg = "{\"error\":\"Failed connection to backend. Please investigate the logs for reason.\"}";
+//					model.addAttribute(JSON_DATA_KEY,msg);
+//					return msg;
+//
+//				}
+//			}
+//
+//		} catch (IOException e) {
+//			response.setStatus(503);
+//			log.error("IOException", e);
+//		} catch (NullPointerException e) {
+//			response.setStatus(503);
+//			log.error("Nullpointer:", e);
+//		} finally {
+//			method.releaseConnection();
+//		}
+//
+//
+//		String msg = "{\"error\":\"Server error exception.\"}";
+//		model.addAttribute(JSON_DATA_KEY,msg);		
+//		return msg;
+//	}
 
 	private String getUAWAApplicationId() {
 		return tokenServiceClient.getWAS().getActiveApplicationTokenId();
@@ -923,12 +1040,12 @@ public class UASProxyController {
 	public String getUsersImportProgress(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
 			HttpServletRequest request, HttpServletResponse response, Model model, @PathVariable("fileNameMD5") String fileNameMD5) {
 		log.trace("getUsersImportProgress.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
-		
+
 		if (usertokenid == null || usertokenid.length() < 7) {
 			model.addAttribute(JSON_DATA_KEY, "0");
 		} else {
@@ -958,7 +1075,7 @@ public class UASProxyController {
 		if(result!=null){
 			return result;
 		}
-		
+
 		if (usertokenid == null || usertokenid.length() < 7) {
 			model.addAttribute(JSON_DATA_KEY, "0");
 		} else {
@@ -986,12 +1103,12 @@ public class UASProxyController {
 	public String getAppsImportProgress(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
 			HttpServletRequest request, HttpServletResponse response, Model model, @PathVariable("fileNameMD5") String fileNameMD5) {
 		log.trace("getAppsImportProgress.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
-		
+
 		if (usertokenid == null || usertokenid.length() < 7) {
 			model.addAttribute(JSON_DATA_KEY, "0");
 		} else {
@@ -1011,24 +1128,30 @@ public class UASProxyController {
 	}
 
 	public boolean isUASRequestOK(String response){
-		return !response.startsWith("{\"error\"");
+		return response !=null && !response.startsWith("{\"error\"");
 	}
 
 
 	private boolean addorUpdateUserAggregate(String apptokenid, String usertokenid, String content, Model model,  HttpServletResponse response, boolean createNew) throws UnsupportedEncodingException{
 
-		StringRequestEntity json = new StringRequestEntity(content, "application/json",  "UTF-8");
+		//StringRequestEntity json = new StringRequestEntity(content, "application/json",  "UTF-8");
 
 		if(createNew){
-			PostMethod method = new PostMethod();
-			method.setRequestEntity(json);
-			String url = buildUasUrl(apptokenid, usertokenid, "useraggregate/");
-			return isUASRequestOK(makeUasRequest(method, url, model, response));
+//			PostMethod method = new PostMethod();
+//			method.setRequestEntity(json);
+//			String url = buildUasUrl(apptokenid, usertokenid, "useraggregate/");
+//			return isUASRequestOK(makeUasRequest(method, url, model, response));
+			
+			CommandAddUserAggregate cmd = new CommandAddUserAggregate(URI.create(userAdminServiceUrl), apptokenid, usertokenid, content);
+			return isUASRequestOK(cmd.execute());
 		} else {
-			PutMethod method = new PutMethod();
-			method.setRequestEntity(json);
-			String url = buildUasUrl(apptokenid, usertokenid, "useraggregate/");
-			return isUASRequestOK(makeUasRequest(method, url, model, response));
+//			PutMethod method = new PutMethod();
+//			method.setRequestEntity(json);
+//			String url = buildUasUrl(apptokenid, usertokenid, "useraggregate/");
+//			return isUASRequestOK(makeUasRequest(method, url, model, response));
+			CommandUpdateUserAggregate cmd = new CommandUpdateUserAggregate(URI.create(userAdminServiceUrl), apptokenid, usertokenid, content);
+			return isUASRequestOK(cmd.execute());
+			
 		}
 
 
@@ -1047,86 +1170,96 @@ public class UASProxyController {
 		if(result!=null){
 			return result;
 		}
-		
+
 		String filename=file.getOriginalFilename();  
 		String progressKey = usertokenid + SessionUserAdminDao.instance.getMD5Str(filename).toLowerCase();
 		importAppsProgress.put(progressKey, 0);
 
 		try{  
 			//get old list
-			List<Application> oldList = ApplicationMapper.fromJsonList(getAllApplicationsJsonData(apptokenid, usertokenid, response, model));
-			Map<String, Application> oldListMap = new HashMap<String, Application>();
-			for(Application oapp: oldList){
-				oldListMap.put(oapp.getId(), oapp);
-			}
-
-			byte[] content =file.getBytes();  
-			saveUploadedFile(content, filename);
-
-			//check and update
-			//HUY: THERE IS A PROBLEM WITH BOM (byte-order mark) when parsing string, must do json.replace("\uFEFF", "")
-			String json = new String(content, "UTF-8");
-
-
-
-			List<Application> newList = ApplicationMapper.fromJsonList(json.replace("\uFEFF", ""));
-			List<String> duplicates = new ArrayList<String>();
-			for(Application napp : newList){
-				if(oldListMap.containsKey(napp.getId()) && !overridenIds.contains(napp.getId()) && !skippedIds.contains(napp.getId())){
-					//duplicates
-					duplicates.add(napp.getId());
+			CommandListApplications cmd = new CommandListApplications(URI.create(userAdminServiceUrl), apptokenid);
+			String appjson = cmd.execute();
+			if(appjson!=null) {
+				List<Application> oldList = ApplicationMapper.fromJsonList(appjson);
+				Map<String, Application> oldListMap = new HashMap<String, Application>();
+				for(Application oapp: oldList){
+					oldListMap.put(oapp.getId(), oapp);
 				}
-			}
 
-			//ask users to handle duplicates
-			if(duplicates.size()>0){
-				setMsg(model, "[" + StringUtils.join(duplicates, ',') + "]");
-			} else {
+				byte[] content =file.getBytes();  
+				saveUploadedFile(content, filename);
 
-				Double lastPercentReported = (double) 0;
-				Double workingPercentForEachRow = (newList.size()>0? (double) 100/newList.size(): 0.0);
-				Double currentPercent = (double) 0;
+				//check and update
+				//HUY: THERE IS A PROBLEM WITH BOM (byte-order mark) when parsing string, must do json.replace("\uFEFF", "")
+				String json = new String(content, "UTF-8");
 
+
+
+				List<Application> newList = ApplicationMapper.fromJsonList(json.replace("\uFEFF", ""));
+				List<String> duplicates = new ArrayList<String>();
 				for(Application napp : newList){
+					if(oldListMap.containsKey(napp.getId()) && !overridenIds.contains(napp.getId()) && !skippedIds.contains(napp.getId())){
+						//duplicates
+						duplicates.add(napp.getId());
+					}
+				}
 
-					currentPercent += workingPercentForEachRow;
+				//ask users to handle duplicates
+				if(duplicates.size()>0){
+					setMsg(model, "[" + StringUtils.join(duplicates, ',') + "]");
+				} else {
 
-					if(oldListMap.containsKey(napp.getId()) && overridenIds.contains(napp.getId())){
-						//override duplicates
-						if(!addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response, napp.getId())){
-							//roll back here for safety?
-							addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(oldListMap.get(napp.getId())), model, response, napp.getId());
-							setFailureMsg(model, "failed to override the application " + napp.getId() + "-" + napp.getName() + ". This process has been rolled back");
-							importAppsProgress.remove(progressKey);
-							return "json";//give me a break now
-						}
-					} else {
+					Double lastPercentReported = (double) 0;
+					Double workingPercentForEachRow = (newList.size()>0? (double) 100/newList.size(): 0.0);
+					Double currentPercent = (double) 0;
 
-						if(skippedIds.contains(napp.getId())){
-							continue;
-						} else {
-							//add application as normal
-							if(!addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response, null)){
-								setFailureMsg(model,  "failed to add the new application " + napp.getId() + "-" + napp.getName());
+					for(Application napp : newList){
+
+						currentPercent += workingPercentForEachRow;
+
+						if(oldListMap.containsKey(napp.getId()) && overridenIds.contains(napp.getId())){
+							//override duplicates
+							if(!addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response, napp.getId())){
+								//roll back here for safety?
+								addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(oldListMap.get(napp.getId())), model, response, napp.getId());
+								setFailureMsg(model, "failed to override the application " + napp.getId() + "-" + napp.getName() + ". This process has been rolled back");
 								importAppsProgress.remove(progressKey);
 								return "json";//give me a break now
 							}
+						} else {
+
+							if(skippedIds.contains(napp.getId())){
+								continue;
+							} else {
+								//add application as normal
+								if(!addorUpdateApplication(apptokenid, usertokenid, ApplicationMapper.toJson(napp), model, response, null)){
+									setFailureMsg(model,  "failed to add the new application " + napp.getId() + "-" + napp.getName());
+									importAppsProgress.remove(progressKey);
+									return "json";//give me a break now
+								}
+							}
 						}
+
+
+						if ((currentPercent >= 1 && lastPercentReported==0)|| (currentPercent - lastPercentReported >= 1)) {
+							lastPercentReported = currentPercent;
+
+							importAppsProgress.put(progressKey, currentPercent.intValue());
+
+						}
+
 					}
 
+					importAppsProgress.put(progressKey, 100);
 
-					if ((currentPercent >= 1 && lastPercentReported==0)|| (currentPercent - lastPercentReported >= 1)) {
-						lastPercentReported = currentPercent;
-
-						importAppsProgress.put(progressKey, currentPercent.intValue());
-
-					}
-
+					setOKMsg(model);
 				}
-
-				importAppsProgress.put(progressKey, 100);
-
-				setOKMsg(model);
+			} else {
+				setFailureMsg(model, "failed to get application list - status code ");
+				String responseMsg = cmd.getResponseBodyAsByteArray()!=null? StringConv.UTF8(cmd.getResponseBodyAsByteArray()): "N/A" ;
+				log.warn("Failed connection to UAS. Response code: {} - Response message: {}", cmd.getStatusCode(), responseMsg);
+				String msg = "{\"error\":\"Failed connection to the backend server - " +  (cmd.getStatusCode()!=0 ? ("Status code: " + cmd.getStatusCode()) : "A fallback exception occured." ) + "\"}";
+				setFailureMsg(model, msg);
 			}
 
 
@@ -1156,22 +1289,31 @@ public class UASProxyController {
 
 	private boolean addorUpdateApplication(String apptokenid, String usertokenid, String content, Model model,  HttpServletResponse response, String appId ) throws UnsupportedEncodingException{
 
-		StringRequestEntity json = new StringRequestEntity(content, "application/json",  "UTF-8");
+//		StringRequestEntity json = new StringRequestEntity(content, "application/json",  "UTF-8");
+//		boolean createNew = (appId==null||appId.isEmpty());
+//		if(createNew){
+//			PostMethod method = new PostMethod();
+//			method.setRequestEntity(json);
+//			String url = buildUasUrl(apptokenid, usertokenid, "application/" + (appId==null||appId.isEmpty()?"":appId));
+//			makeUasRequest(method, url, model, response);
+//		} else {
+//			PutMethod method = new PutMethod();
+//			method.setRequestEntity(json);
+//			String url = buildUasUrl(apptokenid, usertokenid, "application/" + (appId==null||appId.isEmpty()?"":appId));
+//			makeUasRequest(method, url, model, response);
+//		}
+//
+//		return response.getStatus()==200 || response.getStatus()==204;
+		
 		boolean createNew = (appId==null||appId.isEmpty());
-		if(createNew){
-			PostMethod method = new PostMethod();
-			method.setRequestEntity(json);
-			String url = buildUasUrl(apptokenid, usertokenid, "application/" + (appId==null||appId.isEmpty()?"":appId));
-			makeUasRequest(method, url, model, response);
+		if(createNew) {
+			CommandAddApplication cmd = new CommandAddApplication(URI.create(userAdminServiceUrl), apptokenid, usertokenid, content);
+			return cmd.getStatusCode() == 200;
 		} else {
-			PutMethod method = new PutMethod();
-			method.setRequestEntity(json);
-			String url = buildUasUrl(apptokenid, usertokenid, "application/" + (appId==null||appId.isEmpty()?"":appId));
-			makeUasRequest(method, url, model, response);
+			CommandUpdateApplication cmd = new CommandUpdateApplication(URI.create(userAdminServiceUrl), apptokenid, usertokenid, appId, content);
+			return cmd.getStatusCode() == 204;
 		}
-
-		return response.getStatus()==200 || response.getStatus()==204;
-
+		
 	}
 
 	private String saveUploadedFile(byte[] fContent, String filename)
@@ -1199,12 +1341,12 @@ public class UASProxyController {
 	@RequestMapping(value = "/users/query/{page}/{query}", method = RequestMethod.GET)
 	public String queryUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, @PathVariable("page") String page, @PathVariable("query") String query, HttpServletRequest request, HttpServletResponse response, Model model) {
 		log.trace("queryUsers - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
-		
+
 		if (usertokenid == null || usertokenid.length() < 7) {
 			usertokenid = CookieManager.getUserTokenIdFromCookie(request);
 			log.trace("findUsers - Override usertokenid={}", usertokenid);
@@ -1219,18 +1361,28 @@ public class UASProxyController {
 			utf8query = "*" + utf8query;
 			utf8query = utf8query.replace("@", " ");
 		}
+		
+		try {
+			utf8query = URLEncoder.encode(utf8query, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 
 		log.info("findUsers - Finding users with query: " + utf8query);
-		HttpMethod method = new GetMethod();
-		String url;
-		try {
-			url = buildUasUrl(apptokenid, usertokenid, "users/query/" + page + "/" + URIUtil.encodeAll(utf8query));
-		} catch (URIException urie) {
-			log.warn("Error in handling URIencoding", urie);
-			url = buildUasUrl(apptokenid, usertokenid, "users/query/" + page + "/" + query);
-		}
-		makeUasRequest(method, url, model, response);
-		return JSON_KEY;
+//		HttpMethod method = new GetMethod();
+//		String url;
+//		try {
+//			url = buildUasUrl(apptokenid, usertokenid, "users/query/" + page + "/" + utf8query);
+//		} catch (URIException urie) {
+//			log.warn("Error in handling URIencoding", urie);
+//			url = buildUasUrl(apptokenid, usertokenid, "users/query/" + page + "/" + query);
+//		}
+//		makeUasRequest(method, url, model, response);
+//		return JSON_KEY;
+		
+		CommandListUsersWithPagination cmd = new CommandListUsersWithPagination(URI.create(userAdminServiceUrl), apptokenid, usertokenid, page, utf8query);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
+		
 	}
 
 	@GET
@@ -1238,18 +1390,21 @@ public class UASProxyController {
 	@RequestMapping(value = "/users/export/{page}", method = RequestMethod.GET)
 	public String exportUsers(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid, @PathVariable("page") String page, HttpServletRequest request, HttpServletResponse response, Model model) {
 		log.trace("exportUsers - entry.  applicationtokenid={},  usertokenid={}", apptokenid, usertokenid);
-		
+
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
 		}
 
 		log.info("export uesers for page : " + page);
-		HttpMethod method = new GetMethod();
-		String url = buildUasUrl(apptokenid, usertokenid, "users/export/" + page);
-		makeUasRequest(method, url, model, response);
-
-		return JSON_KEY;
+//		HttpMethod method = new GetMethod();
+//		String url = buildUasUrl(apptokenid, usertokenid, "users/export/" + page);
+//		makeUasRequest(method, url, model, response);
+//
+//		return JSON_KEY;
+		
+		CommandExportUsers cmd = new CommandExportUsers(URI.create(userAdminServiceUrl), apptokenid, usertokenid, page);
+		return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
 	}
 
 	@POST
@@ -1351,10 +1506,10 @@ public class UASProxyController {
 					allUserNames.add("\"" + ua.getUsername() + "\"");
 				}
 
-				PostMethod method = new PostMethod();
-				StringRequestEntity jsonEntity = new StringRequestEntity("[" + (allUserNames.size()>0 ? StringUtils.join(allUserNames, ','):"") + "]", "application/json",  "UTF-8");
-				method.setRequestEntity(jsonEntity);
-				String url = buildUasUrl(apptokenid, usertokenid, "users/checkduplicates");
+//				PostMethod method = new PostMethod();
+//				StringRequestEntity jsonEntity = new StringRequestEntity("[" + (allUserNames.size()>0 ? StringUtils.join(allUserNames, ','):"") + "]", "application/json",  "UTF-8");
+//				method.setRequestEntity(jsonEntity);
+//				String url = buildUasUrl(apptokenid, usertokenid, "users/checkduplicates");
 
 				//we cannot know the exact progress of UIB for this request "users/checkduplicates" - it depends on number of imported users (or how big the file is)
 				//let's estimate it by looking at how big the list is
@@ -1362,10 +1517,13 @@ public class UASProxyController {
 				//assume search time = 10 milliseconds/user  
 				estimatePreImportProgress(progressKey, importList);
 
-				String uasres = makeUasRequest(method, url, model, response);
-
+				//String uasres = makeUasRequest(method, url, model, response);
+				
+				CommandCheckDuplicateUsers cmd = new CommandCheckDuplicateUsers(URI.create(userAdminServiceUrl), apptokenid, usertokenid, allUserNames);
+				String uasres = cmd.execute();
+				
 				if(!isUASRequestOK(uasres)){
-					setFailureMsg(model,"Error when validating users");
+					setFailureMsg(model,"Error when validating users - status code " + cmd.getStatusCode());
 					return JSON_KEY;
 				}
 
@@ -1540,7 +1698,7 @@ public class UASProxyController {
 		if(result!=null){
 			return result;
 		}
-		
+
 		String filename = "";
 
 		String progressKey = "";

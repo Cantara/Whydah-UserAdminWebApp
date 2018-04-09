@@ -3,8 +3,6 @@ package net.whydah.identity.admin.dao;
 import net.whydah.identity.admin.CookieManager;
 import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.sso.user.helpers.UserXpathHelper;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
@@ -33,7 +31,7 @@ public enum SessionUserAdminDao {
     public String LOGOUT_SERVICE;
     public String LOGOUT_SERVICE_REDIRECT;
     public String UAWA_APPLICATION_ID;
-    protected HttpClient httpClient;
+    //protected HttpClient httpClient;
     public boolean STANDALONE;
     protected URI tokenServiceUri;
 //    private String defaultInternalAppIds = "2210,2211,2212,2219"; //UIB, STS, UAS, UASWA
@@ -70,7 +68,7 @@ public enum SessionUserAdminDao {
 //            	internalAppIds = Arrays.asList(defaultInternalAppIds.split("\\s*,\\s*"));
 //            }
             
-            httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
+            //httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
 
             StringBuilder strb = new StringBuilder("Initialized UAWAController \n");
             strb.append("\n- Standalone=").append(STANDALONE);
