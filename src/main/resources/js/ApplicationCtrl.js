@@ -168,6 +168,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 
 	$scope.newApplicationDetail = function() {
 		Applications.application = {isNew: true};
+        Applications.application.id=guid();
 		Applications.application.tagList=[];
 		Applications.application.organizationNames=[];
 		Applications.application.roles=[];
