@@ -226,6 +226,48 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             that.application.roleNames = buildRoleNames(that.application);//will be removed
             that.application.orgNames = buildOrgNames(that.application); //will be removed
             
+            
+            angular.forEach(that.application.acl, function(item, index){
+    			if(item.accessRights===null || item.accessRights==='' || !item.accessRights){
+    				item.accessRights=[];
+    			}
+    			if (typeof item.accessRights === 'string') {
+       			  var array = i.accessRights.split(',');
+       			  item.accessRights = array;
+                }
+    		});
+            
+            //convert maxSessionTimeoutSeconds to a user-friendly format
+            var ms = data.security.maxSessionTimeoutSeconds;
+            var months, days, hours, mins, secs;
+            secs = Math.floor(ms / 1000);
+            mins = Math.floor(secs / 60);
+            secs = secs % 60;
+            hours = Math.floor(mins / 60);
+            mins = mins % 60;
+            days = Math.floor(hours / 24);
+            hours = hours % 24;
+            months = Math.floor(days/30);
+            days = days % 30;
+            
+            
+            if(months>0){
+            	that.application.timeout_number = months;
+            	that.application.timeout_unit = "MONTH(S)";
+            } else if(days >0){
+            	that.application.timeout_number = days;
+            	that.application.timeout_unit = "DAY(S)";
+            } else if(hours >0){
+            	that.application.timeout_number = hours;
+            	that.application.timeout_unit = "HOUR(S)";
+            } else if(mins >0){
+            	that.application.timeout_number = mins;
+            	that.application.timeout_unit = "MINUTE(S)";
+            } else if(secs >0){
+            	that.application.timeout_number = secs;
+            	that.application.timeout_unit = "SECOND(S)";
+            }
+            
            
             //console.log(that.allTags[id]);
             that.application.tagList = that.allTags[id]? that.allTags[id]:[];
@@ -353,7 +395,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                         Messages.add('danger', 'application was not updated! Already exists...');
                         break;
                     default:
-                        Messages.add('danger', 'application was not updated and! Try again later...');
+                        Messages.add('danger', 'application was not updated! Try again later...');
                 }
                
             });
@@ -398,7 +440,28 @@ UseradminApp.service('Applications', function($http,Messages, $q){
              });
         	 console.log(application);
         }
-     
+        
+        if(application.hasOwnProperty('timeout_number') && 
+        		application.hasOwnProperty('timeout_unit')){
+        	var timeout = 0;
+        	if(application.timeout_unit === 'MONTH(S)'){
+        		timeout = application.timeout_number * 30 * 24 * 60 * 60 * 1000;
+        	} else if(application.timeout_unit === 'DAY(S)'){
+        		timeout = application.timeout_number * 24 * 60 * 60 * 1000;
+        	} else if(application.timeout_unit === 'HOUR(S)'){
+        		timeout = application.timeout_number * 60 * 60 * 1000;
+        	} else if(application.timeout_unit === 'MINUTE(S)'){
+        		timeout = application.timeout_number * 60 * 1000;
+        	} else if(application.timeout_unit === 'SECOND(S)'){
+        		timeout = application.timeout_number * 1000;
+        	} 
+        	
+        	if(timeout!=0){
+        		application.security.maxSessionTimeoutSeconds = timeout;
+        	}
+        	
+        }
+        
 //        if (application.hasOwnProperty('roleNames')) {
 //            if (typeof application.roleNames === 'string') {
 //                application.roles = [];

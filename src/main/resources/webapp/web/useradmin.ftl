@@ -11,7 +11,8 @@
         <link href="css/main.css" rel="stylesheet">
         <link href="css/autocomplete.css" rel="stylesheet">
         <link href="css/nprogress.css" rel="stylesheet">
-        <link href="css/xeditable.min.css" rel="stylesheet">
+        <link href="css/xeditable.css" rel="stylesheet">
+        
     </head>
     <style>
    			
@@ -157,6 +158,7 @@
 
         <!-- Directives -->
         <script src="js/directives/triStateCheckbox.js"></script>
+        <script src="js/directives/checkList.js"></script>
         <script src="js/directives/editTable.js"></script>
         <script src="js/directives/modal.js"></script>
         <script src="js/directives/imageupload-directives.js"></script>

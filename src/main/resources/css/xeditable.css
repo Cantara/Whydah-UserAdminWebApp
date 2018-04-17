@@ -4,7 +4,6 @@
 /* class for single editable element */
 .editable-wrap {
   display: inline-block;
-  white-space: pre;
   margin: 0;
 }
 
@@ -217,4 +216,3 @@ a.editable-empty:focus {
         left:101px;
     }
 }
-

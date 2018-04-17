@@ -281,7 +281,14 @@ public class UASProxyController {
 			log.warn("Failed connection to UAS. Response code: {} - Response message: {}", statusCode, responseMsg);
 			String msg = "{\"error\":\"Failed connection to the backend server - " +  (statusCode!=0 ? ("Status code: " + statusCode) : "A fallback exception occured." ) + "\"}";
 			model.addAttribute(JSON_DATA_KEY, msg);
+			
+			if(statusCode!=0) {
+				response.setStatus(statusCode);
+			} else {
+				response.setStatus(500);
+			}
 		}
+		
 		response.setContentType(CONTENTTYPE_JSON_UTF8);
 		return JSON_KEY;
 	}

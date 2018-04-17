@@ -11,8 +11,8 @@
 	    </div>
 	    
 	    <div ng-switch-when="select">
-	       <label for="{{property.value}}" class="control-label">{{label}}</label><br/>
-	     	<span  e-class="input-small" e-ng-model="value" editable-select="value[propertyName]" e-name="{{property.value}}" e-ng-options="{{expression}}" >{{value[propertyName] || 'empty'}}</span>
+	        <label for="{{property.value}}" class="control-label">{{label}}</label><br/>
+	     	<span e-class="input-small" e-ng-model="value" editable-select="value[propertyName]" e-name="{{property.value}}" e-ng-options="{{expression}}" >{{value[propertyName] || 'empty'}}</span>
 	    </div>
 	    
 	    <div ng-switch-when="checkbox">
@@ -37,6 +37,13 @@
 				e-name="{{property.value}}" e-ng-readonly="{{property.readOnly}}"
 				e-ng-minlength="{{property.minLength || 0}}"
 				e-ng-maxlength="{{property.maxLength || 524288}}"
+				e-ng-required="{{property.required}}" e-ng-change="checkValidation();">{{value[propertyName] || 'empty' }}</span>
+	    </div>
+	    
+	    <div ng-switch-when="number">
+	      <label for="{{property.value}}" class="control-label">{{label}}</label><br/>
+	       <span editable-text="value[propertyName]" e-ng-model="value" e-type="number"
+				e-name="{{property.value}}" e-min="1"
 				e-ng-required="{{property.required}}" e-ng-change="checkValidation();">{{value[propertyName] || 'empty' }}</span>
 	    </div>
 	    

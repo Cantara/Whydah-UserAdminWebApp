@@ -1,6 +1,8 @@
 UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $routeParams, Users, Applications, ngProgressFactory, $interval, ConstantValues) {
 
 	$scope.DEFCONS = ['DEFCON1', 'DEFCON2', 'DEFCON3', 'DEFCON4', 'DEFCON5'];
+	$scope.ACCESS_RIGHTS = ['READ', 'WRITE', 'CREATE', 'DELETE', 'OAUTH2_REDIRECT'];
+	$scope.SESSION_TIMEOUT_UNIT = ['MONTH(S)', 'DAY(S)', 'HOUR(S)', 'MINUTE(S)', 'SECOND(S)'];
 	
 	$scope.session.activeTab = 'application';
 
@@ -176,7 +178,9 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 		Applications.application.security={};
 		Applications.application.minimumDEFCONLevel= 'DEFCON5';
 		Applications.application.security.minimumDEFCONLevel='DEFCON5';
-		
+		Applications.application.secret=uuid();
+		Applications.application.timeout_number=6; //6 months
+		Applications.application.timeout_unit='MONTH(S)';
 		
 		$scope.application = {isNew: true};
 		//Users.userRoles = {};
@@ -206,7 +210,9 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	                                {value: 'whydahAdmin', type:'checkbox'},
 	                                {value: 'whydahUASAccess', type:'checkbox'},
 	                                {value: 'userTokenFilter', type:'checkbox'},
-	                                {value: 'minimumDEFCONLevel', type:'select'}
+	                                {value: 'minimumDEFCONLevel', type:'select'},
+	                                {value: 'timeout_number', type:'number'},
+	                                {value: 'timeout_unit', type:'select'},
 	                                ];
 
 	$scope.applicationJsonProperties = [
@@ -232,7 +238,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 				roleNames: 'Available role names',
 				orgNames: 'Available organization names',
 				tags: 'Tags',
-				applicationLog: 'Log',
+				applicationLog: 'Log'
 			}
 	}
 
@@ -366,7 +372,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	}
 	
 	$scope.addANewAcl = function(){
-		Applications.application.acl.push({"applicationId":"","applicationACLPath":"","accessRights":""});
+		Applications.application.acl.push({"applicationId":"","applicationACLPath":"","accessRights":['READ']});
 		$scope.form.applicationDetail.$setDirty();
 	}
 	
@@ -376,7 +382,13 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	}
 	
 	$scope.addANewRole = function(){
-		Applications.application.roles.push({"id":"","name":""});
+		var id = Applications.application.roles.length;
+		angular.forEach(Applications.application.roles, function(item, index){
+			if(item.id===id){
+				id = id + 1;
+			}
+		});
+		Applications.application.roles.push({"id":id,"name":""});
 		$scope.form.applicationDetail.$setDirty();
 	}
 	
@@ -386,10 +398,19 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	}
 	
 	$scope.addANewOrg = function(){
-		Applications.application.organizationNames.push({"id":"","name":""});
+		var id = Applications.application.organizationNames.length;
+		angular.forEach(Applications.application.organizationNames, function(item, index){
+			if(item.id===id){
+				id = id + 1;
+			}
+		});
+		Applications.application.organizationNames.push({"id":id,"name":""});
 		$scope.form.applicationDetail.$setDirty();
 	}
 
+	$scope.setDirty = function(){
+		$scope.form.applicationDetail.$setDirty();
+	}
 
 	$scope.uploadFile = function () {
 		var file = $scope.myFile;

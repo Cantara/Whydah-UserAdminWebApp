@@ -382,16 +382,10 @@
 									 <div app-edit-field label="Application Name (*)" property-name="name" app-properties="applicationProperties"  ng-model="applications.application"  />
 		         				  	 <div app-edit-field label="Application Secret" property-name="secret" app-properties="applicationProperties"  ng-model="applications.application" />
 		         				  	 <div app-edit-field label="Application URL" property-name="applicationUrl" app-properties="applicationProperties"  ng-model="applications.application" />
-								
-		
-								
-								
+								   
 							</div>
 							
-							
-							
-							
-							 <div app-edit-field label="Application Description" property-name="description" app-properties="applicationProperties"  ng-model="applications.application"  />
+							 <div class="col-sm-12" app-edit-field label="Application Description" property-name="description" app-properties="applicationProperties"  ng-model="applications.application"  />
 						
 							
 						</div>
@@ -399,32 +393,29 @@
 						<div class="col-sm-6">
 						
 						
-						   <div class="col-sm-6" style="padding-left: 10px">
+						   <div class="col-sm-6" style="padding-left: 20px">
 							   <div app-edit-field label="Default Org." property-name="defaultOrganizationName" app-properties="applicationProperties"  ng-model="applications.application" options="applications.application.organizationNames" option-value="name" option-display="name" />
 							   <div app-edit-field label="Default Role" property-name="defaultRoleName" app-properties="applicationProperties"  ng-model="applications.application" options="applications.application.roles" option-value="name" option-display="name"/>
 							    
 							</div>
 							
 							
-							<div class="col-sm-6" style="padding-left: 10px">
+							<div class="col-sm-6" style="padding-left: 20px">
 							    <b>Security</b>
 								<div app-edit-field label="isWhydahAdmin" property-name="whydahAdmin" app-properties="applicationProperties"  ng-model="applications.application"/>
       							<div app-edit-field label="hasUASaccess" property-name="whydahUASAccess" app-properties="applicationProperties"  ng-model="applications.application"/>
       							<div app-edit-field label="userTokenFilter" property-name="userTokenFilter" app-properties="applicationProperties"  ng-model="applications.application" />
 							    <div app-edit-field label="DEFCON min" property-name="minimumDEFCONLevel" app-properties="applicationProperties"  ng-model="applications.application" options="DEFCONS" />
+							   
 							</div> 
 							
 							
-							<div class="col-sm-12">
-							 
-							 
-							 <!-- -ADD PROGRESS BARS FOR COMPLETION HERE -->
-	
-							
+						   <div>
+								<div class="col-sm-6" app-edit-field label="Max session timeout" property-name="timeout_number" app-properties="applicationProperties"  ng-model="applications.application" /> 
+							    <div class="col-sm-4" style="padding-left: 20px" app-edit-field label="Timeout's unit" property-name="timeout_unit" app-properties="applicationProperties"  ng-model="applications.application" options="SESSION_TIMEOUT_UNIT" />
 							</div>
-							
-						
 						</div>
+						
 						
 						<div class="col-sm-12" style="margin-top: 15px;">
 							   <my-tabs>
@@ -432,38 +423,44 @@
 			                             <div>
 											<fieldset
 												data-ng-repeat="org in applications.application.organizationNames">
-												<input type="text" ng-model="org.id" placeholder="Enter an id" ng-required> 
-												<input type="text" ng-model="org.name" placeholder="Enter a name" ng-required="true">
+												<input name="organization id" type="text" ng-model="org.id" placeholder="Enter an id" ng-readonly="true"> 
+												<input name="organization name" type="text" ng-model="org.name" placeholder="Enter a name" ng-required="true">
 												<button type="button" ng-show="form.applicationDetail.$visible" class="remove" ng-click="removeAnOrg($index)">-</button>
 											</fieldset>
 										</div>
-										<button type="button" class="btn btn-default" ng-click="addANewOrg()" ng-show="form.applicationDetail.$visible">New row</button>
+										<br/>
+										<button type="button" class="btn btn-info" ng-click="addANewOrg()" ng-show="form.applicationDetail.$visible">New row</button>
 										
 			                        </my-pane>
 			                        <my-pane title="roles">
 											<div>
 											<fieldset
 												data-ng-repeat="role in applications.application.roles">
-												<input type="text" ng-model="role.id" placeholder="Enter an id" ng-required> 
-												<input type="text" ng-model="role.name" placeholder="Enter a name" ng-required="true">
+												<input name="role id" type="text" ng-model="role.id" placeholder="Enter an id" ng-readonly="true">
+												<input name="role name" type="text" ng-model="role.name" placeholder="Enter a name" ng-required="true">
 												<button  type="button" ng-show="form.applicationDetail.$visible" class="remove" ng-click="removeARole($index)">-</button>
 											</fieldset>
 										</div>
-										<button type="button" class="btn btn-default" ng-click="addANewRole()" ng-show="form.applicationDetail.$visible">New row</button>
+										<br/>
+										<button type="button" class="btn btn-info" ng-click="addANewRole()" ng-show="form.applicationDetail.$visible">New row</button>
 			                        </my-pane>
 			                        
 			                        <my-pane title="acls">
-										<div class="col-sm-12">
+										<div>
 											<fieldset
 												data-ng-repeat="a in applications.application.acl">
-												<input type="text" ng-model="a.applicationId" placeholder="Enter an id" ng-required> 
-												<input type="text" ng-model="a.applicationACLPath" placeholder="Enter an ACL's Path" ng-required>
-												<input type="text" ng-model="a.accessRights" placeholder="Enter access rights">
-												
+												<input style="width: 240px;" type="text" ng-model="a.applicationId" placeholder="The applicationId we grant access to."> 
+												<input name="ACL Path" type="text" ng-model="a.applicationACLPath" placeholder="Enter an ACL's Path" ng-required>
 												<button  type="button" ng-show="form.applicationDetail.$visible" class="remove" ng-click="removeAnAcl($index)">-</button>
+												<br/>
+												<label ng-repeat="right in ACCESS_RIGHTS">
+      												<input type='checkbox' value="{{right}}" check-list='a.accessRights' ng-click="setDirty()"> {{right}} &nbsp;
+    											</label>
+												
 											</fieldset>
 										</div>
-										<button type="button" class="btn btn-default" ng-click="addANewAcl()" ng-show="form.applicationDetail.$visible">New row</button>
+										<br/>
+										<button type="button" class="btn btn-info" ng-click="addANewAcl()" ng-show="form.applicationDetail.$visible">New row</button>
 			                        </my-pane>
 			                        <my-pane title="tags">
 			                          <div>
@@ -478,17 +475,22 @@
 												<button  type="button" class="remove" ng-click="removeTag($index)" ng-show="form.applicationDetail.$visible">-</button>
 											</fieldset>
 										</div>
-										<button type="button" class="btn btn-default" ng-click="addANewTag()" ng-show="form.applicationDetail.$visible">New row</button>
+										<br/>
+										<button type="button" class="btn btn-info" ng-click="addANewTag($index)" ng-show="form.applicationDetail.$visible">New row</button>
 			
 			                        </my-pane>
+			                        
+			                        <!-- 
 			                        <my-pane title="users">
 			
-			                        </my-pane>
+			                        </my-pane> -->
 			                        <my-pane title="access log">
 										<div class="col-sm-12">
 											<textarea rows="10" cols="60" ng-model="applications.application.applicationLog"/>
 										</div>
 			                        </my-pane>
+			                        
+			                        
 			                </my-tabs>
 						</div>
 						
