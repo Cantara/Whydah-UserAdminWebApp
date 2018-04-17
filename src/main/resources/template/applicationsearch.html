@@ -363,31 +363,33 @@
 								<div class="fileinput-button">
 								
 									<img ng-show="image==null && applications.application.logoUrl!=null" src="{{applications.application.logoUrl}}" 
-										style="width: 150px; " /> 
+										style="width: 150px; height: auto" /> 
 									<img ng-show="image==null && applications.application.logoUrl==null" src="img/blank.png" 
-										style="width: 150px; " /> 
+										style="width: 150px; height: auto" /> 
 									<img
 										ng-show="image!=null" ng-src="{{image.resized.dataURL}}"
-										type="{{image.file.type}}" style="width: 150px; " />
+										type="{{image.file.type}}" style="width: 150px; height: auto" />
 										
 									<input type="file" name="form.file" accept="image/*" ng-disabled="!form.applicationDetail.$visible"
 										image="image" resize-max-height="150" resize-max-width="150" on-image-selected="onImageSelected()"
 										resize-quality="0.7">
 								</div>
 								
+							
 							</div>
 	
 							<div class="col-sm-6" style="padding-left: 18px">
 								
 									 <div app-edit-field label="Application Name (*)" property-name="name" app-properties="applicationProperties"  ng-model="applications.application"  />
-		         				  	 <div app-edit-field label="Application Secret" property-name="secret" app-properties="applicationProperties"  ng-model="applications.application" />
+		         				  	 
 		         				  	 <div app-edit-field label="Application URL" property-name="applicationUrl" app-properties="applicationProperties"  ng-model="applications.application" />
 								   
 							</div>
 							
 							 <div class="col-sm-12" app-edit-field label="Application Description" property-name="description" app-properties="applicationProperties"  ng-model="applications.application"  />
 						
-							
+							 <div  class="col-sm-12" app-edit-field label="Application Secret" property-name="secret" app-properties="applicationProperties"  ng-model="applications.application" />
+								
 						</div>
 						
 						<div class="col-sm-6">
