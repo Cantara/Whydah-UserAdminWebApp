@@ -9,6 +9,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	$scope.users = Users;
 	$scope.applications = Applications;
 	$scope.displayCollectionList = [];
+	$scope.displayActivityList = [];
 
 	$scope.form = {};
 	$scope.orderByColumn = 'name';
@@ -117,6 +118,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 			 $interval.cancel(theIntervalUpdateLog);
 			 theIntervalUpdateLog = $interval(function(){
 				 getLog(id);
+				 
 	         }.bind(this), ConstantValues.clientsAutoUpdateLogInterval);
 			
 			

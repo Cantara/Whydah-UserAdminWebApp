@@ -39,7 +39,7 @@ import net.whydah.sso.commands.adminapi.user.role.CommandUpdateUserRole;
 import net.whydah.sso.commands.application.CommandListApplications;
 import net.whydah.sso.commands.application.CommandSearchForApplications;
 import net.whydah.sso.commands.extensions.crmapi.CommandGetCRMCustomer;
-import net.whydah.sso.commands.extensions.statistics.CommandListUserActivities;
+import net.whydah.sso.commands.extensions.statistics.CommandGetUserActivityStats;
 import net.whydah.sso.ddd.model.user.UserTokenId;
 import net.whydah.sso.extensions.useractivity.helpers.UserActivityHelper;
 import net.whydah.sso.user.helpers.UserTokenXpathHelper;
@@ -748,8 +748,8 @@ public class UASProxyController {
 		String jsonresult = "{}";
 		try {
 			Properties properties = AppConfig.readProperties();
-
-			jsonresult = new CommandListUserActivities(java.net.URI.create(properties.getProperty("statisticsservice")), apptokenid, usertokenid, applicationId.trim()).execute();
+			 
+			jsonresult = new CommandGetUserActivityStats(java.net.URI.create(properties.getProperty("statisticsservice")), "whydah", "usersession",null, null, null).execute();
 			if(jsonresult!=null){
 				//we should filter activities for this particular application
 				jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(jsonresult, null, applicationId);
@@ -767,11 +767,11 @@ public class UASProxyController {
 	// USERLOG
 	@GET
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	@RequestMapping(value = "userlog/{username}", method = RequestMethod.GET)
+	@RequestMapping(value = "userlog/{userid}", method = RequestMethod.GET)
 	public String getUserLog(@PathVariable("apptokenid") String apptokenid, @PathVariable("usertokenid") String usertokenid,
-			@PathVariable("username") String username, HttpServletRequest request,
+			@PathVariable("userid") String userid, HttpServletRequest request,
 			HttpServletResponse response, Model model) {
-		log.info("getUserLog - entry.  applicationtokenid={},  applicationId={}, username={}", apptokenid, usertokenid, username);
+		log.info("getUserLog - entry.  applicationtokenid={},  applicationId={}, username={}", apptokenid, usertokenid, userid);
 		String result = checkLogin(usertokenid, request, response, model);
 		if(result!=null){
 			return result;
@@ -781,10 +781,10 @@ public class UASProxyController {
 		try {
 			Properties properties = AppConfig.readProperties();
 
-			jsonresult = new CommandListUserActivities(java.net.URI.create(properties.getProperty("statisticsservice")), apptokenid, usertokenid, username.trim()).execute();
+			jsonresult = new CommandGetUserActivityStats(java.net.URI.create(properties.getProperty("statisticsservice")), "whydah", "usersession", userid, null, null).execute();
 			if (jsonresult != null) {
 				//we should filter activities for this particular application
-				jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(jsonresult, username);
+				jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(jsonresult, userid);
 
 			}
 		} catch (Exception e) {

@@ -219,7 +219,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             that.application.whydahUASAccess = data.security.whydahUASAccess;
             that.application.userTokenFilter = data.security.userTokenFilter;
             that.application.minimumDEFCONLevel = data.security.minimumDEFCONLevel;
-            
+           
           
             that.application.applicationJson = JSON.stringify(data);
             that.application.applicationLog = new Object();
@@ -269,6 +269,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             }
             
            
+            
             //console.log(that.allTags[id]);
             that.application.tagList = that.allTags[id]? that.allTags[id]:[];
             callback(that.application);
@@ -302,7 +303,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
 			var data = response.data;
 			var status = response.status;
             console.log('Got applicaton log', data);
-            that.application.applicationLog = JSON.stringify(data);
+            that.application.applicationLog = data;
             if(callback) {
                  callback(that.application);
             }

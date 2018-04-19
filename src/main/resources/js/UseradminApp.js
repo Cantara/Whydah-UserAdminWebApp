@@ -3,7 +3,7 @@ var UseradminApp = angular.module('UseradminApp', ['ngRoute', 'ngAnimate', 'ui.b
 UseradminApp.constant('ConstantValues', {
 
     
-	clientsAutoUpdateLogInterval: 1*60*1000 //clear cache and auto fetch occurs each 1 minute
+	clientsAutoUpdateLogInterval: 2*60*1000 //clear cache and auto fetch occurs each 2 minutes
 
 });
 
