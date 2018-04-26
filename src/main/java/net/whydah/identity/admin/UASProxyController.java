@@ -1315,9 +1315,11 @@ public class UASProxyController {
 		boolean createNew = (appId==null||appId.isEmpty());
 		if(createNew) {
 			CommandAddApplication cmd = new CommandAddApplication(URI.create(userAdminServiceUrl), apptokenid, usertokenid, content);
+			cmd.execute();
 			return cmd.getStatusCode() == 200;
 		} else {
 			CommandUpdateApplication cmd = new CommandUpdateApplication(URI.create(userAdminServiceUrl), apptokenid, usertokenid, appId, content);
+			cmd.execute();
 			return cmd.getStatusCode() == 204;
 		}
 		
