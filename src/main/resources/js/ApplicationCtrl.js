@@ -1,7 +1,7 @@
 UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $routeParams, Users, Applications, ngProgressFactory, $interval, ConstantValues) {
 
 	$scope.DEFCONS = ['DEFCON1', 'DEFCON2', 'DEFCON3', 'DEFCON4', 'DEFCON5'];
-	$scope.ACCESS_RIGHTS = ['READ', 'WRITE', 'CREATE', 'DELETE', 'OAUTH2_REDIRECT'];
+	$scope.ACCESS_RIGHTS = ['READ', 'WRITE', 'CREATE', 'DELETE', 'SSO_REDIRECT', 'OAUTH2_REDIRECT'];
 	$scope.SESSION_TIMEOUT_UNIT = ['MONTH(S)', 'DAY(S)', 'HOUR(S)', 'MINUTE(S)', 'SECOND(S)'];
 	
 	$scope.session.activeTab = 'application';
