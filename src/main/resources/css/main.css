@@ -180,6 +180,7 @@ div.inline { float:left;}
  .fileinput-button {
     position: relative;
     overflow: hidden;
+    cursor: pointer;
 }
 /*Also*/
  .fileinput-button input {
@@ -193,7 +194,161 @@ div.inline { float:left;}
     direction: ltr;
     cursor: pointer;
 }
-.form-horizontal .control-label{
+.control-label{
     text-align: left;
     font-weight: bold;
+}
+.hint {
+	font-style: italic;
+	font-size: 10px;
+}
+
+
+.app_general_info_container {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-rows: repeat(2, 50px) auto; /*5 rows with 50 px*/
+  grid-template-columns: 160px auto 1fr;
+  grid-template-areas:
+    "app_logo app_id app_url"
+    "app_logo app_name company_name"
+    "app_logo app_desc app_desc";
+
+  background-color: #fff;
+}
+
+.app_logo {
+  grid-area: app_logo;
+  place-self: start stretch; /*align-self = start, justify-self = stretch*/
+}
+
+.app_id {
+  grid-area: app_id;
+  place-self: start stretch; /*align-self = start, justify-self = stretch*/
+}
+.app_name {
+  grid-area: app_name;
+  place-self: start stretch; /*align-self = start, justify-self = stretch*/
+}
+.company_name {
+  grid-area: company_name;
+  place-self: start stretch; /*align-self = start, justify-self = stretch*/
+}
+.app_url {
+  grid-area: app_url;
+  place-self: start stretch; /*align-self = start, justify-self = stretch*/
+}
+
+.app_logo_url {
+  grid-area: app_logo_url;
+  place-self: start stretch; /*align-self = start, justify-self = stretch*/
+}
+.app_desc {
+  grid-area: app_desc;
+  place-self: start stretch; /*align-self = start, justify-self = stretch*/
+}
+.app_security_container {
+  /* 2 rows 1 column
+    [row 1, col 1] -> app_security_secret
+    [row 2, col 1] -> app_security_session
+    */
+
+  display: grid;
+  grid-gap: 10px;
+  grid-template-rows: repeat(3, 50px); /*2 rows with 50 px*/
+  grid-template-columns: auto;
+  grid-template-areas:
+    "app_security_secret app_security_secret"
+    "app_security_session app_security_access_permission"
+    "app_security_defcon app_security_access_permission";
+
+  background-color: #fff;
+}
+
+.app_security_secret {
+  grid-area: app_security_secret;
+}
+
+.app_security_session {
+  grid-area: app_security_session;
+}
+.app_security_defcon {
+  grid-area: app_security_defcon;
+}
+.app_security_access_permission {
+  grid-area: app_security_access_permission;
+}
+
+.app_organizations_container {
+  display: grid;
+  grid-gap: 10px;
+  grid-auto-flow: row;
+  grid-auto-rows: auto;
+  grid-auto-columns: auto;
+}
+
+.app_roles_container {
+  display: grid;
+  grid-gap: 10px;
+  grid-auto-flow: row;
+  grid-auto-rows: auto;
+  grid-auto-columns: auto;
+}
+
+.app_redirectURLs_container {
+  display: grid;
+  grid-gap: 10px;
+  grid-auto-flow: row;
+  grid-auto-rows: auto;
+  grid-auto-columns: auto;
+}
+
+.control-label {
+  text-align: left;
+  font-weight: bold;
+}
+
+@media only screen and (max-width: 900px) {
+ 
+   .app_general_info_container {
+	  display: grid;
+	  grid-gap: 10px;
+	  margin: 0 auto;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+    
+	  grid-template-areas:
+	    "app_logo"
+	    "app_id"
+	    "app_url"
+	    "app_name"
+	    "company_name"
+	    "app_desc";
+	
+	   background-color: #fff;
+	}
+	
+	
+ 
+}
+
+@media only screen and (max-width: 400px) {
+ 
+   .app_security_container {
+	 
+	  display: grid;
+	  grid-gap: 10px;
+	  grid-template-rows: auto 80px auto auto; /*2 rows with 50 px*/
+	  grid-template-columns: 1fr;
+	  grid-template-areas:
+	    "app_security_secret"
+	    "app_security_session"
+	    "app_security_defcon"
+	    "app_security_access_permission";
+	
+	  background-color: #fff;
+	}
+	
+	
+ 
 }

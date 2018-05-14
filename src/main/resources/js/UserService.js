@@ -100,23 +100,7 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 			that.list = response.data.result;
 			
 		}, function(response){
-			// This is most likely due to usertoken timeout - TODO: Redirect to login webapp   
-			console.log('Unable to search', response);
-			var status = response.status;
-			switch (status) {
-				case 403: /* Forbidden */
-					Messages.add('danger', 'Unable to seach! Forbidden...');
-					break;
-				case 404:  /* 404 No access */
-					Messages.add('danger', 'Unable to search! No access...');
-					break;
-				case 409:  /* 409 Conflict - will prbably not occur here */
-					Messages.add('danger', 'Search already exists...');
-					break;
-				default:
-			    	Messages.add('danger', 'Search failed with error code: ' + status);
-			}
-
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
 		});
 		return this;
 	};
@@ -134,6 +118,8 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 		    if(callback) {
 		        callback(response.data);
 		    }
+		}, function(response){
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
 		});
 		return this;
     };
@@ -148,6 +134,8 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 			    that.fullList.push(u);
 			    callback();
 			    
+			}, function(response){
+				Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
 			});
 	    
 		
@@ -166,6 +154,8 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 		    if(callback) {
 		        callback(data);
 		    }
+		}, function(response){
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
 		});
 		return this;
 	};
@@ -182,7 +172,9 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
             if(callback) {
                  callback(that.user);
             }
-        });
+        }, function(response){
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+		});
         return this;
     };
 
@@ -199,7 +191,9 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
             if(callback) {
                  callback(that.user);
             }
-        });
+        }, function(response){
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+		});
         return this;
     };
 
@@ -221,9 +215,7 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 		        successCallback();
 		    }
 		}, function (response) {
-			var data = response.data;
-			var status = response.status;
-			Messages.add('danger', 'Oops, something went wrong. User "'+user.username+'" was not saved successfully.');
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
 		});
 		return this;
 	};
@@ -245,22 +237,8 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 		        successCallback();
 		    }
 		}, function (response) {
-			var data = response.data;
-			var status = response.status;
-			console.log('User was not added', data);
-			switch (status) {
-				case 403:
-					Messages.add('danger', 'User was not added! No access...');
-					break;
-				case 404:  /* 404 No access */
-					Messages.add('danger', 'User was not added! No access...');
-					break;
-				case 409:  /* 409 Conflict - user exists or was double posted */
-					Messages.add('danger', 'User was not added! Already exists...');
-					break;
-				default:
-			    	Messages.add('danger', 'User was not added and! Try again later...');
-			}
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+			
 			
 		});
 		return this;
@@ -279,7 +257,10 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 			Messages.add('success', 'User "'+user.username+'" was deleted successfully.');
 			//that.search(that.searchQuery);
 			that.pagingQuery();
-		});
+		},  function (response) {
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);			
+			
+		} );
 		return this;
 	};
 
@@ -300,6 +281,10 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 		    if(callback) {
 		        callback(data);
 		    }
+		},  function (response) {
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+			
+			
 		});
 		return this;
     };
@@ -321,6 +306,10 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 			if(successCallback){
 			    successCallback();
 			}
+		},  function (response) {
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+			
+			
 		});
 		return this;
     };
@@ -354,7 +343,8 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 		}, function (response) {
 			var data = response.data;
 			var status = response.status;
-            Messages.add('warning', 'Role "'+roleName+'" for user "'+that.user.username+'" was not deleted.');
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+			
             that.getRolesForCurrentUser();
         });
 		return this;
@@ -382,7 +372,8 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 		}, function (response) {
 			var data = response.data;
 			var status = response.status;
-			Messages.add('warning', 'Role "'+roleName+'" for user "'+that.user.username+'" was not saved.');
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+			
 			that.getRolesForCurrentUser();
 		});
 		return this;
@@ -401,6 +392,11 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 				var data = response.data;
 				var status = response.status;
 				callback(data);
+			}, function (response) {
+				var data = response.data;
+				var status = response.status;
+				Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+				
 			});
 			return this;
 		};
@@ -420,7 +416,8 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 		}, function (response) {
 			var data = response.data;
 			var status = response.status;
-			Messages.add('warning', 'Unable to reset password for user "'+user.username+'".');
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+			
 		});
 		return this;
     };
@@ -495,6 +492,11 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 				var data = response.data;
 				var status = response.status;
 				callback(data);
+			}, function (response) {
+				var data = response.data;
+				var status = response.status;
+				Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+				
 			});
 			return this;
 		};
@@ -558,24 +560,11 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 				that.exportUsers(response.data.currentPage+1, callback);
 			}
 			
-		}, function(response){
-			// This is most likely due to usertoken timeout - TODO: Redirect to login webapp   
-			console.log('Unable to search', response);
+		}, function (response) {
+			var data = response.data;
 			var status = response.status;
-			switch (status) {
-				case 403: /* Forbidden */
-					Messages.add('danger', 'Unable to seach! Forbidden...');
-					break;
-				case 404:  /* 404 No access */
-					Messages.add('danger', 'Unable to search! No access...');
-					break;
-				case 409:  /* 409 Conflict - will prbably not occur here */
-					Messages.add('danger', 'Search already exists...');
-					break;
-				default:
-			    	Messages.add('danger', 'Search failed with error code: ' + status);
-			}
-
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+			
 		});
 		return this;
     }

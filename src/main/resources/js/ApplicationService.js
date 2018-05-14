@@ -1,4 +1,4 @@
-UseradminApp.service('Applications', function($http,Messages, $q){
+UseradminApp.service('Applications', function($http,Messages, $q, Application){
 
     var defaultlist = [
         {
@@ -53,6 +53,8 @@ UseradminApp.service('Applications', function($http,Messages, $q){
 			var data = response.data;
 			var status = response.status;
             that.list = data;
+        }, function(response){
+        	Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
         });
         return this;
     };
@@ -63,6 +65,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         fileFormData.append('overridenIds', this.getSelectedOverridenApIds());
         fileFormData.append('skippedIds', this.getSkippedApIds());
         var deffered = $q.defer();
+        
         $http.post(uploadUrl, fileFormData, {
             transformRequest: angular.identity,
             headers: {'Content-Type': undefined}
@@ -156,23 +159,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
              });
             
          }, function (response) {
-			var data = response.data;
-			var status = response.status;
-         // This is most likely due to usertoken timeout - TODO: Redirect to login webapp
-         console.log('Unable to search', data);
-         switch (status) {
-            case 403: // Forbidden
-               Messages.add('danger', 'Unable to seach! Forbidden...');
-               break;
-            case 404:  // 404 No access
-               Messages.add('danger', 'Unable to search! No access...');
-               break;
-            case 409:  // 409 Conflict - will prbably not occur here
-               Messages.add('danger', 'Search already exists...');
-               break;
-            default:
-               Messages.add('danger', 'Search failed with error code: ' + status);
-          }
+        	 Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
 
           });
   
@@ -213,82 +200,15 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         }).then(function (response) {
         	var data = response.data;
             console.log('Got applicaton', data);
-            that.application = data;
-            that.application.secret = data.security.secret;
-            that.application.whydahAdmin = data.security.whydahAdmin;
-            that.application.whydahUASAccess = data.security.whydahUASAccess;
-            that.application.userTokenFilter = data.security.userTokenFilter;
-            that.application.minimumDEFCONLevel = data.security.minimumDEFCONLevel;
-           
-          
+            that.application = new Application(data);
             that.application.applicationJson = JSON.stringify(data);
             that.application.applicationLog = new Object();
-            that.application.roleNames = buildRoleNames(that.application);//will be removed
-            that.application.orgNames = buildOrgNames(that.application); //will be removed
-            
-            
-            angular.forEach(that.application.acl, function(item, index){
-    			if(item.accessRights===null || item.accessRights==='' || !item.accessRights){
-    				item.accessRights=[];
-    			}
-    			if (typeof item.accessRights === 'string') {
-       			  var array = i.accessRights.split(',');
-       			  item.accessRights = array;
-                }
-    		});
-            
-            //convert maxSessionTimeoutSeconds to a user-friendly format
-            var ms = data.security.maxSessionTimeoutSeconds;
-            var months, days, hours, mins, secs;
-            secs = Math.floor(ms / 1000);
-            mins = Math.floor(secs / 60);
-            secs = secs % 60;
-            hours = Math.floor(mins / 60);
-            mins = mins % 60;
-            days = Math.floor(hours / 24);
-            hours = hours % 24;
-            months = Math.floor(days/30);
-            days = days % 30;
-            
-            
-            if(months>0){
-            	that.application.timeout_number = months;
-            	that.application.timeout_unit = "MONTH(S)";
-            } else if(days >0){
-            	that.application.timeout_number = days;
-            	that.application.timeout_unit = "DAY(S)";
-            } else if(hours >0){
-            	that.application.timeout_number = hours;
-            	that.application.timeout_unit = "HOUR(S)";
-            } else if(mins >0){
-            	that.application.timeout_number = mins;
-            	that.application.timeout_unit = "MINUTE(S)";
-            } else if(secs >0){
-            	that.application.timeout_number = secs;
-            	that.application.timeout_unit = "SECOND(S)";
-            }
-            
-           
-            
-            //console.log(that.allTags[id]);
             that.application.tagList = that.allTags[id]? that.allTags[id]:[];
             callback(that.application);
             
-            //get tag json
-//            $http({
-//                method: 'GET',
-//                url: baseUrl+'applicationtags/'+id+'/'
-//            }).success(function (response) {
-//    			var data = response.data;
-//    			var status = response.status;
-//                 console.log("tag list "  + data);
-//            	 that.application.tagList = data;
-//                if(callback) {
-//                    callback(that.application);
-//                }
-//            });
-            
            
+        }, function(response){
+        	Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
         });
         return this;
     };
@@ -307,6 +227,8 @@ UseradminApp.service('Applications', function($http,Messages, $q){
             if(callback) {
                  callback(that.application);
             }
+        }, function(response){
+        	Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
         });
         return this;
     };
@@ -335,22 +257,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                     successCallback();
                 }
             }, function (response) {
-    			var data = response.data;
-    			var status = response.status;
-                console.log('application was not added', data);
-                switch (status) {
-                    case 403:
-                        Messages.add('danger', 'application was not added! No access...');
-                        break;
-                    case 404:  /* 404 No access */
-                        Messages.add('danger', 'application was not added! No access...');
-                        break;
-                    case 409:  /* 409 Conflict - user exists or was double posted */
-                        Messages.add('danger', 'application was not added! Already exists...');
-                        break;
-                    default:
-                        Messages.add('danger', 'application was not added and! Try again later...');
-                }
+            	Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
              
             });
         }
@@ -360,14 +267,21 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     this.save = function(application, successCallback) {
         console.log('Updating application', JSON.stringify(application));
         var that = this;
+     
         var postData = buildApplicationUpdate(application);
-        console.log(application);
+        var copy = angular.copy(postData);
+        delete copy.timeout_unit;
+        delete copy.timeout_number;
+        delete copy.isNew;
+        delete copy.app_oauth2_redirect;
+        delete copy.app_sso_redirect;
+        
         if (postData.hasOwnProperty('name')) {
-            console.log("Save this json: " + JSON.stringify(postData));
+            console.log("Save this json: " + JSON.stringify(copy));
             $http({
                 method: 'PUT',
                 url: baseUrl + 'application/' + application.id + '/',
-                data: postData
+                data: copy
             }).then(function (response) {
     			var data = response.data;
     			var status = response.status;
@@ -379,26 +293,10 @@ UseradminApp.service('Applications', function($http,Messages, $q){
              
                 
             }, function (response) {
-    			var data = response.data;
-    			var status = response.status;
-                console.log('application was not updated', data);
-                switch (status) {
-                    case 400:
-                        Messages.add('danger','application was not updated! Please validate your form and applicationjson input.');
-                        break;
-                    case 403:
-                        Messages.add('danger', 'application was not updated! No access...');
-                        break;
-                    case 404:  /* 404 No access */
-                        Messages.add('danger', 'application was not updated! No access...');
-                        break;
-                    case 409:  /* 409 Conflict - user exists or was double posted */
-                        Messages.add('danger', 'application was not updated! Already exists...');
-                        break;
-                    default:
-                        Messages.add('danger', 'application was not updated! Try again later...');
-                }
-               
+    			
+            	Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+    			
+    		
             });
             
             
@@ -409,6 +307,63 @@ UseradminApp.service('Applications', function($http,Messages, $q){
     };
 
     function buildApplicationUpdate(application) {
+    	
+    	if(application.hasOwnProperty('timeout_number') &&
+                application.hasOwnProperty('timeout_unit')){
+                var timeout = 0;
+                if(application.timeout_unit === 'MONTH(S)'){
+                    timeout = application.timeout_number * 30 * 24 * 60 * 60 * 1000;
+                } else if(application.timeout_unit === 'DAY(S)'){
+                    timeout = application.timeout_number * 24 * 60 * 60 * 1000;
+                } else if(application.timeout_unit === 'HOUR(S)'){
+                    timeout = application.timeout_number * 60 * 60 * 1000;
+                } else if(application.timeout_unit === 'MINUTE(S)'){
+                    timeout = application.timeout_number * 60 * 1000;
+                } else if(application.timeout_unit === 'SECOND(S)'){
+                    timeout = application.timeout_number * 1000;
+                }
+
+                if(timeout!=0){
+                    application.security.maxSessionTimeoutSeconds = timeout;
+                }
+
+
+
+            }
+
+            if(application.hasOwnProperty('app_sso_redirect')){
+
+                var found = false;
+                angular.forEach(application.acl, function(item, index){
+                    if(item.accessRights.includes('SSO_REDIRECT')){
+                        found = true;
+                        item.applicationACLPath = application.app_sso_redirect;
+                    }
+                });
+
+                if(!found){
+                    application.acl.push({"applicationId":application.id,"applicationACLPath":application.app_sso_redirect,"accessRights":['READ', 'SSO_REDIRECT']});
+
+                }
+            }
+
+            if(application.hasOwnProperty('app_oauth2_redirect')){
+                var found = false;
+                angular.forEach(application.acl, function(item, index){
+                    if(item.accessRights.includes('OAUTH2_REDIRECT')){
+                        found = true;
+                        item.applicationACLPath = application.app_oauth2_redirect;
+                    }
+                });
+
+                if(!found){
+                    application.acl.push({"applicationId":application.id,"applicationACLPath":application.app_oauth2_redirect,"accessRights":['READ', 'OAUTH2_REDIRECT']});
+
+                }
+
+            }
+    	
+    	/*
         var postData = {};
         if (!application.hasOwnProperty('security')) {
         	application.security = {};  
@@ -462,6 +417,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         	}
         	
         }
+        */
         
 //        if (application.hasOwnProperty('roleNames')) {
 //            if (typeof application.roleNames === 'string') {
@@ -527,25 +483,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                         successCallback();
                     }
                 }, function (response) {
-        			var data = response.data;
-        			var status = response.status;
-                    console.log('application was not updated', data);
-                    switch (status) {
-                        case 400:
-                            Messages.add('danger','application was not updated! Please validate your form and applicationjson input.');
-                            break;
-                        case 403:
-                            Messages.add('danger', 'application was not updated! No access...');
-                            break;
-                        case 404:  /* 404 No access */
-                            Messages.add('danger', 'application was not updated! No access...');
-                            break;
-                        case 409:  /* 409 Conflict - user exists or was double posted */
-                            Messages.add('danger', 'application was not updated! Already exists...');
-                            break;
-                        default:
-                            Messages.add('danger', 'application was not updated and! Try again later...');
-                    }
+                	Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
                    
                 });
             } catch (e) {
@@ -558,14 +496,16 @@ UseradminApp.service('Applications', function($http,Messages, $q){
         return this;
     };
 
+		
     this.delete = function(application, successCallback) {
         console.log('Deleting application', JSON.stringify(application));
         var that = this;
+        /*
         if (application.hasOwnProperty(secret)) {
             application.security = {};
             application.security.secret = application.secret;
             delete application.secret;
-        }
+        }*/
         $http({
             method: 'DELETE',
             url: baseUrl+'application/'+application.id +'/'
@@ -580,22 +520,7 @@ UseradminApp.service('Applications', function($http,Messages, $q){
                 successCallback();
             }
         }).error(function (response) {
-			var data = response.data;
-			var status = response.status;
-            console.log('application was not deleted.', data, status);
-            switch (status) {
-                case 403:
-                    Messages.add('danger', 'application was not deleted! No access...');
-                    break;
-                case 404:  /* 404 No access */
-                    Messages.add('danger', 'application was not deleted! No access...');
-                    break;
-                case 409:  /* 409 Conflict - user exists or was double posted */
-                    Messages.add('danger', 'application was not deleted! Already exists...');
-                    break;
-                default:
-                    Messages.add('danger', 'application was not deleted and! Try again later...');
-            }
+        	Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
            
         });
         return this;

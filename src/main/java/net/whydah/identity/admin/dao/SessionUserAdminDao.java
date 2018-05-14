@@ -27,6 +27,7 @@ public enum SessionUserAdminDao {
     public String MY_APP_TYPE = "myapp";
     public String MY_APP_URI;
     public String LOGIN_SERVICE;
+    public String SSO_SERVICE;
     public String LOGIN_SERVICE_REDIRECT;
     public String LOGOUT_SERVICE;
     public String LOGOUT_SERVICE_REDIRECT;
@@ -53,6 +54,7 @@ public enum SessionUserAdminDao {
             if (MY_APP_TYPE == null || MY_APP_TYPE.isEmpty()) {
                 MY_APP_TYPE = "useradmin";
             }
+            SSO_SERVICE = properties.getProperty("logonservice");
             LOGIN_SERVICE = properties.getProperty("logonservice") + "login?" + ConstantValue.REDIRECT_URI + "=" + MY_APP_URI;
             LOGIN_SERVICE_REDIRECT = "redirect:" + properties.getProperty("logonservice") + "login?" + ConstantValue.REDIRECT_URI + "=" + MY_APP_URI;
             LOGOUT_SERVICE = properties.getProperty("logonservice") + "logout?" + ConstantValue.REDIRECT_URI + "=" + MY_APP_URI;

@@ -1,4 +1,4 @@
-UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $routeParams, Users, Applications, ngProgressFactory, $interval, ConstantValues) {
+UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $routeParams, Users, Applications, ngProgressFactory, $interval, ConstantValues, ModalService, Application) {
 
 	$scope.DEFCONS = ['DEFCON1', 'DEFCON2', 'DEFCON3', 'DEFCON4', 'DEFCON5'];
 	$scope.ACCESS_RIGHTS = ['READ', 'WRITE', 'CREATE', 'DELETE', 'SSO_REDIRECT', 'OAUTH2_REDIRECT'];
@@ -8,6 +8,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 
 	$scope.users = Users;
 	$scope.applications = Applications;
+	
 	$scope.displayCollectionList = [];
 	$scope.displayActivityList = [];
 
@@ -73,6 +74,45 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 		$('#applicationTagModal').modal('show');
 	
 	}
+	
+	$scope.editLogo = function(){
+    	
+    	if($scope.form.applicationDetail.$visible) {
+
+        ModalService.showModal({
+
+            templateUrl: "template/template_logo_edit.html",
+            controller: function( $element){
+                this.logoUrl =  $scope.application.logoUrl;
+                this.close = function () {
+                    
+                    if(this.logoUrl) {
+                        $scope.application.logoUrl = this.logoUrl;
+                        $scope.form.applicationDetail.$setDirty();
+                    }
+                }
+
+                this.cancel = function(){
+                    $element.modal('hide');
+                }
+            },
+            controllerAs : "modalCtrl"
+
+        }).then(function(modal) {
+            // The modal object has the element built, if this is a bootstrap modal
+            // you can call 'modal' to show it, if it's a custom modal just show or hide
+            // it as you need to.
+            modal.element.modal();
+            //modal.close.then(function(result) {
+                //console.log('OK');
+                //console.log(result);
+            //});
+        });
+        
+    	}
+
+
+    }
 
 	
 	
@@ -86,6 +126,8 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 		$scope.progressbar = ngProgressFactory.createInstance();
 		$scope.progressbar.setParent(document.getElementById('progress'));
 
+		
+		
 		
 	}
 
@@ -107,13 +149,16 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	
 	$scope.activateApplicationDetail2 = function(id) {
 		console.log('Activating application detail...', id);
+		
 		Applications.get(id, function(){
+			$scope.application = Applications.application;
 			//$scope.form.userDetail.$setPristine();
+			
 			$('#applicationdetail2').modal('show').on("hidden.bs.modal", function () {
 				 $interval.cancel(theIntervalUpdateLog);
 				 $scope.form.applicationDetail.$cancel();
 			});
-			//fetch logs for this application
+			 //fetch logs for this application
 			 getLog(id);
 			 $interval.cancel(theIntervalUpdateLog);
 			 theIntervalUpdateLog = $interval(function(){
@@ -171,6 +216,11 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 
 
 	$scope.newApplicationDetail = function() {
+		
+		Applications.application = new Application();
+		$scope.application = Applications.application;
+		
+		/*
 		Applications.application = {isNew: true};
         Applications.application.id=uuid();
 		Applications.application.tagList=[];
@@ -187,6 +237,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 		$scope.application = {isNew: true};
 		//Users.userRoles = {};
 		//$scope.form.applicationDetail.$setPristine();
+		*/
 		$('#applicationdetail2').modal('show');
 		$scope.form.applicationDetail.$show();
 		
@@ -374,7 +425,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	}
 	
 	$scope.addANewAcl = function(){
-		Applications.application.acl.push({"applicationId":"","applicationACLPath":"","accessRights":['READ']});
+		Applications.application.acl.push({"applicationId":Applications.application.id,"applicationACLPath":"","accessRights":['READ']});
 		$scope.form.applicationDetail.$setDirty();
 	}
 	
@@ -416,6 +467,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 
 	$scope.uploadFile = function () {
 		var file = $scope.myFile;
+		
 		if(file){
 
 
@@ -465,7 +517,8 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 					}
 				}
 			}, function (response) {
-				Applications.showMessage('danger','An error has occurred: ' + response.data.result);
+				Applications.showMessage('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+				
 			})
 		}
 

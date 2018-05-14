@@ -1,6 +1,9 @@
 package net.whydah.identity.errorhandling;
 
-import net.whydah.identity.admin.config.AppConfig;
+import java.io.IOException;
+import java.util.Properties;
+
+
 
 public class ExceptionConfig {
 	
@@ -26,7 +29,7 @@ public class ExceptionConfig {
 				if(error.getCode()== 9999){
 					error.setDeveloperMessage("");
 				}
-			} else if (level == 2) {
+			} else if(level == 2){
 				error.setDeveloperMessage("");
 			}
 			return error;
@@ -35,23 +38,8 @@ public class ExceptionConfig {
 	}
 	
 	//SET THE HIGHEST SECURITY AS DEFAULT
-	private static ErrorLevel level = ErrorLevel.SHOW_NO_DEVELOPER_MESSAGE_AND_EXCEPTION_STACKTRACE;
-	
-	static {
-		AppConfig config = new AppConfig();
-		String error = config.getProperty("errorlevel");
-		if(error !=null){
-			if(error.trim().equals("0")){
-				level = ErrorLevel.SHOW_ALL;
-			} else if (error.trim().equals("1")){
-				level = ErrorLevel.SHOW_ALL_BUT_NO_STACKTRACE;
-			} else if (error.trim().equals("2")){
-				level = ErrorLevel.SHOW_NO_DEVELOPER_MESSAGE_AND_EXCEPTION_STACKTRACE;
-			}
-		}
+	public static ErrorLevel level = ErrorLevel.SHOW_NO_DEVELOPER_MESSAGE_AND_EXCEPTION_STACKTRACE;
 		
-	}
-	
 	public static ErrorMessage handleSecurity(ErrorMessage error){
 		return level.handleSecurityLevel(error);
 	}

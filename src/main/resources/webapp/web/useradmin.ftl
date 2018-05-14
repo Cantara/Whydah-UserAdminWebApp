@@ -142,10 +142,11 @@
         <script src="js/lib/angularjs-dropdown-multiselect.min.js"></script>
         <script src="js/lib/dirPagination.js"></script>
 		<script src="js/lib/xeditable.min.js"></script>
-
+        <script src="js/lib/angular-modal-service.min.js"></script>
+       
         <!-- Main application -->
         <script src="js/UseradminApp.js"></script>
-
+       
         <script src="js/MessageService.js"></script>
         <script src="js/UserService.js"></script>
         <script src="js/ApplicationService.js"></script>
@@ -155,6 +156,7 @@
         <script src="js/ApplicationCtrl.js"></script>
         <script src="js/ApplicationdetailCtrl.js"></script>
         <script src="js/RoleCtrl.js"></script>
+        <script src="js/models.js"></script>
 
         <!-- Directives -->
         <script src="js/directives/triStateCheckbox.js"></script>

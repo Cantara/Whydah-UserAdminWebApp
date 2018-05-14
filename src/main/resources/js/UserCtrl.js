@@ -319,7 +319,8 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 					}
 				}
 			}, function (response) {
-				Users.showMessage('danger','An error has occurred: ' + response.data.result);
+				
+				Users.showMessage('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
 			})
 		}
 
