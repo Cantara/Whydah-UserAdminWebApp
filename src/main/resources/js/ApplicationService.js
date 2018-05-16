@@ -202,7 +202,7 @@ UseradminApp.service('Applications', function($http,Messages, $q, Application){
             console.log('Got applicaton', data);
             that.application = new Application(data);
             that.application.applicationJson = JSON.stringify(data);
-            that.application.applicationLog = new Object();
+            that.application.applicationLog = [];
             that.application.tagList = that.allTags[id]? that.allTags[id]:[];
             callback(that.application);
             

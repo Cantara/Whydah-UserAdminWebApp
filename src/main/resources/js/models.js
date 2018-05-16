@@ -97,6 +97,7 @@ UseradminApp.factory('Application', [function () {
             	this.timeout_number=6; //6 months
             	this.timeout_unit='MONTH(S)';
                 this.isNew = true;
+                this.applicationLog =[];
                 this.app_sso_redirect = '';
                 this.app_oauth2_redirect ='';
                 this.tagList=[];
