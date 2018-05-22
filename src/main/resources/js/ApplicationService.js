@@ -140,6 +140,7 @@ UseradminApp.service('Applications', function($http,Messages, $q, Application){
 			var data = response.data;
 			var status = response.status;
             that.list = data;
+            
             //get all tags as well
             $http({
                 method: 'GET',

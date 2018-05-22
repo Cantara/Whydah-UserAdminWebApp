@@ -32,6 +32,7 @@ UseradminApp.factory('Application', [function () {
                 this.applicationUrl = args.applicationUrl;
                 this.logoUrl = args.logoUrl;
                 this.tagList=[];
+                this.applicationLog=[];
              
                 if(typeof args.acl !='undefined'){
                     this.acl = args.acl;
@@ -101,6 +102,7 @@ UseradminApp.factory('Application', [function () {
                 this.app_sso_redirect = '';
                 this.app_oauth2_redirect ='';
                 this.tagList=[];
+                this.applicationLog=[];
             }
 
 

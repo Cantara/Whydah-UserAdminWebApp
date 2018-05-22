@@ -109,6 +109,7 @@ public class UASProxyController {
 	private static final String JSON_DATA_KEY = "jsondata";
 	public static final String JSON_KEY = "json";
 	public static final String CONTENTTYPE_JSON_UTF8 = "application/json; charset=utf-8";
+	
 	private final String userAdminServiceUrl;
 	// private final HttpClient httpClient;
 	private WhydahUAWAServiceClient tokenServiceClient = new WhydahUAWAServiceClient();
@@ -118,6 +119,10 @@ public class UASProxyController {
 	private static Map<String, String> map_importedFileNames = new HashMap<String, String>();
 	private static Path currentDir = ServerRunner.getCurrentPath();
 	private static Path tempUploadDir = currentDir.resolve("data_import_dir");
+	private static String stats = "{}";
+	private static final long TIME_TO_REFRESH_STATS_LOGS = 2*60*1000;
+	private static long lastTimeStatsReceived = 0;
+	private static Map<String, String> appId_Stats = new HashMap<>();
 
 	public UASProxyController() throws IOException {
 		Properties properties = AppConfig.readProperties();
@@ -867,23 +872,34 @@ public class UASProxyController {
 			return result;
 		}
 
-		String jsonresult = "{}";
-		try {
-			Properties properties = AppConfig.readProperties();
+		
+		if(System.currentTimeMillis() - lastTimeStatsReceived > TIME_TO_REFRESH_STATS_LOGS) {			
+			try {
+				Properties properties = AppConfig.readProperties();
 
-			jsonresult = new CommandGetUserActivityStats(
-					java.net.URI.create(properties.getProperty("statisticsservice")), "whydah", "usersession", null,
-					null, null).execute();
-			if (jsonresult != null) {
-				// we should filter activities for this particular application
-				jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(jsonresult, null,
-						applicationId);
-
-			}
-		} catch (Exception e) {
-			log.warn("Unable to get statistics for application., returning empty json", e);
+				String udpateStats = new CommandGetUserActivityStats(
+						java.net.URI.create(properties.getProperty("statisticsservice")), "whydah", "usersession", null,
+						null, null).execute();
+				if(udpateStats!=null) {
+					stats = udpateStats;
+					lastTimeStatsReceived = System.currentTimeMillis();
+					appId_Stats.clear();
+				}
+				
+			} catch (Exception e) {
+				log.warn("Unable to get statistics for application., returning empty json", e);
+			}			
 		}
-		model.addAttribute(JSON_DATA_KEY, jsonresult);
+		
+
+		if (!appId_Stats.containsKey(applicationId) && stats!=null && !stats.equals("{}")) {
+			// we should filter activities for this particular application
+			String jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(stats, null, applicationId);
+			appId_Stats.put(applicationId, jsonresult);
+		}
+		
+		
+		model.addAttribute(JSON_DATA_KEY, appId_Stats.get(applicationId));
 
 		response.setContentType(CONTENTTYPE_JSON_UTF8);
 		return JSON_KEY;
