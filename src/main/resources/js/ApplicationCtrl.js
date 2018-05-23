@@ -327,7 +327,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	
 	$scope.save = function() {
 		
-		if($scope.form.applicationDetail.$dirty) {
+		if(!$scope.form.applicationDetail.$dirty) {
 			return;
 		}
 		

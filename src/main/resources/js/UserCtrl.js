@@ -110,7 +110,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		Users.showMessage('info', "Loading usersession history. Please wait a moment.");
 		
 		Users.getUserLogonLog(Users.user.uid, dateToString($scope.from_date), dateToString($scope.to_date), function(){
-			console.log(Users.user.userLog);
+			
 		});
 	}
 	
@@ -118,7 +118,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		Users.showMessage('info', "Loading userlogon history. Please wait a moment.");
 		
 		Users.getUserSessionLog(Users.user.uid, dateToString($scope.from_date), dateToString($scope.to_date), function(){
-			console.log(Users.user.userLog);
+			
 		});
 	}
 
