@@ -1,17 +1,21 @@
-UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users, Applications, $interval) {
+UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users, Applications, $interval, uibDateParser) {
 
 	$scope.session.activeTab = 'user';
 
 	$scope.users = Users;
 	$scope.applications = Applications;
 
+	$scope.format = 'yyyy/MM/dd';
 	$scope.form = {};
+	$scope.from_date = addDays(new Date(), -1);
+	$scope.to_date = addDays(new Date(), 1);
+	
 
 	$scope.orderByColumn = 'username';
 	$scope.orderReverse = false;
 
 	$scope.addRoleForMultiple = false;
-
+	$scope.displayActivityList = [];
 
 
 	var noUsersSelectedMessage = 'Please select a user first!';
@@ -28,6 +32,12 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 			Users.pagingQuery();
 		}
 
+	}
+	
+	function addDays(date, days) {
+		 var result = new Date(date);
+		 result.setDate(result.getDate() + days);
+		 return result;
 	}
 
 	$scope.searchUsers = function() {
@@ -70,13 +80,45 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 	}
 
 
+	function dateToString(date){
+		 return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+	}
+	
 	$scope.activateUserLog = function(userid,username) {
-		console.log('Activating user log...', username);
+		console.log('Activating usersession log...');
 		Users.showMessage('info', "Loading user history. Please wait a moment.");
+		
 		Users.get(userid, function(){
-			Users.getLog(userid, function(){
+			Users.getUserSessionLog(userid, dateToString($scope.from_date), dateToString($scope.to_date), function(){
 				$('#userLog').modal('show');
 			});
+		});
+	}
+	
+	$scope.activateUserLogonLog = function(userid,username) {
+		console.log('Activating userlogon log...');
+		Users.showMessage('info', "Loading user history. Please wait a moment.");
+		
+		Users.get(userid, function(){
+			Users.getUserLogonLog(userid, dateToString($scope.from_date), dateToString($scope.to_date), function(){
+				$('#userLogonLog').modal('show');
+			});
+		});
+	}
+	
+	$scope.queryUserLogonLogs = function(){
+		Users.showMessage('info', "Loading usersession history. Please wait a moment.");
+		
+		Users.getUserLogonLog(Users.user.uid, dateToString($scope.from_date), dateToString($scope.to_date), function(){
+			console.log(Users.user.userLog);
+		});
+	}
+	
+	$scope.queryUserSessionLogs = function(){
+		Users.showMessage('info', "Loading userlogon history. Please wait a moment.");
+		
+		Users.getUserSessionLog(Users.user.uid, dateToString($scope.from_date), dateToString($scope.to_date), function(){
+			console.log(Users.user.userLog);
 		});
 	}
 

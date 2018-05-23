@@ -11,10 +11,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.file.Path;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +57,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.whydah.identity.ServerRunner;
@@ -66,6 +71,7 @@ import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.mappers.ApplicationTagMapper;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.Tag;
+import net.whydah.sso.basehelpers.JsonPathHelper;
 import net.whydah.sso.commands.adminapi.application.CommandAddApplication;
 import net.whydah.sso.commands.adminapi.application.CommandDeleteApplication;
 import net.whydah.sso.commands.adminapi.application.CommandGetApplication;
@@ -90,7 +96,9 @@ import net.whydah.sso.commands.application.CommandSearchForApplications;
 import net.whydah.sso.commands.baseclasses.BaseHttpGetHystrixCommand;
 import net.whydah.sso.commands.baseclasses.BaseHttpGetHystrixCommandForBooleanType;
 import net.whydah.sso.commands.extensions.crmapi.CommandGetCRMCustomer;
-import net.whydah.sso.commands.extensions.statistics.CommandGetUserActivityStats;
+import net.whydah.sso.commands.extensions.statistics.CommandGetAppSessionStats;
+import net.whydah.sso.commands.extensions.statistics.CommandGetUserLogonStats;
+import net.whydah.sso.commands.extensions.statistics.CommandGetUserSessionStats;
 import net.whydah.sso.extensions.useractivity.helpers.UserActivityHelper;
 import net.whydah.sso.user.helpers.UserTokenXpathHelper;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
@@ -123,6 +131,7 @@ public class UASProxyController {
 	private static final long TIME_TO_REFRESH_STATS_LOGS = 2*60*1000;
 	private static long lastTimeStatsReceived = 0;
 	private static Map<String, String> appId_Stats = new HashMap<>();
+	private static Map<String, String> userId_Stats = new HashMap<>();
 
 	public UASProxyController() throws IOException {
 		Properties properties = AppConfig.readProperties();
@@ -861,7 +870,7 @@ public class UASProxyController {
 	// APPLICATION
 	@GET
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	@RequestMapping(value = "applicationlog/{applicationId}", method = RequestMethod.GET)
+	@RequestMapping(value = "log/appsession/{applicationId}", method = RequestMethod.GET)
 	public String getApplicationLog(@PathVariable("apptokenid") String apptokenid,
 			@PathVariable("usertokenid") String usertokenid, @PathVariable("applicationId") String applicationId,
 			HttpServletRequest request, HttpServletResponse response, Model model) throws AppException {
@@ -871,36 +880,48 @@ public class UASProxyController {
 		if (result != null) {
 			return result;
 		}
+		
+		String jsonresult = "{}";
 
 		
-		if(System.currentTimeMillis() - lastTimeStatsReceived > TIME_TO_REFRESH_STATS_LOGS) {			
+
+		try {
+			//default instance
+			Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, -1);
+            java.util.Date dt1 = cal.getTime();
+            Instant from = dt1.toInstant();
+            cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, 1);
+            java.util.Date dt2 = cal.getTime();
+			Instant to = dt2.toInstant();
+			
 			try {
-				Properties properties = AppConfig.readProperties();
+				String from_date = request.getParameter("from");
+				String to_date = request.getParameter("to");
 
-				String udpateStats = new CommandGetUserActivityStats(
-						java.net.URI.create(properties.getProperty("statisticsservice")), "whydah", "usersession", null,
-						null, null).execute();
-				if(udpateStats!=null) {
-					stats = udpateStats;
-					lastTimeStatsReceived = System.currentTimeMillis();
-					appId_Stats.clear();
+				if(from_date!=null && to_date!=null) {
+					SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+					Date d1 = format1.parse( from_date );
+					Date d2 = format1.parse( to_date);
+
+					from = d1.toInstant();
+					to = d2.toInstant();
 				}
-				
-			} catch (Exception e) {
-				log.warn("Unable to get statistics for application., returning empty json", e);
-			}			
-		}
-		
+			} catch(Exception x) {
 
-		if (!appId_Stats.containsKey(applicationId) && stats!=null && !stats.equals("{}")) {
-			// we should filter activities for this particular application
-			String jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(stats, null, applicationId);
-			appId_Stats.put(applicationId, jsonresult);
-		}
-		
-		
-		model.addAttribute(JSON_DATA_KEY, appId_Stats.get(applicationId));
+			}
 
+			Properties properties = AppConfig.readProperties();
+			jsonresult = new CommandGetAppSessionStats(java.net.URI.create(properties.getProperty("statisticsservice")), applicationId, from, to).execute();
+			if (jsonresult != null) {
+				jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(jsonresult, null, applicationId);
+			}
+		} catch (Exception e) {
+			log.warn("Unable to get statistics for application., returning empty json", e);
+		}			
+
+		model.addAttribute(JSON_DATA_KEY, jsonresult);
 		response.setContentType(CONTENTTYPE_JSON_UTF8);
 		return JSON_KEY;
 	}
@@ -908,7 +929,7 @@ public class UASProxyController {
 	// USERLOG
 	@GET
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	@RequestMapping(value = "userlog/{userid}", method = RequestMethod.GET)
+	@RequestMapping(value = "log/usersession/{userid}", method = RequestMethod.GET)
 	public String getUserLog(@PathVariable("apptokenid") String apptokenid,
 			@PathVariable("usertokenid") String usertokenid, @PathVariable("userid") String userid,
 			HttpServletRequest request, HttpServletResponse response, Model model) throws AppException {
@@ -918,27 +939,150 @@ public class UASProxyController {
 		if (result != null) {
 			return result;
 		}
-
+		
+		
 		String jsonresult = "{}";
-		try {
-			Properties properties = AppConfig.readProperties();
+		
 
-			jsonresult = new CommandGetUserActivityStats(
-					java.net.URI.create(properties.getProperty("statisticsservice")), "whydah", "usersession", userid,
-					null, null).execute();
-			if (jsonresult != null) {
-				// we should filter activities for this particular application
-				jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(jsonresult, userid);
-
+			try {
+				Properties properties = AppConfig.readProperties();
+				
+				//default instance
+				Calendar cal = Calendar.getInstance();
+	            cal.add(Calendar.DATE, -1);
+	            java.util.Date dt1 = cal.getTime();
+	            Instant from = dt1.toInstant();
+	            cal = Calendar.getInstance();
+	            cal.add(Calendar.DATE, 1);
+	            java.util.Date dt2 = cal.getTime();
+				Instant to = dt2.toInstant();
+				
+				try {
+					String from_date = request.getParameter("from");
+					String to_date = request.getParameter("to");
+					
+					if(from_date!=null && to_date!=null) {
+						SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+						Date d1 = format1.parse( from_date );
+						Date d2 = format1.parse( to_date);
+						
+						from = d1.toInstant();
+						to = d2.toInstant();
+					}
+				} catch(Exception x) {
+					
+				}
+				
+				jsonresult = new CommandGetUserSessionStats(java.net.URI.create(properties.getProperty("statisticsservice")), userid, from, to).execute();
+				if (jsonresult != null) {
+					jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(jsonresult, userid);
+				}
+			} catch (Exception e) {
+				log.warn("Unable to get getUserLog., returning empty json", e);
 			}
-		} catch (Exception e) {
-			log.warn("Unable to get getUserLog., returning empty json", e);
-		}
+		
 		model.addAttribute(JSON_DATA_KEY, jsonresult);
 
 		response.setContentType(CONTENTTYPE_JSON_UTF8);
 		return JSON_KEY;
 	}
+	
+	/*
+	@GET
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@RequestMapping(value = "log/userlogon/{userid}", method = RequestMethod.GET)
+	public String getUserLogonLog(@PathVariable("apptokenid") String apptokenid,
+			@PathVariable("usertokenid") String usertokenid, @PathVariable("userid") String userid,
+			HttpServletRequest request, HttpServletResponse response, Model model) throws AppException {
+		log.info("getUserLogonLog - entry.  applicationtokenid={},  applicationId={}, username={}", apptokenid, usertokenid,
+				userid);
+		String result = checkLogin(usertokenid, request, response, model);
+		if (result != null) {
+			return result;
+		}
+		
+		
+		String jsonresult = "{}";
+		
+
+			try {
+				Properties properties = AppConfig.readProperties();
+				
+				//default instance
+				Calendar cal = Calendar.getInstance();
+	            cal.add(Calendar.DATE, -1);
+	            java.util.Date dt1 = cal.getTime();
+	            Instant from = dt1.toInstant();
+	            cal = Calendar.getInstance();
+	            cal.add(Calendar.DATE, 1);
+	            java.util.Date dt2 = cal.getTime();
+				Instant to = dt2.toInstant();
+				
+				try {
+					String from_date = request.getParameter("from");
+					String to_date = request.getParameter("to");
+					
+					if(from_date!=null && to_date!=null) {
+						SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+						Date d1 = format1.parse( from_date );
+						Date d2 = format1.parse( to_date);
+						
+						from = d1.toInstant();
+						to = d2.toInstant();
+					}
+				} catch(Exception x) {
+					
+				}
+				
+				jsonresult = new CommandGetUserLogonStats(java.net.URI.create(properties.getProperty("statisticsservice")), userid, from, to).execute();
+				if (jsonresult != null) {
+					jsonresult = getUserLogonJsonFromUserActivityJson(jsonresult);
+				}
+			} catch (Exception e) {
+				log.warn("Unable to get getUserLog., returning empty json", e);
+			}
+		
+		model.addAttribute(JSON_DATA_KEY, jsonresult);
+
+		response.setContentType(CONTENTTYPE_JSON_UTF8);
+		return JSON_KEY;
+	}
+	
+	public static String getUserLogonJsonFromUserActivityJson(String userActivityJson) {
+        try {
+        	ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            if (userActivityJson == null) {
+                log.trace("getDataElementsFromUserActivityJson was empty, so returning null.");
+            } else {
+                List<String> items = JsonPathHelper.findJsonpathList(userActivityJson, "$..userlogons.*");
+                if (items == null) {
+                    log.debug("jsonpath returned zero hits");
+                    return null;
+                }
+                List<String> list = new ArrayList<>();
+
+                final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                Calendar c = new GregorianCalendar();
+
+                int i = 0;
+           
+                while (i < items.size()) {
+                    String timestamp = JsonPathHelper.findJsonpathList(userActivityJson, "$..userlogons[" + i + "]").toString();
+                    timestamp = timestamp.substring(1, timestamp.length() - 1);
+                    c.setTimeInMillis(Long.parseLong(timestamp));
+                    list.add(dateFormat.format(c.getTime()));
+                    i++;
+                }
+                return mapper.writeValueAsString(list);
+            }
+        } catch (Exception e) {
+            log.warn("Could not convert getDataElementsFromUserActivityJson Json}");
+        }
+
+        return null;
+    }
+	
+	*/
 
 	// USERCRM
 	@GET

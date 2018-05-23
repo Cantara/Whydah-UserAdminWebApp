@@ -352,3 +352,31 @@ div.inline { float:left;}
 	
  
 }
+
+.log-container {
+
+  display: grid;
+  grid-gap: 10px;
+  grid-template-rows: auto;
+  grid-template-columns: auto;
+  grid-template-areas:
+    "from-date-div to-date-div search-div"
+    "log-content-div log-content-div log-content-div";
+  background-color: #fff;
+}
+
+.from-date-div {
+  grid-area: from-date-div;
+}
+
+.to-date-div {
+  grid-area: to-date-div;
+}
+
+.search-div{
+  grid-area: search-div;
+}
+
+.log-content-div{
+  grid-area: log-content-div;
+}

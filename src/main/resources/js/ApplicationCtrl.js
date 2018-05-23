@@ -16,7 +16,21 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	$scope.orderByColumn = 'name';
 	$scope.orderReverse = false;
 	
-
+	$scope.format = 'yyyy/MM/dd';
+	$scope.form = {};
+	$scope.from_date = addDays(new Date(), -1);
+	$scope.to_date = addDays(new Date(), 1);
+	
+	function addDays(date, days) {
+		 var result = new Date(date);
+		 result.setDate(result.getDate() + days);
+		 return result;
+	}
+	
+	function dateToString(date){
+		 return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+	}
+	
 	$scope.changeOrder = function(orderByColumn) {
 		$scope.orderByColumn = orderByColumn;
 		$scope.orderReverse = !$scope.orderReverse;
@@ -68,7 +82,13 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 		
 	}
 	
-	
+	$scope.queryLogs = function(){
+		
+		getLog(Applications.application.id, function(){
+			 console.log("access log updated");
+		 });
+		 
+	}
 	
 	$scope.displayTagFilterModal = function(){
 		$('#applicationTagModal').modal('show');
@@ -145,7 +165,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 		});
 	}
 	
-	 var theIntervalUpdateLog;
+	//var theIntervalUpdateLog;
 	
 	$scope.activateApplicationDetail2 = function(id) {
 		console.log('Activating application detail...', id);
@@ -159,22 +179,27 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 				 $scope.form.applicationDetail.$cancel();
 			});
 			 //fetch logs for this application
-			 getLog(id);
+			 getLog(id,  function(){
+				 console.log("access log updated");
+			 });
+			 
+			 /*
 			 $interval.cancel(theIntervalUpdateLog);
 			 theIntervalUpdateLog = $interval(function(){
-				 getLog(id);
+				 getLog(id, function(){
+					 console.log("access log updated");
+				 });
 				 
-	         }.bind(this), ConstantValues.clientsAutoUpdateLogInterval);
+	         }.bind(this), ConstantValues.clientsAutoUpdateLogInterval);*/
 			
 			
 		});
 	}
 	
-	function getLog(id){
+	function getLog(id, callback){
 		console.log("updating access log...");
-		 Applications.getLog(id, function(){
-			 console.log("access log updated");
-		 });
+		Applications.showMessage('info', "Loading application history. Please wait a moment.");
+		Applications.getLog(id, dateToString($scope.from_date), dateToString($scope.to_date), callback);
 	}
 
 	$scope.activateApplicationJson = function(id) {
@@ -188,10 +213,9 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 
 	$scope.activateApplicationLog = function(id) {
 		console.log('Activating application log...', id);
-		Applications.showMessage('info', "Loading application history. Please wait a moment.");
+		
 		Applications.get(id, function(){
-
-			Applications.getLog(id, function(){
+			getLog(id, function(){
 
 				$('#applicationLog').modal('show');
 
@@ -303,6 +327,9 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 	
 	$scope.save = function() {
 		
+		if($scope.form.applicationDetail.$dirty) {
+			return;
+		}
 		
 		// Make sure these $scope-values are properly connected to the view
 		if($scope.form.applicationDetail.$valid){
@@ -398,9 +425,9 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 		if(theInterval){
 			$interval.cancel(theInterval);
 		}
-		if(theIntervalUpdateLog){
-			$interval.cancel(theIntervalUpdateLog);
-		}
+//		if(theIntervalUpdateLog){
+//			$interval.cancel(theIntervalUpdateLog);
+//		}
 	});
 
 	$scope.importApps = function(){

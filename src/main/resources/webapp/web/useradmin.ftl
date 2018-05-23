@@ -121,6 +121,8 @@
         <!-- Framework and tools -->
         <script src="js/lib/jquery/3.2.1/jquery.min.js"></script>
         <script src="js/lib/bootstrap-3.3.7.min.js"></script>
+
+        
         <!--<script src="js/lib/angular/latest/angular.min.js"></script> !-->
         
         <script src="js/lib/angular/latest/angular.min.js"></script>
@@ -143,6 +145,7 @@
         <script src="js/lib/dirPagination.js"></script>
 		<script src="js/lib/xeditable.min.js"></script>
         <script src="js/lib/angular-modal-service.min.js"></script>
+        <script src="js/lib/ui-bootstrap-tpls-1.2.1.min.js"></script>
        
         <!-- Main application -->
         <script src="js/UseradminApp.js"></script>

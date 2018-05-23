@@ -69,7 +69,7 @@
 								ng-click="activateApplicationJson(app.id)">JSON edit</button> &nbsp;
 							&nbsp;
 							<button type="button" class="btn btn-default btn-sm"
-								ng-click="activateApplicationLog(app.id)">Activity</button>
+								ng-click="activateApplicationLog(app.id)">AppSession</button>
 						</td>
 					</tr>
 					
@@ -343,8 +343,21 @@
 			                  </my-pane>
 			                 
 			                  <my-pane title="App log">
-			                            
-										<div style="height:500px;overflow-y:scroll;">
+			                            <div class="log-container">
+					                    	<div class="from-date-div">
+					                    		<span class="control-label">From date </span>
+					                    		<input type="text" placeholder="yyyy/MM/dd" uib-datepicker-popup="{{format}}" ng-model="from_date" />
+					                    	</div>
+					                    	<div class="to-date-div">
+					                    		<span class="control-label">To date </span>
+					                    		<input type="text" placeholder="yyyy/MM/dd" uib-datepicker-popup="{{format}}" ng-model="to_date" />
+					 						</div>
+					 						<div class="search-div">
+												<button class="btn btn-success btn-sm" ng-click="queryLogs()" >
+														<span class="glyphicon glyphicon-search" aria-hidden="true"></span>Query
+												</button>
+					 						</div>
+										<div class="log-content-div" style="height:500px;overflow-y:scroll;">
 
 											<table st-table="displayActivityList"
 												st-safe-src="applications.application.applicationLog" class="table table-striped">
@@ -381,7 +394,7 @@
 											</table>
 
 										</div>
-		
+									</div>
 		
 			                     </my-pane>
 
@@ -519,6 +532,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal"
 					aria-hidden="true">&times;</button>
+					<h4 class="modal-title"> Activity log for appId: {{applications.application.id}} - {{applications.application.name}} </h4>
 			</div>
 
 			<form name="form.applicationLog" class="validate-form" novalidate>
@@ -527,8 +541,21 @@
 				<div class="modal-body">
 					<div class="form-horizontal">
 					
-
-										<div style="height:500px;overflow-y:scroll;">
+						<div class="log-container">
+                    	<div class="from-date-div">
+                    		<span class="control-label">From date </span>
+                    		<input type="text" placeholder="yyyy/MM/dd" uib-datepicker-popup="{{format}}" ng-model="from_date" />
+                    	</div>
+                    	<div class="to-date-div">
+                    		<span class="control-label">To date </span>
+                    		<input type="text" placeholder="yyyy/MM/dd" uib-datepicker-popup="{{format}}" ng-model="to_date" />
+ 						</div>
+ 						<div class="search-div">
+							<button class="btn btn-success btn-sm" ng-click="queryLogs()" >
+									<span class="glyphicon glyphicon-search" aria-hidden="true"></span>Query
+							</button>
+ 						</div>
+										<div class="log-content-div" style="height:500px;overflow-y:scroll;">
 
 											<table st-table="displayActivityList"
 												st-safe-src="applications.application.applicationLog" class="table table-striped">
@@ -565,7 +592,7 @@
 											</table>
 
 										</div>
-							
+							</div>
 					</div>
 				</div>
 

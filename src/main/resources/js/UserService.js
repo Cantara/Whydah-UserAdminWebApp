@@ -160,15 +160,35 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 		return this;
 	};
 
-    this.getLog = function(userid, callback) {
+    this.getUserSessionLog = function(userid, from_date, to_date, callback) {
         console.log('Getting User log for userid=', userid);
         var that = this;
+       
         $http({
             method: 'GET',
-            url: baseUrl+'userlog/'+userid+'/'
+            url: baseUrl+'log/usersession/'+userid + '?from=' + from_date + '&to=' + to_date
         }).then(function (response) {
-            console.log('Got user log', response.data);
-            that.user.userLog = JSON.stringify(response.data, null, 2);
+            console.log('Got usersession log', response.data);
+            that.user.userSessionLog = response.data;//JSON.stringify(response.data, null, 2);
+            if(callback) {
+                 callback(that.user);
+            }
+        }, function(response){
+			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+		});
+        return this;
+    };
+    
+    this.getUserLogonLog = function(userid, from_date, to_date, callback) {
+        console.log('Getting User log for userid=', userid);
+        var that = this;
+       
+        $http({
+            method: 'GET',
+            url: baseUrl+'log/userlogon/'+userid + '?from=' + from_date + '&to=' + to_date
+        }).then(function (response) {
+            console.log('Got userlogon log', response.data);
+            that.user.userLogonLog = response.data;//JSON.stringify(response.data, null, 2);
             if(callback) {
                  callback(that.user);
             }

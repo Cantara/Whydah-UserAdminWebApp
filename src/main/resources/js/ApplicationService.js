@@ -214,12 +214,12 @@ UseradminApp.service('Applications', function($http,Messages, $q, Application){
         return this;
     };
     
-    this.getLog = function(id, callback) {
+    this.getLog = function(id, from_date, to_date, callback) {
         console.log('Getting Application log for id=', id);
         var that = this;
         $http({
             method: 'GET',
-            url: baseUrl+'applicationlog/'+id+'/'
+            url: baseUrl+'log/appsession/'+id + '?from=' + from_date + '&to=' + to_date
         }).then(function (response) {
 			var data = response.data;
 			var status = response.status;
