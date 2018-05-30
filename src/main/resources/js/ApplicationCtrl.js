@@ -175,7 +175,7 @@ UseradminApp.controller('ApplicationCtrl', function($scope, $http, $window, $rou
 			//$scope.form.userDetail.$setPristine();
 			
 			$('#applicationdetail2').modal('show').on("hidden.bs.modal", function () {
-				 $interval.cancel(theIntervalUpdateLog);
+				 //$interval.cancel(theIntervalUpdateLog);
 				 $scope.form.applicationDetail.$cancel();
 			});
 			 //fetch logs for this application
