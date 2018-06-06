@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.whydah.identity</groupId>
     <artifactId>UserAdminWebApp</artifactId>
-    <version>2.4.11-SNAPSHOT</version>
+    <version>2.4.15</version>
     <packaging>jar</packaging>
     <name>UserAdminWebApp</name>
     <url>https://wiki.cantara.no/display/iam/UserAdminWebApp</url>
@@ -17,7 +17,7 @@
         <developerConnection>scm:git:ssh://git@github.com/cantara/Whydah-UserAdminWebApp.git</developerConnection>
         <connection>scm:git:https://github.com/cantara/Whydah-UserAdminWebApp.git</connection>
         <url>https://github.com/cantara/Whydah-UserAdminWebApp</url>
-        <tag>HEAD</tag>
+        <tag>UserAdminWebApp-2.4.15</tag>
     </scm>
 
     <properties>
