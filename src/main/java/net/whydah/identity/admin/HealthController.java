@@ -76,9 +76,9 @@ public class HealthController {
                 "  \"DEFCON\": \"" + tokenServiceClient.getWAS().getDefcon() + "\",\n" +
                 "  \"STS\": \"" + tokenServiceClient.getWAS().getSTS() + "\",\n" +
                 "  \"UAS\": \"" + tokenServiceClient.getWAS().getUAS() + "\",\n" +
-                "  \"hasApplicationToken\": \"" + Boolean.toString((tokenServiceClient.getWAS().getActiveApplicationTokenId() != null)) + "\"\n" +
-                "  \"hasValidApplicationToken\": \"" + Boolean.toString(tokenServiceClient.getWAS().checkActiveSession()) + "\"\n" +
-                "  \"hasApplicationsMetadata\": \"" + Boolean.toString(tokenServiceClient.getWAS().hasApplicationMetaData()) + "\"\n" +
+                "  \"hasApplicationToken\": \"" + Boolean.toString((tokenServiceClient.getWAS().getActiveApplicationTokenId() != null)) + "\",\n" +
+                "  \"hasValidApplicationToken\": \"" + Boolean.toString(tokenServiceClient.getWAS().checkActiveSession()) + "\",\n" +
+                "  \"hasApplicationsMetadata\": \"" + Boolean.toString(tokenServiceClient.getWAS().hasApplicationMetaData()) + "\",\n" +
                 "  \"now\": \"" + Instant.now() + "\",\n" +
                 "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\"" +
 
