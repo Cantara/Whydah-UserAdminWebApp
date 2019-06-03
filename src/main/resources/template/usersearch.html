@@ -1,7 +1,8 @@
 <div class="row margin-top">
 	<form class="col-xs-9 col-sm-5 col-md-9">
 		<div class="col-xs-9 col-sm-9 col-md-9">
-			<input type="search" id="searchfield" class="form-control" ng-model="users.searchQuery" placeholder="Search users" ng-change="onSearchBoxChange()"  autofocus> <span class="small">{{users.rows}} found</span>
+            <input type="search" id="searchfield" class="form-control" ng-model="users.searchQuery"
+                   placeholder="Search users" ng-change="onSearchBoxChange()" autofocus> <span class="small">{{users.rows}}/{{users.totalItems}} found</span>
 		</div>
 		<div class="col-xs-3 col-sm-3 col-md-3">
 		<button class="btn btn-default btn-sm" ng-click="searchUsers()" >
