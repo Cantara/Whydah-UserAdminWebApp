@@ -110,15 +110,19 @@
 						<td><label><input type="checkbox"
 								ng-model="user.isSelected"></label></td>
 						<td ng-click="activateUserDetail(user.uid)">{{user.uid |
-							wrap:true:12:'...'}}</td>
+                            wrap:true:10:'...'}}
+                        </td>
 						<td ng-click="activateUserDetail(user.uid)"
 							id="rowid_{{user.username}}">{{user.username}}</td>
 						<td ng-click="activateUserDetail(user.uid)">{{user.firstName}}</td>
 						<td ng-click="activateUserDetail(user.uid)">{{user.lastName}}</td>
 						<td ng-click="activateUserDetail(user.uid)">{{user.cellPhone}}</td>
 						<td ng-click="activateUserDetail(user.uid)">{{user.email |
-							wrap:true:10:'...'}}</td>
-						<td ng-click="activateUserDetail(user.uid)">{{user.personRef}}</td>
+                            wrap:true:16:'...'}}
+                        </td>
+                        <td ng-click="activateUserDetail(user.uid)">{{user.personRef|
+                            wrap:true:10:'...'}}
+                        </td>
                         <td>
                             <button type="button" class="btn btn-default btn-sm"
 									ng-click="activateUserLog(user.uid,user.username)">
