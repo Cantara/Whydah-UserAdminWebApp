@@ -224,14 +224,24 @@
 					                    <div class=" app_name">
 					                        <span for="app_name" class="control-label">Application Name (*) </span> <br/>
 					                        <span editable-text="application.name" e-name="app_name" e-maxlength="50" e-required>{{ application.name || 'empty' }}</span>
+					                         <div style="color:red" ng-show="form.applicationDetail.app_name.$dirty && form.applicationDetail.app_name.$invalid">
+					            				<span ng-show="form.applicationDetail.app_name.$error.required">Application name is required</span>
+					        				</div>
 					                    </div>
 					                    <div class=" company_name">
 					                        <span for="company_name" class="control-label">Company Name (*) </span> <br/>
 					                        <span editable-text="application.company" e-name="company_name" e-maxlength="120" e-required>{{ application.company || 'empty' }}</span>
+					                         <div style="color:red" ng-show="form.applicationDetail.company_name.$dirty && form.applicationDetail.company_name.$invalid">
+					            				<span ng-show="form.applicationDetail.company_name.$error.required">Company name is required</span>
+					        				</div>
 					                    </div>
 					                    <div class=" app_url">
 					                        <span for="app_url" class="control-label">Application URL (*) </span> <br/>
 					                        <span e-type="url" editable-text="application.applicationUrl" e-name="app_url"  e-required>{{ application.applicationUrl || 'empty' }}</span>
+					                         <div style="color:red" ng-show="form.applicationDetail.app_url.$dirty && form.applicationDetail.app_url.$invalid">
+					            				<span ng-show="form.applicationDetail.app_url.$error.required">Application URL is required</span>
+					            				<span ng-show="form.applicationDetail.app_url.$error.url">Application URL is invalid</span>
+					        				</div>
 					                    </div>
 					                  
 					                    <div class=" app_desc">
@@ -245,12 +255,19 @@
 				                    
 				                    <div class=" app_security_secret">
 				                   		 <span for="app_security_secret" class="control-label">Application secret (*)</span> <br/>
-				                    	 <span editable-text="application.security.secret" e-name="app_security_secret" e-minlength="8"  e-maxlength="80">{{ application.security.secret || 'empty' }}</span>
+				                    	 <span editable-text="application.security.secret" e-name="app_security_secret" e-minlength="8"  e-maxlength="80" e-required>{{ application.security.secret || 'empty' }}</span>
+				                   		<div style="color:red" ng-show="form.applicationDetail.app_security_secret.$dirty && form.applicationDetail.app_security_secret.$invalid">
+				            				<span ng-show="form.applicationDetail.app_security_secret.$error.required">Application secret is required</span>           
+				            				<span ng-show="form.applicationDetail.app_security_secret.$error.minlength">A secret must have at least 8 characters</span>           				
+				        				</div>
 				                    </div>
 				                    <div class=" app_security_session">
 				                        <span for="app_security_session" class="control-label">Max session timeout (*) </span> <br/>
 				                        <span editable-text="application.timeout_number" e-style="width: 60px;" e-type="number" e-name="app_security_session" e-min="1" e-required>{{ application.timeout_number || 'empty' }}</span>
-				                        <span editable-select="application.timeout_unit" e-style="padding-left: 20px"  e-type="select" e-name="app_security_session" e-ng-options="o for o in SESSION_TIMEOUT_UNIT">{{ application.timeout_unit || 'empty' }}</span>
+				                        <span editable-select="application.timeout_unit" e-style="padding-left: 20px"  e-type="select" e-name="app_security_session_unit" e-ng-options="o for o in SESSION_TIMEOUT_UNIT">{{ application.timeout_unit || 'empty' }}</span>
+				                   		<div style="color:red" ng-show="form.applicationDetail.app_security_session.$dirty && form.applicationDetail.app_security_session.$invalid">
+				            				<span ng-show="form.applicationDetail.app_security_session.$error.required">Session timeout is required</span>                     								
+				        				</div>
 				                    </div>
 				                    <div class=" app_security_defcon">
 				                        <span for="app_security_defcon" class="control-label">DEFCON min (*) </span> <br/>
@@ -280,11 +297,14 @@
 
 					                   <fieldset data-ng-repeat="org in application.organizationNames">
 					                       <input type="text" ng-model="org.id" placeholder="Enter an id" ng-readonly="true">
-					                       <input type="text" name="organization_name" ng-model="org.name" placeholder="Enter a name" ng-required="true">
+					                       <input type="text" ng-model="org.name" placeholder="Enter a name" ng-required="true" name="orgname_{{$index}}">
 					                       <button type="button" ng-show="form.applicationDetail.$visible" class="remove" ng-click="removeAnOrg($index)">-</button>
 					                       <label  ng-show="org.name">
 					                        <input type="radio" name="organizationsGroup" ng-model="application.defaultOrganizationName" ng-value="org.name"  > Use as default
 					                       </label>
+					                       <div style="color:red" ng-show="form.applicationDetail.orgname_{{$index}}.$invalid">
+					            				<span ng-show="form.applicationDetail.orgname_{{$index}}.$error.required">an organization name is required</span>                     								
+					        				</div>
 					                   </fieldset>
                 					</div>
                 					<br/>
@@ -295,11 +315,14 @@
 
 					                    <fieldset data-ng-repeat="role in application.roles">
 					                        <input type="text" ng-model="role.id" placeholder="Enter an id" ng-readonly="true">
-					                        <input type="text" name="role_name" ng-model="role.name" placeholder="Enter a name" ng-required="true">
+					                        <input type="text" name="rolename_{{$index}}" ng-model="role.name" placeholder="Enter a name" ng-required="true">
 					                        <button type="button" ng-show="form.applicationDetail.$visible" class="remove" ng-click="removeARole($index)">-</button>
 					                        <label  ng-show="role.name">
 					                            <input type="radio" name="rolesGroup" ng-model="application.defaultRoleName" ng-value="role.name"   > Use as default
 					                        </label>
+					                         <div style="color:red" ng-show="form.applicationDetail.rolename_{{$index}}.$invalid">
+					            				<span ng-show="form.applicationDetail.rolename_{{$index}}.$error.required">a role name is required</span>                     								
+					        				</div>
 					                    </fieldset>
 					                </div>
 					                <br/>
@@ -328,13 +351,16 @@
 			                          <div>
 											<fieldset
 												data-ng-repeat="tag in applications.application.tagList">
-												<input type="text" ng-model="tag.name" name="tagname"
+												<input type="text" ng-model="tag.name"
 													placeholder="Enter a tag name"> 
 												<input
-													type="text" ng-model="tag.value" name="tagvalue"
+													type="text" ng-model="tag.value" name="tagvalue_{{$index}}"
 													placeholder="Enter the tag's value"
 													ng-required="true">
 												<button  type="button" class="remove" ng-click="removeTag($index)" ng-show="form.applicationDetail.$visible">-</button>
+												 <div style="color:red" ng-show="form.applicationDetail.tagvalue_{{$index}}.$invalid">
+					            					<span ng-show="form.applicationDetail.tagvalue_{{$index}}.$error.required">tag value is required</span>                     								
+					        					</div>
 											</fieldset>
 										</div>
 										<br/>
