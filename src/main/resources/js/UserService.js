@@ -583,8 +583,9 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 			var data = response.data;
 			//var status = response.status;
 			//Messages.add('danger', 'Operation failed - Status code: ' + response + " - " +  data.message);
-			console.log("Operation failed " + response.data.rows + " users from page number " + response.data.currentPage+ - " response:"+response);
-			
+			console.log(" response:"+response);
+			//console.log("Operation failed " + response.data.rows + " users from page number " + response.data.currentPage+ - " response:"+response);
+
 		});
 		return this;
     }
