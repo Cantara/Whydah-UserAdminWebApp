@@ -1,46 +1,41 @@
 package net.whydah.identity.admin;
 
-import static net.whydah.identity.admin.dao.SessionUserAdminDao.hasUserAdminRight;
-
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.file.Path;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-//import org.apache.commons.httpclient.*;
-//import org.apache.commons.httpclient.HttpMethod;
-//import org.apache.commons.httpclient.methods.*;
-//import org.apache.commons.httpclient.params.HttpMethodParams;
-//import org.apache.commons.httpclient.util.URIUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.whydah.identity.ServerRunner;
+import net.whydah.identity.admin.config.AppConfig;
+import net.whydah.identity.admin.dao.ConstantValue;
+import net.whydah.identity.admin.dao.SessionUserAdminDao;
+import net.whydah.identity.admin.dao.WhydahUAWAServiceClient;
+import net.whydah.identity.errorhandling.AppException;
+import net.whydah.identity.errorhandling.AppExceptionCode;
+import net.whydah.sso.application.mappers.ApplicationMapper;
+import net.whydah.sso.application.mappers.ApplicationTagMapper;
+import net.whydah.sso.application.types.Application;
+import net.whydah.sso.application.types.Tag;
+import net.whydah.sso.commands.adminapi.application.CommandAddApplication;
+import net.whydah.sso.commands.adminapi.application.CommandDeleteApplication;
+import net.whydah.sso.commands.adminapi.application.CommandGetApplication;
+import net.whydah.sso.commands.adminapi.application.CommandUpdateApplication;
+import net.whydah.sso.commands.adminapi.user.*;
+import net.whydah.sso.commands.adminapi.user.role.CommandAddUserRole;
+import net.whydah.sso.commands.adminapi.user.role.CommandDeleteUserRole;
+import net.whydah.sso.commands.adminapi.user.role.CommandGetUserRoles;
+import net.whydah.sso.commands.adminapi.user.role.CommandUpdateUserRole;
+import net.whydah.sso.commands.application.CommandListApplications;
+import net.whydah.sso.commands.application.CommandSearchForApplications;
+import net.whydah.sso.commands.baseclasses.BaseHttpGetHystrixCommand;
+import net.whydah.sso.commands.extensions.crmapi.CommandGetCRMCustomer;
+import net.whydah.sso.commands.extensions.statistics.CommandGetAppSessionStats;
+import net.whydah.sso.commands.extensions.statistics.CommandGetUserSessionStats;
+import net.whydah.sso.extensions.useractivity.helpers.UserActivityHelper;
+import net.whydah.sso.user.helpers.UserTokenXpathHelper;
+import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.mappers.UserIdentityMapper;
+import net.whydah.sso.user.mappers.UserTokenMapper;
+import net.whydah.sso.user.types.UserAggregate;
+import net.whydah.sso.util.StringConv;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -55,57 +50,26 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.io.*;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.*;
 
-import net.whydah.identity.ServerRunner;
-import net.whydah.identity.admin.config.AppConfig;
-import net.whydah.identity.admin.dao.ConstantValue;
-import net.whydah.identity.admin.dao.SessionUserAdminDao;
-import net.whydah.identity.admin.dao.WhydahUAWAServiceClient;
-import net.whydah.identity.errorhandling.AppException;
-import net.whydah.identity.errorhandling.AppExceptionCode;
-import net.whydah.sso.application.mappers.ApplicationMapper;
-import net.whydah.sso.application.mappers.ApplicationTagMapper;
-import net.whydah.sso.application.types.Application;
-import net.whydah.sso.application.types.Tag;
-import net.whydah.sso.basehelpers.JsonPathHelper;
-import net.whydah.sso.commands.adminapi.application.CommandAddApplication;
-import net.whydah.sso.commands.adminapi.application.CommandDeleteApplication;
-import net.whydah.sso.commands.adminapi.application.CommandGetApplication;
-import net.whydah.sso.commands.adminapi.application.CommandUpdateApplication;
-import net.whydah.sso.commands.adminapi.user.CommandAddUser;
-import net.whydah.sso.commands.adminapi.user.CommandAddUserAggregate;
-import net.whydah.sso.commands.adminapi.user.CommandCheckDuplicateUsers;
-import net.whydah.sso.commands.adminapi.user.CommandDeleteUser;
-import net.whydah.sso.commands.adminapi.user.CommandExportUsers;
-import net.whydah.sso.commands.adminapi.user.CommandGetUser;
-import net.whydah.sso.commands.adminapi.user.CommandListUsers;
-import net.whydah.sso.commands.adminapi.user.CommandListUsersWithPagination;
-import net.whydah.sso.commands.adminapi.user.CommandResetUserPassword;
-import net.whydah.sso.commands.adminapi.user.CommandUpdateUser;
-import net.whydah.sso.commands.adminapi.user.CommandUpdateUserAggregate;
-import net.whydah.sso.commands.adminapi.user.role.CommandAddUserRole;
-import net.whydah.sso.commands.adminapi.user.role.CommandDeleteUserRole;
-import net.whydah.sso.commands.adminapi.user.role.CommandGetUserRoles;
-import net.whydah.sso.commands.adminapi.user.role.CommandUpdateUserRole;
-import net.whydah.sso.commands.application.CommandListApplications;
-import net.whydah.sso.commands.application.CommandSearchForApplications;
-import net.whydah.sso.commands.baseclasses.BaseHttpGetHystrixCommand;
-import net.whydah.sso.commands.baseclasses.BaseHttpGetHystrixCommandForBooleanType;
-import net.whydah.sso.commands.extensions.crmapi.CommandGetCRMCustomer;
-import net.whydah.sso.commands.extensions.statistics.CommandGetAppSessionStats;
-import net.whydah.sso.commands.extensions.statistics.CommandGetUserLogonStats;
-import net.whydah.sso.commands.extensions.statistics.CommandGetUserSessionStats;
-import net.whydah.sso.extensions.useractivity.helpers.UserActivityHelper;
-import net.whydah.sso.user.helpers.UserTokenXpathHelper;
-import net.whydah.sso.user.mappers.UserAggregateMapper;
-import net.whydah.sso.user.mappers.UserIdentityMapper;
-import net.whydah.sso.user.mappers.UserTokenMapper;
-import net.whydah.sso.user.types.UserAggregate;
-import net.whydah.sso.util.StringConv;
+import static net.whydah.identity.admin.dao.SessionUserAdminDao.hasUserAdminRight;
+
+//import org.apache.commons.httpclient.*;
+//import org.apache.commons.httpclient.HttpMethod;
+//import org.apache.commons.httpclient.methods.*;
+//import org.apache.commons.httpclient.params.HttpMethodParams;
+//import org.apache.commons.httpclient.util.URIUtil;
 
 /**
  * Created by Leon on 25.04.14.
@@ -324,7 +288,7 @@ public class UASProxyController {
 	private String handleResponse(HttpServletResponse response, Model model, String result, byte[] raw_response,
 			int statusCode) throws AppException {
 		if (result != null) {
-			model.addAttribute(JSON_DATA_KEY, result);
+            model.addAttribute(JSON_DATA_KEY, result.replace("\\'", "'").replace("\'", "'"));
 		}
 
 		/*
