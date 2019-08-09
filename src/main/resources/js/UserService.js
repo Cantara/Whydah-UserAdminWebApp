@@ -582,7 +582,7 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 			
 		}, function (response) {
 			var data = response.data;
-			var status = response.status;
+			var status = response.data.status;
 			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
 			
 		});
