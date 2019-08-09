@@ -570,8 +570,7 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 			//url: 'json/users.json',
 		}).then(function (response) {		
 			
-			console.log("retreiving " + response.data.rows + " users from page number " + response.data.currentPage);
-			
+
 			callback(response.data.result, response.data.currentPage, response.data.pageSize, response.data.totalItems);
 			
 		
@@ -582,8 +581,9 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 			
 		}, function (response) {
 			var data = response.data;
-			var status = response.data.status;
-			Messages.add('danger', 'Operation failed - Status code: ' + response.data.status + " - " +  response.data.message);
+			//var status = response.status;
+			Messages.add('danger', 'Operation failed - Status code: ' + response + " - " +  data.message);
+			console.log("Operation failed " + response.data.rows + " users from page number " + response.data.currentPage+ - " response:"+response);
 			
 		});
 		return this;
