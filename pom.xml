@@ -2,7 +2,6 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.whydah.identity</groupId>
     <artifactId>UserAdminWebApp</artifactId>
-    <version>2.5.28-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>UserAdminWebApp</name>
     <url>https://wiki.cantara.no/display/iam/UserAdminWebApp</url>
@@ -22,7 +21,7 @@
 
     <properties>
         <service.name>Whydah-UserAdminWebapp</service.name>
-        <whydah.admin.sdk.version>2.5.26</whydah.admin.sdk.version>
+        <whydah.admin.sdk.version>2.5.29</whydah.admin.sdk.version>
         <jersey.version>1.19.4</jersey.version>
         <spring.version>5.2.1.RELEASE</spring.version>
         <jetty.version>9.4.22.v20191022</jetty.version>
