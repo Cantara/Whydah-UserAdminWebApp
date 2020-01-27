@@ -22,10 +22,10 @@
 
     <properties>
         <service.name>Whydah-UserAdminWebapp</service.name>
-        <whydah.admin.sdk.version>2.5.31</whydah.admin.sdk.version>
+        <whydah.admin.sdk.version>2.5.34</whydah.admin.sdk.version>
         <jersey.version>1.19.4</jersey.version>
         <spring.version>5.2.3.RELEASE</spring.version>
-        <jetty.version>9.4.25.v20191220</jetty.version>
+        <jetty.version>9.4.26.v20200117</jetty.version>
     </properties>
 
     <developers>
@@ -36,8 +36,8 @@
             <roles>
                 <role>Developer</role>
             </roles>
-            <organization>Capra Consulting AS</organization>
-            <organizationUrl>http://www.capraconsulting.no/</organizationUrl>
+            <organization>Cantara</organization>
+            <organizationUrl>https://wiki.cantara.no/</organizationUrl>
         </developer>
         <developer>
             <id>baardl</id>
@@ -46,8 +46,8 @@
             <roles>
                 <role>Developer</role>
             </roles>
-            <organization>Capra Consulting AS</organization>
-            <organizationUrl>http://www.capraconsulting.no/</organizationUrl>
+            <organization>Cantara</organization>
+            <organizationUrl>https://wiki.cantara.no/</organizationUrl>
         </developer>
         <developer>
             <id>totto</id>
@@ -56,8 +56,8 @@
             <roles>
                 <role>Developer</role>
             </roles>
-            <organization>Capra Consulting AS</organization>
-            <organizationUrl>http://www.capraconsulting.no/</organizationUrl>
+            <organization>Cantara</organization>
+            <organizationUrl>https://wiki.cantara.no/</organizationUrl>
         </developer>
         <developer>
             <id>kimcs</id>
