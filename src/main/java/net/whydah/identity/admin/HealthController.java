@@ -41,7 +41,7 @@ public class HealthController {
     }
 
     @RequestMapping("/health")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public String isHealthy(HttpServletRequest request, HttpServletResponse response, Model model) {
         try {
             if (tokenServiceClient.getWAS() == null) {
