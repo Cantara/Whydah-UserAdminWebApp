@@ -209,7 +209,13 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 					Users.showExProgress=false;
 
 					var blob = new Blob([angular.toJson(Users.fullList, true)], {type: "text/plain;charset=utf-8"});
-					saveAs(blob, "users-selected-" + pad(Users.currentPage, 5) + ".json");
+                    var today = new Date();
+                    var dd = String(today.getDate()).padStart(2, '0');
+                    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                    var yyyy = today.getFullYear();
+
+                    today = mm + '/' + dd + '/' + yyyy;
+					saveAs(blob, "users-selected-" + today+"-"+pad(Users.currentPage, 5) + ".json");
 
 					Users.exporting=false;
 				}
@@ -235,7 +241,15 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 
 
 			var blob = new Blob([angular.toJson(data)], {type: "text/plain;charset=utf-8"});
-			saveAs(blob, "users-" + pad(pageNumber, 5) +  ".json");
+			var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = today.getFullYear();
+
+            today = mm + '/' + dd + '/' + yyyy;
+
+
+			saveAs(blob, "users-" + today +"-"+ pad(pageNumber, 5) +  ".json");
 
 			if(pageNumber==totalPages){
 				if(Users.exprogressbar){
