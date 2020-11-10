@@ -151,6 +151,7 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 			var data = response.data;
 		    console.log('Got user', data);
 		    that.user = data;
+		    that.user.uid = uid;
 		    if(callback) {
 		        callback(data);
 		    }
