@@ -28,6 +28,7 @@
 
 	<mvc:annotation-driven />
 
+
 	<bean id="freemarkerConfig"
 		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
 		<property name="templateLoaderPath" value="classpath:webapp/web/" />
@@ -41,4 +42,5 @@
 		<property name="cache" value="false" />
 		<property name="suffix" value=".ftl" />
 	</bean>
+    
 </beans>
