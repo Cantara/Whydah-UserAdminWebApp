@@ -13,7 +13,7 @@
     </parent>
     <properties>
         <service.name>Whydah-UserAdminWebapp</service.name>
-        <whydah.admin.sdk.version>2.6.20</whydah.admin.sdk.version>
+        <whydah.admin.sdk.version>2.6.40</whydah.admin.sdk.version>
         <jersey.version>1.19.4</jersey.version>
         <spring.version>5.3.4</spring.version>
         <jetty.version>9.4.37.v20210219</jetty.version>
@@ -72,10 +72,7 @@
             <groupId>net.whydah.sso</groupId>
             <artifactId>Whydah-Admin-SDK</artifactId>
             <version>${whydah.admin.sdk.version}</version>
-        </dependency>
-       
-		
-       
+        </dependency>       
         <dependency>
             <groupId>com.sun.jersey.contribs</groupId>
             <artifactId>jersey-multipart</artifactId>
@@ -95,32 +92,18 @@
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-bundle</artifactId>
             <version>${jersey.version}</version>
-        </dependency>
-        
-       
-        
-       
-      
-        
-        
+        </dependency>              
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.2.3</version>
         </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
-        </dependency>
-        
-        
-        
-        
-        
-        
+	 </dependency>
          <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-client</artifactId>
@@ -156,9 +139,6 @@
             <artifactId>spring-beans</artifactId>
             <version>${spring.version}</version>
         </dependency>
-        
-        
-        
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -178,8 +158,7 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
             <version>${jetty.version}</version>
-        </dependency>
-        
+        </dependency>    
     </dependencies>
 
     <build>
