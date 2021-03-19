@@ -150,6 +150,7 @@ UseradminApp.service('Applications', function($http,Messages, $q, Application){
             	
             	//TODO: receive filter history from server as well
                  var filterHistory = null;
+                 console.log(response.data);
                  that.allTags = response.data;
                  //apply filter to the list
                  that.initMenu(filterHistory);
@@ -313,15 +314,15 @@ UseradminApp.service('Applications', function($http,Messages, $q, Application){
                 application.hasOwnProperty('timeout_unit')){
                 var timeout = 0;
                 if(application.timeout_unit === 'MONTH(S)'){
-                    timeout = application.timeout_number * 30 * 24 * 60 * 60 * 1000;
+                    timeout = application.timeout_number * 30 * 24 * 60 * 60;
                 } else if(application.timeout_unit === 'DAY(S)'){
-                    timeout = application.timeout_number * 24 * 60 * 60 * 1000;
+                    timeout = application.timeout_number * 24 * 60 * 60;
                 } else if(application.timeout_unit === 'HOUR(S)'){
-                    timeout = application.timeout_number * 60 * 60 * 1000;
+                    timeout = application.timeout_number * 60 * 60;
                 } else if(application.timeout_unit === 'MINUTE(S)'){
-                    timeout = application.timeout_number * 60 * 1000;
+                    timeout = application.timeout_number * 60;
                 } else if(application.timeout_unit === 'SECOND(S)'){
-                    timeout = application.timeout_number * 1000;
+                    timeout = application.timeout_number;
                 }
 
                 if(timeout!=0){
@@ -402,15 +403,15 @@ UseradminApp.service('Applications', function($http,Messages, $q, Application){
         		application.hasOwnProperty('timeout_unit')){
         	var timeout = 0;
         	if(application.timeout_unit === 'MONTH(S)'){
-        		timeout = application.timeout_number * 30 * 24 * 60 * 60 * 1000;
+        		timeout = application.timeout_number * 30 * 24 * 60 * 60 ;
         	} else if(application.timeout_unit === 'DAY(S)'){
-        		timeout = application.timeout_number * 24 * 60 * 60 * 1000;
+        		timeout = application.timeout_number * 24 * 60 * 60;
         	} else if(application.timeout_unit === 'HOUR(S)'){
-        		timeout = application.timeout_number * 60 * 60 * 1000;
+        		timeout = application.timeout_number * 60 * 60;
         	} else if(application.timeout_unit === 'MINUTE(S)'){
-        		timeout = application.timeout_number * 60 * 1000;
+        		timeout = application.timeout_number * 60;
         	} else if(application.timeout_unit === 'SECOND(S)'){
-        		timeout = application.timeout_number * 1000;
+        		timeout = application.timeout_number;
         	} 
         	
         	if(timeout!=0){

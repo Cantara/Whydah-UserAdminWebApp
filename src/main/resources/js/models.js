@@ -59,7 +59,7 @@ UseradminApp.factory('Application', [function () {
                 
                 var ms = this.security.maxSessionTimeoutSeconds;
                 var months, days, hours, mins, secs;
-                secs = Math.floor(ms / 1000);
+                secs = ms;
                 mins = Math.floor(secs / 60);
                 secs = secs % 60;
                 hours = Math.floor(mins / 60);
