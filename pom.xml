@@ -16,7 +16,7 @@
         <whydah.admin.sdk.version>2.6.47</whydah.admin.sdk.version>
         <jersey.version>1.19.4</jersey.version>
         <spring.version>5.3.4</spring.version>
-        <jetty.version>9.4.38.v20210224</jetty.version>
+        <jetty.version>11.0.1</jetty.version>
     </properties>
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/cantara/Whydah-UserAdminWebApp.git</developerConnection>
@@ -205,8 +205,8 @@
                                 </excludes>
                             </artifactSet>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer" />
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer"/>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/spring.schemas</resource>
                                 </transformer>
