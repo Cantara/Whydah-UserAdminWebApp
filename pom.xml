@@ -16,7 +16,7 @@
         <whydah.admin.sdk.version>2.7.4</whydah.admin.sdk.version>
         <jersey.version>1.19.4</jersey.version>
         <spring.version>5.3.7</spring.version>
-        <jetty.version>9.4.41.v20210516</jetty.version>
+        <jetty.version>11.0.3</jetty.version>
     </properties>
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/cantara/Whydah-UserAdminWebApp.git</developerConnection>
