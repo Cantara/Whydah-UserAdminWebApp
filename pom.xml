@@ -15,7 +15,7 @@
         <service.name>Whydah-UserAdminWebapp</service.name>
         <whydah.admin.sdk.version>2.19.3</whydah.admin.sdk.version>
         <jersey.version>1.19.4</jersey.version>
-        <spring.version>5.3.25</spring.version>
+        <spring.version>5.3.26</spring.version>
         <jetty.version>9.4.51.v20230217</jetty.version>
     </properties>
     <scm>
