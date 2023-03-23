@@ -17,6 +17,7 @@
         <jersey.version>1.19.4</jersey.version>
         <spring.version>5.3.26</spring.version>
         <jetty.version>9.4.51.v20230217</jetty.version>
+	<maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/cantara/Whydah-UserAdminWebApp.git</developerConnection>
