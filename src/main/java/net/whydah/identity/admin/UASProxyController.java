@@ -1727,7 +1727,7 @@ public class UASProxyController {
             log.error("export uesers Exception", e);
         }
         setFailureMsg(model, "Unable to export users");
-
+        return JSON_KEY;
     }
 
     @POST
