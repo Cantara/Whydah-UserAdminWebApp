@@ -1715,12 +1715,16 @@ public class UASProxyController {
         //
         // return JSON_KEY;
 
-        CommandExportUsers cmd = new CommandExportUsers(URI.create(userAdminServiceUrl), apptokenid, usertokenid, page);
-        String json = cmd.execute();
-        byte[] resByteArray = cmd.getResponseBodyAsByteArray();
-        int responseCode = cmd.getStatusCode();
-        log.info("export uesers for json : " + json);
-        log.info("export uesers for responseCode : " + responseCode);
+        try {
+            CommandExportUsers cmd = new CommandExportUsers(URI.create(userAdminServiceUrl), apptokenid, usertokenid, page);
+            String json = cmd.execute();
+            byte[] resByteArray = cmd.getResponseBodyAsByteArray();
+            int responseCode = cmd.getStatusCode();
+            log.info("export uesers for json : " + json);
+            log.info("export uesers for responseCode : " + responseCode);
+        } catch (Exception e) {
+            log.error("export uesers Exception", e);
+        }
 
         return handleResponse(response, model, json, resByteArray, responseCode);
     }
