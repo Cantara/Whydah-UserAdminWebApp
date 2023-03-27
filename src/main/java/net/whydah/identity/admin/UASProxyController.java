@@ -1722,11 +1722,12 @@ public class UASProxyController {
             int responseCode = cmd.getStatusCode();
             log.info("export uesers for json : " + json);
             log.info("export uesers for responseCode : " + responseCode);
+            return handleResponse(response, model, json, resByteArray, responseCode);
         } catch (Exception e) {
             log.error("export uesers Exception", e);
         }
+        setFailureMsg(model, "Unable to export users");
 
-        return handleResponse(response, model, json, resByteArray, responseCode);
     }
 
     @POST
