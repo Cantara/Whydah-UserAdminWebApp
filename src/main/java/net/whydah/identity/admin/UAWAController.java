@@ -72,7 +72,7 @@ public class UAWAController {
         	return SessionUserAdminDao.instance.LOGIN_SERVICE_REDIRECT;
            
         } else {
-            if (hasUserAdminRight(userTokenXml, SessionUserAdminDao.instance.UAWA_APPLICATION_ID)) {
+            if (!hasUserAdminRight(userTokenXml, SessionUserAdminDao.instance.UAWA_APPLICATION_ID)) {
                 log.trace("Got user from userTokenXml, but wrong access rights. Redirecting to logout.");
         		CookieManager.clearUserTokenCookie(request, response);
         		addModelParams(model, userTokenXml, UserTokenXpathHelper.getRealName(userTokenXml)); 
