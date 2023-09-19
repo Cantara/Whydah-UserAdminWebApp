@@ -160,7 +160,12 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
             <version>${jetty.version}</version>
-        </dependency>    
+        </dependency>
+        <dependency>
+		    <groupId>net.jodah</groupId>
+		    <artifactId>expiringmap</artifactId>
+		    <version>0.5.10</version>
+		</dependency> 
     </dependencies>
 
     <build>
