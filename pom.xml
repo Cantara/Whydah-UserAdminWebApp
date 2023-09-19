@@ -165,7 +165,12 @@
 		    <groupId>net.jodah</groupId>
 		    <artifactId>expiringmap</artifactId>
 		    <version>0.5.10</version>
-		</dependency> 
+		</dependency>
+		<dependency>
+		    <groupId>com.konghq</groupId>
+		    <artifactId>unirest-java</artifactId>
+		    <version>3.14.5</version>
+		</dependency>
     </dependencies>
 
     <build>

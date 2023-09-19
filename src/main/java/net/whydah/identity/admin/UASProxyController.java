@@ -53,6 +53,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.Unirest;
 import net.jodah.expiringmap.ExpiringMap;
 import net.whydah.identity.ServerRunner;
 import net.whydah.identity.admin.config.AppConfig;
@@ -448,9 +451,14 @@ public class UASProxyController {
         // return JSON_KEY;
 
         // HttpClient replacement
-        CommandGetUserRoles cmd = new CommandGetUserRoles(URI.create(userAdminServiceUrl), apptokenid, usertokenid,
-                uid);
-        return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
+//        CommandGetUserRoles cmd = new CommandGetUserRoles(URI.create(userAdminServiceUrl), apptokenid, apptokenid,
+//                uid);
+//        
+        HttpResponse<String> formResponse= Unirest.get(userAdminServiceUrl +  apptokenid + "/" + apptokenid + "/user" + "/" + uid + "/roles").asString();
+        String json = formResponse.getBody();
+        log.debug("get roles for {} {}", uid, json);
+        return handleResponse(response, model, json, json!=null? json.getBytes():null, response.getStatus());
+       // return handleResponse(response, model, cmd.execute(), cmd.getResponseBodyAsByteArray(), cmd.getStatusCode());
     }
 
     @POST
@@ -1748,26 +1756,31 @@ public class UASProxyController {
             return result;
         }
 
-        log.info("export uesers for page : " + page);
+        log.info("export users for page : " + page);
         // HttpMethod method = new GetMethod();
         // String url = buildUasUrl(apptokenid, usertokenid, "users/export/" + page);
         // makeUasRequest(method, url, model, response);
         //
         // return JSON_KEY;
 
-        try {
-            CommandExportUsers cmd = new CommandExportUsers(URI.create(userAdminServiceUrl), apptokenid, usertokenid, page, 20000);
-            String json = cmd.execute();
-            byte[] resByteArray = cmd.getResponseBodyAsByteArray();
-            int responseCode = cmd.getStatusCode();
-            log.info("export uesers for json : " + json);
-            log.info("export uesers for responseCode : " + responseCode);
-            return handleResponse(response, model, json, resByteArray, responseCode);
-        } catch (Exception e) {
-            log.error("export uesers Exception", e);
-        }
-        setFailureMsg(model, "Unable to export users");
-        return JSON_KEY;
+        HttpResponse<String> fromResponse = Unirest.get(userAdminServiceUrl + "/" + apptokenid + "/" + usertokenid + "/users/export/" + page).asString();
+        String json = fromResponse.getBody();
+        log.debug("export users for json : " + json);
+        return handleResponse(response, model, json, json!=null? json.getBytes():null, response.getStatus());
+        
+//        try {
+//            CommandExportUsers cmd = new CommandExportUsers(URI.create(userAdminServiceUrl), apptokenid, usertokenid, page, 20000);
+//            String json = cmd.execute();
+//            byte[] resByteArray = cmd.getResponseBodyAsByteArray();
+//            int responseCode = cmd.getStatusCode();
+//            log.info("export uesers for json : " + json);
+//            log.info("export uesers for responseCode : " + responseCode);
+//            return handleResponse(response, model, json, resByteArray, responseCode);
+//        } catch (Exception e) {
+//            log.error("export uesers Exception", e);
+//        }
+//        setFailureMsg(model, "Unable to export users");
+//        return JSON_KEY;
     }
 
     @POST
