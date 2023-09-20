@@ -454,7 +454,7 @@ public class UASProxyController {
 //        CommandGetUserRoles cmd = new CommandGetUserRoles(URI.create(userAdminServiceUrl), apptokenid, apptokenid,
 //                uid);
 //        
-        HttpResponse<String> formResponse= Unirest.get(userAdminServiceUrl.replaceFirst("/$", "")  +  apptokenid + "/" + usertokenid + "/user" + "/" + uid + "/roles").asString();
+        HttpResponse<String> formResponse= Unirest.get(userAdminServiceUrl.replaceFirst("/$", "")  + "/" + apptokenid + "/" + usertokenid + "/user/" + uid + "/roles").asString();
         String json = formResponse.getBody();
         log.debug("get roles for {} {}", uid, json);
         return handleResponse(response, model, json, json!=null? json.getBytes():null, response.getStatus());
