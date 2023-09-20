@@ -574,7 +574,7 @@ UseradminApp.service('Users', function($http, Messages, $q, ngProgressFactory){
 
 			callback(response.data.result, response.data.currentPage, response.data.pageSize, response.data.totalItems);
 			
-		
+			
 			if((response.data.currentPage * response.data.pageSize) < response.data.totalItems){
 				
 				that.exportUsers(response.data.currentPage+1, callback);

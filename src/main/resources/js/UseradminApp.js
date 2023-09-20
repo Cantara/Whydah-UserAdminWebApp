@@ -1,5 +1,10 @@
 var UseradminApp = angular.module('UseradminApp', ['ngRoute', 'ngAnimate', 'ui.bootstrap.tooltip', 'autocomplete', 'smart-table', 'ngProgress', 'angularjs-dropdown-multiselect', 'angularUtils.directives.dirPagination', 'imageupload', 'xeditable','angularModalService', 'ui.bootstrap']);
 
+UseradminApp.constant('JSZip', window.JSZip)
+.run(function($rootScope) {
+    $rootScope.JSZip = window.JSZip;
+});
+
 
 UseradminApp.constant('ConstantValues', {
 

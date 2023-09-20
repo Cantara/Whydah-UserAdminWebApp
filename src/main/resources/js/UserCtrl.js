@@ -1,4 +1,4 @@
-UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users, Applications, $interval, uibDateParser) {
+UseradminApp.controller('UserCtrl', ['$scope', '$http', '$routeParams', 'Users', 'Applications', '$interval', 'uibDateParser', function($scope, $http, $routeParams, Users, Applications, $interval, uibDateParser) {
 
 	$scope.session.activeTab = 'user';
 
@@ -214,7 +214,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
                     var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
                     var yyyy = today.getFullYear();
 
-                    today = mm + '/' + dd + '/' + yyyy;
+                    today = mm + '-' + dd + '-' + yyyy;
 					saveAs(blob, "users-selected-" + today+"-"+pad(Users.currentPage, 5) + ".json");
 
 					Users.exporting=false;
@@ -229,6 +229,7 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		if(Users.exprogressbar){
 			Users.exprogressbar.set(0);
 		}
+		var zip = new JSZip();
 
 		Users.exportAllUSers(function(data, pageNumber, pageSize, totalItems){
 
@@ -246,10 +247,10 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
             var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
             var yyyy = today.getFullYear();
 
-            today = mm + '/' + dd + '/' + yyyy;
+            today = mm + '-' + dd + '-' + yyyy;
 
-
-			saveAs(blob, "users-" + today +"-"+ pad(pageNumber, 5) +  ".json");
+			zip.file("users-" + today +"-"+ pad(pageNumber, 5) +  ".json", data);
+			//saveAs(blob, "users-" + today +"-"+ pad(pageNumber, 5) +  ".json");
 
 			if(pageNumber==totalPages){
 				if(Users.exprogressbar){
@@ -257,6 +258,14 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 				}
 				Users.showExProgress=false;
 				Users.exporting=false;
+
+				zip.generateAsync({
+					type: "blob"
+				  })
+				  .then(function(content) {
+					// see FileSaver.js
+					saveAs(content, "users-" + today + ".zip");
+				  });
 			}
 
 
@@ -416,4 +425,4 @@ UseradminApp.controller('UserCtrl', function($scope, $http, $routeParams, Users,
 		Users.pagingQuery();
 	};
 
-});
+}]);
