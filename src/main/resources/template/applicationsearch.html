@@ -58,7 +58,7 @@
 								<img src="images/blank.png" style="max-height: 80px; max-width: 80px;" />
 							</span>
 							<span ng-if="app.logoUrl">
-								<img src="app.logoUrl" style="max-height: 80px; max-width: 80px;" />
+								<img src="{{app.logoUrl}}" style="max-height: 80px; max-width: 80px;" />
 							</span>
 							
 							
@@ -213,7 +213,7 @@
 					
 					                        <div class="fileinput-button" >
 												<span ng-if="application.logoUrl">
-					                            <img src="application.logoUrl" ng-click="editLogo()"
+					                            <img src="{{application.logoUrl}}" ng-click="editLogo()"
 					                                 style="width: 150px; height: auto" />
 												</span>
 												<span ng-if="!application.logoUrl">
