@@ -53,8 +53,11 @@
 						ng-hide="app.isFiltered">
 						<td><label><input type="checkbox"
 								ng-model="app.isSelected"></label></td>
-						<td ng-click="activateApplicationDetail2(app.id)"><img
-							src="{{app.logoUrl}}" style="max-height: 80px; max-width: 80px;" />
+						<td ng-click="activateApplicationDetail2(app.id)">
+							
+							<img 
+							src="{{app.logoUrl || 'images/blank.png'}}" style="max-height: 80px; max-width: 80px;" />
+							
 						</td>
 						<td ng-click="activateApplicationDetail2(app.id)">{{app.id}} <br />
 						<b>{{app.name}}</b></td>
@@ -205,11 +208,12 @@
 					                        <span class="control-label">Application Logo</span> <br/>
 					
 					                        <div class="fileinput-button" >
-					
-					                            <img ng-show="application.logoUrl!=null && application.logoUrl!=''" src="{{application.logoUrl}}" ng-click="editLogo()"
+				
+					                            <img src="{{application.logoUrl || 'images/blank.png'}}" ng-click="editLogo()"
 					                                 style="width: 150px; height: auto" />
-					                            <img ng-show="application.logoUrl==null ||  application.logoUrl===''" src="images/blank.png" ng-click="editLogo()"
-					                                 style="width: 150px; height: auto" />
+					                            <!--
+												<img ng-show="{{application.logoUrl==null ||  application.logoUrl==''}}" src="images/blank.png" ng-click="editLogo()"
+					                                 style="width: 150px; height: auto" />-->
 					                                 
 					                              <div ng-show="form.applicationDetail.$visible">
 					                        			<span class="hint">Please click on the image to edit </span>

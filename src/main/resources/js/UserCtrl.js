@@ -215,7 +215,9 @@ UseradminApp.controller('UserCtrl', ['$scope', '$http', '$routeParams', 'Users',
                     var yyyy = today.getFullYear();
 
                     today = mm + '-' + dd + '-' + yyyy;
+					
 					saveAs(blob, "users-selected-" + today+"-"+pad(Users.currentPage, 5) + ".json");
+					
 
 					Users.exporting=false;
 				}
@@ -249,7 +251,7 @@ UseradminApp.controller('UserCtrl', ['$scope', '$http', '$routeParams', 'Users',
 
             today = mm + '-' + dd + '-' + yyyy;
 
-			zip.file("users-" + today +"-"+ pad(pageNumber, 5) +  ".json", data);
+			zip.file("users-" + today +"-"+ pad(pageNumber, 5) +  ".json", angular.toJson(data));
 			//saveAs(blob, "users-" + today +"-"+ pad(pageNumber, 5) +  ".json");
 
 			if(pageNumber==totalPages){
