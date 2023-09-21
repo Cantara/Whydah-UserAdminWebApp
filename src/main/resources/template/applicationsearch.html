@@ -54,9 +54,13 @@
 						<td><label><input type="checkbox"
 								ng-model="app.isSelected"></label></td>
 						<td ng-click="activateApplicationDetail2(app.id)">
+							<span ng-if="!app.logoUrl">
+								<img src="images/blank.png" style="max-height: 80px; max-width: 80px;" />
+							</span>
+							<span ng-if="app.logoUrl">
+								<img src="app.logoUrl" style="max-height: 80px; max-width: 80px;" />
+							</span>
 							
-							<img 
-							src="{{app.logoUrl || 'images/blank.png'}}" style="max-height: 80px; max-width: 80px;" />
 							
 						</td>
 						<td ng-click="activateApplicationDetail2(app.id)">{{app.id}} <br />
@@ -208,9 +212,14 @@
 					                        <span class="control-label">Application Logo</span> <br/>
 					
 					                        <div class="fileinput-button" >
-				
-					                            <img src="{{application.logoUrl || 'images/blank.png'}}" ng-click="editLogo()"
+												<span ng-if="application.logoUrl">
+					                            <img src="application.logoUrl" ng-click="editLogo()"
 					                                 style="width: 150px; height: auto" />
+												</span>
+												<span ng-if="!application.logoUrl">
+													<img src="images/blank.png" ng-click="editLogo()"
+													style="width: 150px; height: auto" />
+												</span>
 					                            <!--
 												<img ng-show="{{application.logoUrl==null ||  application.logoUrl==''}}" src="images/blank.png" ng-click="editLogo()"
 					                                 style="width: 150px; height: auto" />-->
