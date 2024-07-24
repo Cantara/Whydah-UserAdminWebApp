@@ -16,7 +16,7 @@
         <whydah.admin.sdk.version>2.23.0</whydah.admin.sdk.version>
         <jersey.version>1.19.4</jersey.version>
         <spring.version>5.3.37</spring.version>
-        <jetty.version>9.4.55.v20240627</jetty.version>
+        <jetty.version>11.0.22</jetty.version>
 	<maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
     <scm>
