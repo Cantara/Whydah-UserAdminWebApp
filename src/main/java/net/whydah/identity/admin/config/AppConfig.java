@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
 
@@ -61,7 +60,7 @@ public class AppConfig {
 
     private static Properties loadFromClasspath(String appMode) throws IOException {
         Properties props = new Properties();
-        String propertyfile = String.format("useradminwebapp.%s.properties", appMode);
+        String propertyfile = "useradminwebapp.%s.properties".formatted(appMode);
         log.info("Loading properties from classpath: {}", propertyfile);
         InputStream is = AppConfig.class.getClassLoader().getResourceAsStream(propertyfile);
         if(is == null) {

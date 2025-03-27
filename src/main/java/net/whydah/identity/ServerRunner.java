@@ -14,7 +14,6 @@ import javax.ws.rs.ext.RuntimeDelegate;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 public class ServerRunner {
@@ -101,7 +100,7 @@ public class ServerRunner {
 
 	public static Path getCurrentPath() {
 		return
-				Paths.get(System.getProperty("user.dir")).toAbsolutePath();
+                Path.of(System.getProperty("user.dir")).toAbsolutePath();
 		//Paths.get("").toAbsolutePath();
 	}
 

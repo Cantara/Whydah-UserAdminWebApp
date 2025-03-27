@@ -1,15 +1,14 @@
 package net.whydah.identity.errorhandling;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import javax.ws.rs.WebApplicationException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
+
+import javax.ws.rs.WebApplicationException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 
 @ControllerAdvice
@@ -47,8 +46,8 @@ public class SpringMVCGlocalExceptionHandler {
 	}
 
 	private void setHttpStatus(Throwable ex, ErrorMessage errorMessage) {
-		if(ex instanceof WebApplicationException ) { 
-			errorMessage.setStatus(((WebApplicationException)ex).getResponse().getStatus());
+        if (ex instanceof WebApplicationException exception) {
+            errorMessage.setStatus(exception.getResponse().getStatus());
 		} else {
 			errorMessage.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value()); //defaults to internal server error 500
 		}

@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.whydah.identity</groupId>
     <artifactId>UserAdminWebApp</artifactId>
-    <version>2.27.1-SNAPSHOT</version>
+    <version>2.30.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>UserAdminWebApp</name>
     <url>https://wiki.cantara.no/display/iam/UserAdminWebApp</url>
@@ -12,15 +12,16 @@
         <version>8</version>
     </parent>
     <properties>
+        <jdk.version>21</jdk.version>
         <service.name>Whydah-UserAdminWebapp</service.name>
-        <whydah.admin.sdk.version>2.27.3</whydah.admin.sdk.version>
+        <whydah.admin.sdk.version>2.30.0</whydah.admin.sdk.version>
         <jersey.version>1.19.4</jersey.version>
         <spring.version>5.3.39</spring.version>
         <jetty.version>9.4.57.v20241219</jetty.version>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <maven.compiler.release>11</maven.compiler.release>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
     </properties>
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/cantara/Whydah-UserAdminWebApp.git</developerConnection>
@@ -143,7 +144,7 @@
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>2.3.3</version>
+            <version>2.3.9</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -362,6 +363,14 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0</version> <!-- Use the latest version or the one compatible with your project -->
+                <configuration>
+                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                </configuration>
             </plugin>
         </plugins>
     </build>
