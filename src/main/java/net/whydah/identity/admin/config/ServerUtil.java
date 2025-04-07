@@ -2,7 +2,6 @@ package net.whydah.identity.admin.config;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
