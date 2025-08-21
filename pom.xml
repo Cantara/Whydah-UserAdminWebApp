@@ -14,10 +14,10 @@
     <properties>
         <jdk.version>21</jdk.version>
         <service.name>Whydah-UserAdminWebapp</service.name>
-        <whydah.admin.sdk.version>2.30.0</whydah.admin.sdk.version>
+        <whydah.admin.sdk.version>2.31.2</whydah.admin.sdk.version>
         <jersey.version>1.19.4</jersey.version>
         <spring.version>5.3.39</spring.version>
-        <jetty.version>9.4.57.v20241219</jetty.version>
+        <jetty.version>9.4.58.v20250814</jetty.version>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
