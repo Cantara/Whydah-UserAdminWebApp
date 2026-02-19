@@ -40,17 +40,21 @@ UseradminApp.factory('Application', [function () {
                     this.acl = [];
                 }
                
-                var that = this;
+               
                 angular.forEach(args.acl, function(item, index){
                 	if(item.accessRights==null || typeof item.accessRights =='undefined'){
                 		item.accessRights=[];
                 	}
                     if(item.accessRights.includes('SSO_REDIRECT')){
-                    	that.app_sso_redirect = item.applicationACLPath;
+                    	this.app_sso_redirect = item.applicationACLPath;
                     } else if(item.accessRights.includes('OAUTH2_REDIRECT')){
-                    	that.app_oauth2_redirect = item.applicationACLPath;
+                    	this.app_oauth2_redirect = item.applicationACLPath;
                     }
                 });
+
+                if(!this.app_sso_redirect) {
+                    this.app_sso_redirect = args.applicationUrl;
+                }
                
                 this.organizationNames = args.organizationNames;
                 this.roles = args.roles;
