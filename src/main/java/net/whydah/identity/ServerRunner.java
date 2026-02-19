@@ -1,8 +1,12 @@
 package net.whydah.identity;
 
-import net.whydah.identity.admin.config.AppConfig;
-import net.whydah.identity.admin.config.SSLTool;
-import net.whydah.sso.config.ApplicationMode;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
+
+import javax.ws.rs.ext.RuntimeDelegate;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -10,11 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import javax.ws.rs.ext.RuntimeDelegate;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Properties;
+import com.exoreaction.notification.SlackNotificationFacade;
+
+import net.whydah.identity.admin.config.AppConfig;
+import net.whydah.identity.admin.config.SSLTool;
+import net.whydah.sso.config.ApplicationMode;
 
 public class ServerRunner {
     public static int PORT_NO = 9996;
@@ -77,6 +81,9 @@ public class ServerRunner {
         RuntimeDelegate.setInstance(new
                 com.sun.jersey.server.impl.provider.RuntimeDelegateImpl());
 
+        SlackNotificationFacade.initialize("UAS", ApplicationMode.getApplicationMode());
+        // Send startup success notification
+        SlackNotificationFacade.notifyStartupSuccess(PORT_NO, CONTEXT, ServerRunner.class.getPackage().getImplementationVersion());
        
     }
 
@@ -86,6 +93,8 @@ public class ServerRunner {
 
     public void stop() throws Exception {
         server.stop();
+        //Cleanup Slack service
+        SlackNotificationFacade.shutdown();
     }
 
     public void join() throws InterruptedException {

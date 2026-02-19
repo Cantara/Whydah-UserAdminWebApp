@@ -1,5 +1,6 @@
 package net.whydah.identity.admin;
 
+import com.exoreaction.notification.SlackNotificationFacade;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
