@@ -53,10 +53,14 @@ public class ServerRunner {
 
 
         printConfiguration(AppConfig.readProperties());
-//        WhydahUAWAServiceClient tc = new WhydahUAWAServiceClient();
         log.info("UserAdminWebApp started OK. Version = {},IAM_MODE = {}, url: http://localhost:{}{}/login",
                 version, ApplicationMode.getApplicationMode(), String.valueOf(PORT_NO), CONTEXT);
 
+        
+        SlackNotificationFacade.initialize("UAWA", ApplicationMode.getApplicationMode());
+        // Send startup success notification
+        SlackNotificationFacade.notifyStartupSuccess(PORT_NO, CONTEXT, ServerRunner.class.getPackage().getImplementationVersion());
+        
         serverRunner.join();
 
 	}
@@ -81,9 +85,7 @@ public class ServerRunner {
         RuntimeDelegate.setInstance(new
                 com.sun.jersey.server.impl.provider.RuntimeDelegateImpl());
 
-        SlackNotificationFacade.initialize("UAS", ApplicationMode.getApplicationMode());
-        // Send startup success notification
-        SlackNotificationFacade.notifyStartupSuccess(PORT_NO, CONTEXT, ServerRunner.class.getPackage().getImplementationVersion());
+       
        
     }
 
