@@ -1,0 +1,20 @@
+id: UserAdminWebApp
+name: Whydah User Admin Web Application
+version: 2.30.2-SNAPSHOT
+description: |
+  Web UI for administering users, roles, and applications in the Whydah IAM
+  platform. Provides a browser-based interface for system administrators.
+units:
+  - id: webapp
+    name: Web Application
+    type: webapp
+    description: Stripes/JSP web application providing the admin UI shell and navigation.
+    path: src/main/java/net/whydah/useradmin
+  - id: user-management
+    name: User Management
+    type: component
+    description: User create, edit, and delete workflows including role assignment screens.
+  - id: application-management
+    name: Application Management
+    type: component
+    description: Application and credential management screens for registered Whydah applications.
