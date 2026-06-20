@@ -1,3 +1,17 @@
+kcp_version: "0.21"
+updated: "2026-06-20"
+language: en
+license: "Apache-2.0"
+indexing: private
+temporal:
+  valid_from: "2026-03-10"
+signing:
+  scheme: ed25519
+  scope: this-manifest
+  public_key: "MCowBQYDK2VwAyEAuipgusnqU9vjf3p2yPVLD/DmERT6tBbLOqEETdxAhMU="
+  signature: "https://raw.githubusercontent.com/Cantara/Whydah-UserAdminWebApp/master/knowledge.yaml.sig"
+not_for: []
+
 id: UserAdminWebApp
 name: Whydah User Admin Web Application
 version: 2.30.2-SNAPSHOT
@@ -10,11 +24,20 @@ units:
     type: webapp
     description: Stripes/JSP web application providing the admin UI shell and navigation.
     path: src/main/java/net/whydah/useradmin
+      content_hash:
+        algorithm: sha256
+        value: ""
   - id: user-management
     name: User Management
     type: component
     description: User create, edit, and delete workflows including role assignment screens.
+      content_hash:
+        algorithm: sha256
+        value: ""
   - id: application-management
     name: Application Management
     type: component
     description: Application and credential management screens for registered Whydah applications.
+      content_hash:
+        algorithm: sha256
+        value: ""
