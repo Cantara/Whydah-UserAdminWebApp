@@ -957,12 +957,24 @@ public class UASProxyController {
 
             }
 
-            jsonresult = new CommandGetUserSessionStats(java.net.URI.create(properties.getProperty("statisticsservice")), userid, from, to).execute();
-            if (jsonresult != null) {
-                jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(jsonresult, userid);
+            CommandGetUserSessionStats cmd = new CommandGetUserSessionStats(java.net.URI.create(properties.getProperty("statisticsservice")), userid, from, to);
+            jsonresult = cmd.execute();
+            if (jsonresult == null) {
+                // a failed lookup must not look like "no sessions": the UI shows an empty table for {} and
+                // admins answering data access requests read that as "the user has no session history"
+                boolean timedOut = cmd.isResponseTimedOut();
+                log.warn("getUserLog - statistics lookup failed. userid={}, timedOut={}, statusCode={}", userid, timedOut, cmd.getStatusCode());
+                throw new AppException(timedOut ? HttpStatus.GATEWAY_TIMEOUT : HttpStatus.BAD_GATEWAY, 9999,
+                        "Could not read the session log from the statistics service" + (timedOut ? " (timed out)" : "")
+                                + ". The session history is unknown, not empty. Please try again later.", "", "");
             }
+            jsonresult = UserActivityHelper.getTimedUserSessionsJsonFromUserActivityJson(jsonresult, userid);
+        } catch (AppException e) {
+            throw e;
         } catch (Exception e) {
-            log.warn("Unable to get getUserLog., returning empty json", e);
+            log.warn("Unable to get getUserLog.", e);
+            throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, 9999,
+                    "Could not read the session log. The session history is unknown, not empty.", "", "");
         }
 
         model.addAttribute(JSON_DATA_KEY, jsonresult);
