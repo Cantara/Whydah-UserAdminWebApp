@@ -24,7 +24,11 @@ class InnsynReportTest {
     }
 
     private static InnsynReport report(InnsynReport.Source crm, List<InnsynReport.Source> sessions) {
-        return new InnsynReport("uid-1", "40000000", crm, sessions, Map.of("2215", "1881 App"),
+        return report(crm, null, sessions);
+    }
+
+    private static InnsynReport report(InnsynReport.Source crm, InnsynReport.Source loginStatus, List<InnsynReport.Source> sessions) {
+        return new InnsynReport("uid-1", "40000000", crm, loginStatus, sessions, Map.of("2215", "1881 App"),
                 LocalDate.of(2026, 9, 13), LocalDate.of(2026, 10, 15), Instant.ofEpochMilli(AFTERNOON));
     }
 
@@ -80,5 +84,22 @@ class InnsynReportTest {
     void noCrmProfileIsStatedExplicitly() {
         String html = report(null, List.of(InnsynReport.Source.ok(stats()))).render();
         assertTrue(html.contains("Det er ikke registrert en kundeprofil for denne brukeren."));
+    }
+
+    @Test
+    void registrationAndLastLoginAreShownInNorwegianTime() {
+        // UserStateService stores UTC; 2026-03-01 11:00 UTC is 12:00 in Oslo (winter time)
+        String status = "{\"uid\":\"uid-1\",\"creationTime\":\"2026-03-01T11:00:00\",\"lastLoginTime\":\"2026-10-14T12:05:09.123\"}";
+        String html = report(null, InnsynReport.Source.ok(status), List.of(InnsynReport.Source.ok(stats()))).render();
+        assertTrue(html.contains("<td>Registrert</td><td>2026-03-01 12:00:00</td>"), html);
+        assertTrue(html.contains("<td>Siste innlogging</td><td>2026-10-14 14:05:09</td>"), html);
+    }
+
+    @Test
+    void loginStatusFailureAndUnknownUserAreStated() {
+        String failed = report(null, InnsynReport.Source.failed("innloggingstjenesten svarte ikke"), List.of(InnsynReport.Source.ok(stats()))).render();
+        assertTrue(failed.contains("Kunne ikke hentes: innloggingstjenesten svarte ikke"));
+        String unknown = report(null, null, List.of(InnsynReport.Source.ok(stats()))).render();
+        assertTrue(unknown.contains("Ikke registrert i innloggingstjenesten"));
     }
 }

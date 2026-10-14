@@ -1148,11 +1148,43 @@ public class UASProxyController {
             log.warn("exportInnsyn - could not read application names, showing ids only", e);
         }
 
-        String html = new InnsynReport(uid, username, crm, sessions, applicationNames, from, to, Instant.now()).render();
+        InnsynReport.Source loginStatus = userStateSource(properties, uid);
+
+        String html = new InnsynReport(uid, username, crm, loginStatus, sessions, applicationNames, from, to, Instant.now()).render();
         response.setContentType("text/html;charset=utf-8");
         response.setHeader("Cache-Control", "no-store");
         response.getWriter().write(html);
         return null;
+    }
+
+    /**
+     * Registration and last login time from UserStateService. Returns null when the service has never seen the user.
+     */
+    private static InnsynReport.Source userStateSource(Properties properties, String uid) {
+        String ussUrl = properties.getProperty("userstateservice");
+        String ussToken = properties.getProperty("userstateservice.accesstoken");
+        if (ussUrl == null || ussUrl.isBlank() || ussToken == null || ussToken.isBlank()) {
+            return InnsynReport.Source.failed("innloggingstjenesten er ikke konfigurert");
+        }
+        try {
+            java.net.http.HttpRequest req = java.net.http.HttpRequest.newBuilder(
+                            URI.create(ussUrl.replaceAll("/+$", "") + "/api/" + ussToken + "/user/" + java.net.URLEncoder.encode(uid, java.nio.charset.StandardCharsets.UTF_8)))
+                    .timeout(java.time.Duration.ofSeconds(5)).GET().build();
+            java.net.http.HttpResponse<String> res = java.net.http.HttpClient.newBuilder()
+                    .connectTimeout(java.time.Duration.ofSeconds(5)).build()
+                    .send(req, java.net.http.HttpResponse.BodyHandlers.ofString());
+            if (res.statusCode() == 200) {
+                return InnsynReport.Source.ok(res.body());
+            }
+            if (res.statusCode() == 404) {
+                return null;
+            }
+            log.warn("exportInnsyn - UserStateService returned status {} for uid {}", res.statusCode(), uid);
+            return InnsynReport.Source.failed("innloggingstjenesten svarte med feil (status " + res.statusCode() + ")");
+        } catch (Exception e) {
+            log.warn("exportInnsyn - UserStateService lookup failed for uid {}: {}", uid, e.toString());
+            return InnsynReport.Source.failed("innloggingstjenesten svarte ikke");
+        }
     }
 
     private static InnsynReport.Source statisticsSource(CommandGetUserSessionStats cmd) {

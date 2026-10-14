@@ -58,17 +58,19 @@ public class InnsynReport {
     private final String uid;
     private final String username;
     private final Source crm;
+    private final Source loginStatus;
     private final List<Source> sessionSources;
     private final Map<String, String> applicationNames;
     private final LocalDate from;
     private final LocalDate to;
     private final Instant generatedAt;
 
-    public InnsynReport(String uid, String username, Source crm, List<Source> sessionSources,
+    public InnsynReport(String uid, String username, Source crm, Source loginStatus, List<Source> sessionSources,
                         Map<String, String> applicationNames, LocalDate from, LocalDate to, Instant generatedAt) {
         this.uid = uid;
         this.username = username;
         this.crm = crm;
+        this.loginStatus = loginStatus;
         this.sessionSources = sessionSources;
         this.applicationNames = applicationNames != null ? applicationNames : Map.of();
         this.from = from;
@@ -152,6 +154,7 @@ public class InnsynReport {
         row(html, "Brukernavn", username);
         row(html, "Periode for sesjonshistorikk", DAY.format(from.atStartOfDay(ZONE)) + " til " + DAY.format(to.atStartOfDay(ZONE)));
         row(html, "Rapport laget", TIME.format(generatedAt));
+        renderLoginStatus(html);
         html.append("</table>");
 
         renderCrm(html);
@@ -160,9 +163,42 @@ public class InnsynReport {
         html.append("<h2>Om opplysningene</h2><p class=\"note\">Sesjonshistorikk (innlogginger og bruk av innlogget sesjon) ")
                 .append("lagres i en begrenset periode, normalt én måned, og slettes deretter automatisk. ")
                 .append("Eldre hendelser finnes derfor ikke lenger og kan ikke utleveres. ")
-                .append("Tidspunkter er oppgitt i norsk tid.</p>");
+                .append("Tidspunkter er oppgitt i norsk tid. ")
+                .append("\"Registrert\" er første gang innloggingstjenesten registrerte brukeren. For eldre brukere er det ")
+                .append("datoen brukerne ble overført til tjenesten, og ikke nødvendigvis datoen kontoen ble opprettet.</p>");
         html.append("</body></html>");
         return html.toString();
+    }
+
+    /**
+     * UserStateService stores LocalDateTime in UTC; shown in Norwegian time like everything else in the report.
+     */
+    static String ussTime(String localDateTimeUtc) {
+        if (localDateTimeUtc == null || localDateTimeUtc.isBlank() || "null".equals(localDateTimeUtc)) {
+            return null;
+        }
+        return TIME.format(java.time.LocalDateTime.parse(localDateTimeUtc).atZone(java.time.ZoneOffset.UTC).toInstant());
+    }
+
+    private void renderLoginStatus(StringBuilder html) {
+        if (loginStatus == null) {
+            row(html, "Registrert", "Ikke registrert i innloggingstjenesten");
+            return;
+        }
+        if (loginStatus.failed()) {
+            html.append("<tr><td>Registrert / siste innlogging</td><td class=\"error\">Kunne ikke hentes: ")
+                    .append(esc(loginStatus.error())).append(". Prøv igjen senere.</td></tr>");
+            return;
+        }
+        try {
+            JsonNode status = MAPPER.readTree(loginStatus.json());
+            String created = ussTime(status.path("creationTime").asText(null));
+            String lastLogin = ussTime(status.path("lastLoginTime").asText(null));
+            row(html, "Registrert", created != null ? created : "Ukjent");
+            row(html, "Siste innlogging", lastLogin != null ? lastLogin : "Ukjent");
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Unreadable login status", e);
+        }
     }
 
     private void renderCrm(StringBuilder html) {
