@@ -12,6 +12,7 @@ import net.whydah.identity.admin.config.AppConfig;
 import net.whydah.identity.admin.dao.ConstantValue;
 import net.whydah.identity.admin.dao.SessionUserAdminDao;
 import net.whydah.identity.admin.dao.WhydahUAWAServiceClient;
+import net.whydah.identity.admin.innsyn.InnsynReport;
 import net.whydah.identity.errorhandling.AppException;
 import net.whydah.identity.errorhandling.AppExceptionCode;
 import net.whydah.sso.application.mappers.ApplicationMapper;
@@ -1079,6 +1080,90 @@ public class UASProxyController {
     }
 	
 	*/
+
+    // INNSYN (GDPR access request) report
+    @GET
+    @Produces(MediaType.TEXT_HTML + ";charset=utf-8")
+    @RequestMapping(value = "export/innsyn/{uid}", method = RequestMethod.GET)
+    public String exportInnsyn(@PathVariable("apptokenid") String apptokenid,
+                               @PathVariable("usertokenid") String usertokenid, @PathVariable("uid") String uid,
+                               HttpServletRequest request, HttpServletResponse response, Model model) throws AppException, IOException {
+        String result = checkLogin(usertokenid, request, response, model);
+        if (result != null) {
+            return result;
+        }
+        log.info("exportInnsyn - innsyn report generated for uid={} by usertokenid={}", uid, usertokenid);
+        Properties properties = AppConfig.readProperties();
+
+        String userJson = new CommandGetUser(URI.create(userAdminServiceUrl), apptokenid, usertokenid, uid).execute();
+        if (userJson == null) {
+            throw new AppException(HttpStatus.BAD_GATEWAY, 9999, "Could not read the user, so no innsyn report was made.", "", "");
+        }
+        com.fasterxml.jackson.databind.JsonNode user = new ObjectMapper().readTree(userJson);
+        String username = user.path("username").asText("");
+        String personRef = user.path("personRef").asText("");
+
+        java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Oslo"));
+        java.time.LocalDate from = today.minusDays(31);
+        java.time.LocalDate to = today.plusDays(1);
+        try {
+            if (request.getParameter("from") != null && request.getParameter("to") != null) {
+                from = java.time.LocalDate.parse(request.getParameter("from"));
+                to = java.time.LocalDate.parse(request.getParameter("to"));
+            }
+        } catch (Exception e) {
+            log.warn("exportInnsyn - ignoring unparseable from/to, using the default period");
+        }
+        Instant fromInstant = from.atStartOfDay(java.time.ZoneId.of("Europe/Oslo")).toInstant();
+        Instant toInstant = to.atStartOfDay(java.time.ZoneId.of("Europe/Oslo")).toInstant();
+
+        URI statisticsService = URI.create(properties.getProperty("statisticsservice"));
+        List<InnsynReport.Source> sessions = new ArrayList<>();
+        // STS reports most session events by uid, but "userCreated" by username
+        sessions.add(statisticsSource(new CommandGetUserSessionStats(statisticsService, uid, fromInstant, toInstant)));
+        if (!username.isBlank() && !username.equals(uid)) {
+            sessions.add(statisticsSource(new CommandGetUserSessionStats(statisticsService, username, fromInstant, toInstant)));
+        }
+
+        InnsynReport.Source crm = null;
+        if (!personRef.isBlank()) {
+            CommandGetCRMCustomer crmCmd = new CommandGetCRMCustomer(URI.create(properties.getProperty("crmservice")), apptokenid, usertokenid, personRef);
+            String crmJson = crmCmd.execute();
+            if (crmJson != null) {
+                crm = InnsynReport.Source.ok(crmJson);
+            } else if (crmCmd.getStatusCode() != HttpStatus.NOT_FOUND.value()) {
+                crm = InnsynReport.Source.failed("kundetjenesten svarte ikke (status " + crmCmd.getStatusCode() + ")");
+            }
+        }
+
+        Map<String, String> applicationNames = new HashMap<>();
+        try {
+            String apps = new CommandListApplications(URI.create(userAdminServiceUrl), apptokenid).execute();
+            if (apps != null) {
+                for (com.fasterxml.jackson.databind.JsonNode app : new ObjectMapper().readTree(apps)) {
+                    applicationNames.put(app.path("id").asText(), app.path("name").asText());
+                }
+            }
+        } catch (Exception e) {
+            log.warn("exportInnsyn - could not read application names, showing ids only", e);
+        }
+
+        String html = new InnsynReport(uid, username, crm, sessions, applicationNames, from, to, Instant.now()).render();
+        response.setContentType("text/html;charset=utf-8");
+        response.setHeader("Cache-Control", "no-store");
+        response.getWriter().write(html);
+        return null;
+    }
+
+    private static InnsynReport.Source statisticsSource(CommandGetUserSessionStats cmd) {
+        String json = cmd.execute();
+        if (json != null) {
+            return InnsynReport.Source.ok(json);
+        }
+        return InnsynReport.Source.failed(cmd.isResponseTimedOut()
+                ? "statistikktjenesten svarte ikke i tide"
+                : "statistikktjenesten svarte med feil (status " + cmd.getStatusCode() + ")");
+    }
 
     // USERCRM
     @GET

@@ -138,6 +138,11 @@
                                     ng-click="activateUserCrm(user.uid,user.personRef)">
                                 CRM-info
                             </button>
+                            &nbsp; &nbsp;
+                            <button type="button" class="btn btn-default btn-sm" title="Rapport for innsynsbegjæring (CRM og sesjonshistorikk)"
+                                    ng-click="openInnsynReport(user.uid)">
+                                Innsyn
+                            </button>
                         </td>
 					</tr>
 					<tr ng-if="!users.list.length && searchQuery">

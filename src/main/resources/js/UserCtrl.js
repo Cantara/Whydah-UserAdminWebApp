@@ -122,6 +122,11 @@ UseradminApp.controller('UserCtrl', ['$scope', '$http', '$routeParams', 'Users',
 		});
 	}
 
+	// printable GDPR access request (innsyn) report: CRM customer + session history, opened in a new tab
+	$scope.openInnsynReport = function(uid) {
+		window.open(baseUrl + 'export/innsyn/' + encodeURIComponent(uid), '_blank');
+	}
+
 	$scope.activateUserCrm = function(id,personRef) {
 		console.log('Activating user Crm...', id);
 		Users.showMessage('info', "Loading user Crm. Please wait a moment.");
