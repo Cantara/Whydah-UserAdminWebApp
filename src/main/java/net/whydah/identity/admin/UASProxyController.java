@@ -52,13 +52,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import java.io.*;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -1348,7 +1348,7 @@ public class UASProxyController {
     // public String importUsers(@PathVariable("apptokenid") String apptokenid,
     // @PathVariable("usertokenid") String usertokenid, HttpServletRequest request,
     // HttpServletResponse response, Model model,
-    // @RequestParam CommonsMultipartFile file, @RequestParam String overridenIds,
+    // @RequestParam MultipartFile file, @RequestParam String overridenIds,
     // @RequestParam String skippedIds
     // ) throws IOException, ServletException{
     //
@@ -1596,7 +1596,7 @@ public class UASProxyController {
     @RequestMapping(value = "/importApps", method = RequestMethod.POST)
     public String importApps(@PathVariable("apptokenid") String apptokenid,
                              @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response,
-                             Model model, @RequestParam CommonsMultipartFile file, @RequestParam String overridenIds,
+                             Model model, @RequestParam MultipartFile file, @RequestParam String overridenIds,
                              @RequestParam String skippedIds) throws IOException, ServletException, AppException {
 
         String result = checkLogin(usertokenid, request, response, model);
@@ -1604,7 +1604,7 @@ public class UASProxyController {
             return result;
         }
 
-        String filename = file.getOriginalFilename();
+        String filename = strippedOriginalFilename(file);
         String progressKey = usertokenid + SessionUserAdminDao.instance.getMD5Str(filename).toLowerCase();
         importAppsProgress.put(progressKey, 0);
 
@@ -1766,6 +1766,27 @@ public class UASProxyController {
             return cmd.getStatusCode() == 204;
         }
 
+    }
+
+    /**
+     * The filename with any client-supplied path removed.
+     *
+     * CommonsMultipartFile did this itself - Math.max(lastIndexOf('/'),
+     * lastIndexOf('\\')) then substring - and Spring 6 deleted that class.
+     * StandardServletMultipartResolver returns the raw Content-Disposition
+     * filename instead, path and all; measured against a real upload, commons
+     * returned "bjorn rapport.csv" where the standard resolver returns
+     * "C:\temp\bjorn rapport.csv". saveUploadedFile() concatenates this value
+     * into a path, so keeping the strip is what stops a namespace migration
+     * from widening what an upload is allowed to name.
+     */
+    private static String strippedOriginalFilename(MultipartFile file) {
+        String name = file.getOriginalFilename();
+        if (name == null) {
+            return null;
+        }
+        int pos = Math.max(name.lastIndexOf('/'), name.lastIndexOf('\\'));
+        return name.substring(pos + 1);
     }
 
     private String saveUploadedFile(byte[] fContent, String filename) throws FileNotFoundException, IOException {
@@ -1940,7 +1961,7 @@ public class UASProxyController {
     @RequestMapping(value = "/importUsers", method = RequestMethod.POST)
     public String importUsers(@PathVariable("apptokenid") String apptokenid,
                               @PathVariable("usertokenid") String usertokenid, HttpServletRequest request, HttpServletResponse response,
-                              Model model, @RequestParam CommonsMultipartFile file, @RequestParam String overridenIds,
+                              Model model, @RequestParam MultipartFile file, @RequestParam String overridenIds,
                               @RequestParam String skippedIds, @RequestParam String encryptedFileName)
             throws IOException, ServletException, AppException {
 
@@ -1953,7 +1974,7 @@ public class UASProxyController {
             return result;
         }
 
-        filename = file.getOriginalFilename();
+        filename = strippedOriginalFilename(file);
         content = file.getBytes();
         progressKey = usertokenid + SessionUserAdminDao.instance.getMD5Str(filename).toLowerCase();
         map_importedFileNames.put(encryptedFileName, saveUploadedFile(content, filename)); // save and add to the map
