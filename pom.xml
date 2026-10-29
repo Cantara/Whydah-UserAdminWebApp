@@ -15,13 +15,22 @@
         <jdk.version>21</jdk.version>
         <service.name>Whydah-UserAdminWebapp</service.name>
         <whydah.admin.sdk.version>3.1.1</whydah.admin.sdk.version>
-        <jersey.version>1.19.4</jersey.version>
-        <spring.version>5.3.39</spring.version>
-        <jetty.version>9.4.58.v20250814</jetty.version>
+        <jersey.version>3.1.12</jersey.version>
+        <spring.version>6.2.19</spring.version>
+        <jetty.version>12.1.13</jetty.version>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.compiler.release>21</maven.compiler.release>
+        <!-- Spring 6 needs this to resolve an unnamed @RequestParam. Spring 5's
+             DefaultParameterNameDiscoverer chained
+             LocalVariableTableParameterNameDiscoverer, which read argument names out of
+             the -g debug info; Spring 6 removed that class and chains
+             StandardReflectionParameterNameDiscoverer only, which needs the
+             MethodParameters attribute that -parameters emits. Without it the unnamed
+             @RequestParam arguments on the upload and export handlers fail at request
+             time with "Name for argument of type [...] not specified". -->
+        <maven.compiler.parameters>true</maven.compiler.parameters>
         <exoreaction-slack-notification-library.version>1.0.17</exoreaction-slack-notification-library.version>
         <jackson.version>2.21.5</jackson.version>
     </properties>
@@ -100,24 +109,9 @@
             <version>${whydah.admin.sdk.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey.contribs</groupId>
-            <artifactId>jersey-multipart</artifactId>
-            <version>1.19.4</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.6.0</version>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.21.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-bundle</artifactId>
-            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -146,14 +140,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-            <version>3.1.11</version>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -197,9 +186,9 @@
             <version>${spring.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.freemarker</groupId>
@@ -212,8 +201,8 @@
             <version>${jetty.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
+            <groupId>org.eclipse.jetty.ee10</groupId>
+            <artifactId>jetty-ee10-servlet</artifactId>
             <version>${jetty.version}</version>
         </dependency>
         <dependency>

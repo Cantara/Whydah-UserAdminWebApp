@@ -5,11 +5,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import javax.ws.rs.ext.RuntimeDelegate;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.ws.rs.ext.RuntimeDelegate;
 
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -73,17 +74,19 @@ public class ServerRunner {
     public ServerRunner(int portNo) throws IOException {
         this.PORT_NO = portNo;
         server = new Server(PORT_NO);
-        context = new ServletContextHandler(server, CONTEXT);
+        context = new ServletContextHandler(CONTEXT);
+        server.setHandler(context);
         version = this.getClass().getPackage().getImplementationVersion();
 
 
         DispatcherServlet dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.setContextConfigLocation("classpath:webapp/web/mvc-config.xml");
         ServletHolder servletHolder = new ServletHolder(dispatcherServlet);
+        servletHolder.getRegistration().setMultipartConfig(new MultipartConfigElement(""));
         context.addServlet(servletHolder, "/*");
 
         RuntimeDelegate.setInstance(new
-                com.sun.jersey.server.impl.provider.RuntimeDelegateImpl());
+                org.glassfish.jersey.internal.RuntimeDelegateImpl());
 
        
        
